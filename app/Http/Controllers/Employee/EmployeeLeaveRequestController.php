@@ -134,7 +134,9 @@ class EmployeeLeaveRequestController extends Controller
                 'requested_at' => now(),
             ]);
 
-            foreach ($this->approvalStepsConfig() as $step => $roles) {
+            $requesterRole = $request->user()->role ?? 'employee';
+
+            foreach ($this->approvalStepsConfig($requesterRole) as $step => $roles) {
                 ApprovalStep::create([
                     'approval_id' => $approval->id,
                     'step' => $step,
@@ -179,11 +181,19 @@ class EmployeeLeaveRequestController extends Controller
         ];
     }
 
-    private function approvalStepsConfig(): array
+    private function approvalStepsConfig(string $requesterRole): array
     {
-        return [
-            1 => ['admin', 'superadmin'],
-            2 => ['superadmin'],
-        ];
+        return match ($requesterRole) {
+            'admin' => [
+                1 => ['superadmin'],
+            ],
+            'superadmin' => [
+                1 => ['superadmin'],
+            ],
+            default => [
+                1 => ['admin', 'superadmin'],
+                2 => ['superadmin'],
+            ],
+        };
     }
 }

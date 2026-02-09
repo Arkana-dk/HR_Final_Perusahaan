@@ -27,6 +27,7 @@ type OvertimeRow = {
     employee?: {
         employee_code?: string;
         user?: {
+            id: number;
             name: string;
             email: string;
         };
@@ -43,6 +44,11 @@ type PaginationLink = {
 };
 
 type PageProps = {
+    auth?: {
+        user?: {
+            id?: number | null;
+        } | null;
+    } | null;
     requests: {
         data: OvertimeRow[];
         links: PaginationLink[];
@@ -85,7 +91,8 @@ const statusBadge: Record<string, string> = {
 };
 
 export default function OvertimeIndex() {
-    const { requests, filters, stats } = usePage<PageProps>().props;
+    const { requests, filters, stats, auth } = usePage<PageProps>().props;
+    const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
     const [status, setStatus] = useState(
         filters.status || ALL_OPTION_VALUE,
@@ -105,6 +112,8 @@ export default function OvertimeIndex() {
     };
 
     const rows = useMemo(() => requests.data ?? [], [requests.data]);
+    const isSelfRequest = (row: OvertimeRow) =>
+        currentUserId !== null && row.employee?.user?.id === currentUserId;
     const pagination = requests.links ?? [];
     const prevLink = pagination[0];
     const nextLink = pagination[pagination.length - 1];
@@ -310,7 +319,10 @@ export default function OvertimeIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending'
+                                                            'pending' ||
+                                                            isSelfRequest(
+                                                                request,
+                                                            )
                                                         }
                                                         onClick={() =>
                                                             router.post(
@@ -325,7 +337,10 @@ export default function OvertimeIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending'
+                                                            'pending' ||
+                                                            isSelfRequest(
+                                                                request,
+                                                            )
                                                         }
                                                         onClick={() => {
                                                             const notes =

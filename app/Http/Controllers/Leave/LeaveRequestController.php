@@ -24,7 +24,7 @@ class LeaveRequestController extends Controller
         ];
 
         $query = LeaveRequest::with([
-            'employee.user:id,name,email',
+            'employee.user:id,name,email,role',
             'leaveType:id,name',
             'approvedBy:id,name',
             'approval.steps.approver:id,name',
@@ -93,27 +93,31 @@ class LeaveRequestController extends Controller
     public function approve(Request $request, LeaveRequest $leaveRequest)
     {
         $role = $request->user()->role ?? 'employee';
+        $approverUserId = (int) $request->user()->id;
 
-        DB::transaction(function () use ($leaveRequest, $request, $role) {
+        DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId) {
             $approval = $this->ensureApprovalFlow($leaveRequest);
 
             if (in_array($approval->status, ['approved', 'rejected', 'cancelled'], true)) {
                 return;
             }
 
+            $stepsConfig = $this->approvalStepsConfigFor($leaveRequest);
             $currentStep = $approval->current_step ?? 1;
-            $this->assertRoleForStep($role, $currentStep);
+            $this->assertRoleForStep($role, $currentStep, $stepsConfig);
+            $this->assertNotSelfApproval($approverUserId, $leaveRequest, $approval);
+            $this->assertUniqueApproverByStep($approval, $currentStep, $approverUserId);
 
             $step = $approval->steps()->where('step', $currentStep)->first();
             if ($step && $step->status !== 'approved') {
                 $step->update([
                     'status' => 'approved',
-                    'approver_user_id' => $request->user()->id,
+                    'approver_user_id' => $approverUserId,
                     'decided_at' => now(),
                 ]);
             }
 
-            if ($currentStep < $this->totalApprovalSteps()) {
+            if ($currentStep < count($stepsConfig)) {
                 $approval->update([
                     'status' => 'in_review',
                     'current_step' => $currentStep + 1,
@@ -128,7 +132,7 @@ class LeaveRequestController extends Controller
 
             $leaveRequest->update([
                 'status' => 'approved',
-                'approved_by_user_id' => $request->user()->id,
+                'approved_by_user_id' => $approverUserId,
                 'approved_at' => now(),
             ]);
         });
@@ -139,16 +143,20 @@ class LeaveRequestController extends Controller
     public function reject(Request $request, LeaveRequest $leaveRequest)
     {
         $role = $request->user()->role ?? 'employee';
+        $approverUserId = (int) $request->user()->id;
 
-        DB::transaction(function () use ($leaveRequest, $request, $role) {
+        DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId) {
             $approval = $this->ensureApprovalFlow($leaveRequest);
 
             if (in_array($approval->status, ['approved', 'rejected', 'cancelled'], true)) {
                 return;
             }
 
+            $stepsConfig = $this->approvalStepsConfigFor($leaveRequest);
             $currentStep = $approval->current_step ?? 1;
-            $this->assertRoleForStep($role, $currentStep);
+            $this->assertRoleForStep($role, $currentStep, $stepsConfig);
+            $this->assertNotSelfApproval($approverUserId, $leaveRequest, $approval);
+            $this->assertUniqueApproverByStep($approval, $currentStep, $approverUserId);
 
             $notes = $request->string('notes')->toString();
 
@@ -156,7 +164,7 @@ class LeaveRequestController extends Controller
             if ($step) {
                 $step->update([
                     'status' => 'rejected',
-                    'approver_user_id' => $request->user()->id,
+                    'approver_user_id' => $approverUserId,
                     'decided_at' => now(),
                     'notes' => $notes ?: $step->notes,
                 ]);
@@ -170,7 +178,7 @@ class LeaveRequestController extends Controller
 
             $leaveRequest->update([
                 'status' => 'rejected',
-                'approved_by_user_id' => $request->user()->id,
+                'approved_by_user_id' => $approverUserId,
                 'approved_at' => now(),
                 'approval_notes' => $notes ?: $leaveRequest->approval_notes,
             ]);
@@ -184,11 +192,18 @@ class LeaveRequestController extends Controller
         $approval = $leaveRequest->approval;
         if ($approval) {
             $approval->loadMissing('steps');
-            $this->ensureApprovalSteps($approval);
+            $this->ensureApprovalSteps($leaveRequest, $approval);
+
+            if (!$approval->requested_by_user_id) {
+                $approval->update([
+                    'requested_by_user_id' => $this->requesterUserId($leaveRequest),
+                ]);
+            }
+
             return $approval;
         }
 
-        $requestedBy = $leaveRequest->employee?->user_id;
+        $requestedBy = $this->requesterUserId($leaveRequest);
 
         $approval = $leaveRequest->approval()->create([
             'status' => 'pending',
@@ -197,7 +212,7 @@ class LeaveRequestController extends Controller
             'requested_at' => $leaveRequest->requested_at ?? Carbon::now(),
         ]);
 
-        $this->ensureApprovalSteps($approval);
+        $this->ensureApprovalSteps($leaveRequest, $approval);
 
         $approval->load('steps');
         $leaveRequest->setRelation('approval', $approval);
@@ -205,19 +220,29 @@ class LeaveRequestController extends Controller
         return $approval;
     }
 
-    private function approvalStepsConfig(): array
+    private function approvalStepsConfigFor(LeaveRequest $leaveRequest): array
     {
-        return [
-            1 => ['admin', 'superadmin'],
-            2 => ['superadmin'],
-        ];
+        $requesterRole = $this->requesterRole($leaveRequest);
+
+        return match ($requesterRole) {
+            'admin' => [
+                1 => ['superadmin'],
+            ],
+            'superadmin' => [
+                1 => ['superadmin'],
+            ],
+            default => [
+                1 => ['admin', 'superadmin'],
+                2 => ['superadmin'],
+            ],
+        };
     }
 
-    private function ensureApprovalSteps(Approval $approval): void
+    private function ensureApprovalSteps(LeaveRequest $leaveRequest, Approval $approval): void
     {
         $existing = $approval->steps->keyBy('step');
 
-        foreach ($this->approvalStepsConfig() as $step => $roles) {
+        foreach ($this->approvalStepsConfigFor($leaveRequest) as $step => $roles) {
             if ($existing->has($step)) {
                 continue;
             }
@@ -232,17 +257,58 @@ class LeaveRequestController extends Controller
         $approval->loadMissing('steps');
     }
 
-    private function totalApprovalSteps(): int
+    private function requesterUserId(LeaveRequest $leaveRequest): ?int
     {
-        return count($this->approvalStepsConfig());
+        $leaveRequest->loadMissing('employee');
+
+        return $leaveRequest->employee?->user_id;
     }
 
-    private function assertRoleForStep(string $role, int $step): void
+    private function requesterRole(LeaveRequest $leaveRequest): string
     {
-        $allowed = $this->approvalStepsConfig()[$step] ?? [];
+        $leaveRequest->loadMissing('employee.user:id,role');
+
+        return $leaveRequest->employee?->user?->role ?? 'employee';
+    }
+
+    private function assertRoleForStep(string $role, int $step, array $stepsConfig): void
+    {
+        $allowed = $stepsConfig[$step] ?? [];
 
         if (!in_array($role, $allowed, true)) {
             abort(403, 'Anda tidak memiliki akses untuk approval step ini.');
+        }
+    }
+
+    private function assertNotSelfApproval(
+        int $approverUserId,
+        LeaveRequest $leaveRequest,
+        Approval $approval,
+    ): void {
+        $requesterUserId = $approval->requested_by_user_id ?: $this->requesterUserId($leaveRequest);
+
+        if ($requesterUserId && $requesterUserId === $approverUserId) {
+            abort(403, 'Anda tidak dapat meng-approve pengajuan Anda sendiri.');
+        }
+    }
+
+    private function assertUniqueApproverByStep(
+        Approval $approval,
+        int $currentStep,
+        int $approverUserId,
+    ): void {
+        if ($currentStep <= 1) {
+            return;
+        }
+
+        $alreadyDecided = $approval->steps()
+            ->where('step', '<', $currentStep)
+            ->where('approver_user_id', $approverUserId)
+            ->whereNotNull('decided_at')
+            ->exists();
+
+        if ($alreadyDecided) {
+            abort(403, 'Approver di setiap step harus berbeda pengguna.');
         }
     }
 }

@@ -35,6 +35,7 @@ type AttendanceRow = {
     employee?: {
         employee_code?: string;
         user?: {
+            id: number;
             name: string;
             email: string;
         };
@@ -57,6 +58,11 @@ type PaginationLink = {
 };
 
 type PageProps = {
+    auth?: {
+        user?: {
+            id?: number | null;
+        } | null;
+    } | null;
     logs: {
         data: AttendanceRow[];
         links: PaginationLink[];
@@ -116,7 +122,8 @@ const approvalBadge: Record<string, string> = {
 };
 
 export default function AttendanceIndex() {
-    const { logs, filters, stats } = usePage<PageProps>().props;
+    const { logs, filters, stats, auth } = usePage<PageProps>().props;
+    const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
     const [status, setStatus] = useState(
         filters.status || ALL_OPTION_VALUE,
@@ -150,6 +157,8 @@ export default function AttendanceIndex() {
     const total = logs.meta?.total ?? logs.total ?? 0;
 
     const rows = useMemo(() => logs.data ?? [], [logs.data]);
+    const isSelfLog = (row: AttendanceRow) =>
+        currentUserId !== null && row.employee?.user?.id === currentUserId;
 
     return (
         <AppLayout>
@@ -446,7 +455,8 @@ export default function AttendanceIndex() {
                                                             size="sm"
                                                             disabled={
                                                                 log.approval_status !==
-                                                                'pending'
+                                                                'pending' ||
+                                                                isSelfLog(log)
                                                             }
                                                             onClick={() =>
                                                                 router.post(
@@ -461,7 +471,8 @@ export default function AttendanceIndex() {
                                                             size="sm"
                                                             disabled={
                                                                 log.approval_status !==
-                                                                'pending'
+                                                                'pending' ||
+                                                                isSelfLog(log)
                                                             }
                                                             onClick={() => {
                                                                 const notes =

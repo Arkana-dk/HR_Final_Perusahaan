@@ -67,6 +67,15 @@ class ReimburseController extends Controller
     public function approve(Request $request, ReimburseRequest $reimburse)
     {
         DB::transaction(function () use ($reimburse, $request) {
+            if ($reimburse->status !== 'pending') {
+                return;
+            }
+
+            $reimburse->loadMissing('employee:id,user_id');
+            if ((int) ($reimburse->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve pengajuan reimburse Anda sendiri.');
+            }
+
             $reimburse->update([
                 'status' => 'approved',
                 'approved_by_user_id' => $request->user()->id,
@@ -80,6 +89,15 @@ class ReimburseController extends Controller
     public function reject(Request $request, ReimburseRequest $reimburse)
     {
         DB::transaction(function () use ($reimburse, $request) {
+            if ($reimburse->status !== 'pending') {
+                return;
+            }
+
+            $reimburse->loadMissing('employee:id,user_id');
+            if ((int) ($reimburse->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve pengajuan reimburse Anda sendiri.');
+            }
+
             $reimburse->update([
                 'status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,

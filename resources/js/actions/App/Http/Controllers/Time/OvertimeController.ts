@@ -158,7 +158,7 @@ approve.post = (args: { overtime: number | { id: number } } | [overtime: number 
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\Time\OvertimeController::reject
- * @see app/Http/Controllers/Time/OvertimeController.php:80
+ * @see app/Http/Controllers/Time/OvertimeController.php:89
  * @route '/modules/overtime/{overtime}/reject'
  */
 export const reject = (args: { overtime: number | { id: number } } | [overtime: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -173,7 +173,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Time\OvertimeController::reject
- * @see app/Http/Controllers/Time/OvertimeController.php:80
+ * @see app/Http/Controllers/Time/OvertimeController.php:89
  * @route '/modules/overtime/{overtime}/reject'
  */
 reject.url = (args: { overtime: number | { id: number } } | [overtime: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -206,7 +206,7 @@ reject.url = (args: { overtime: number | { id: number } } | [overtime: number | 
 
 /**
 * @see \App\Http\Controllers\Time\OvertimeController::reject
- * @see app/Http/Controllers/Time/OvertimeController.php:80
+ * @see app/Http/Controllers/Time/OvertimeController.php:89
  * @route '/modules/overtime/{overtime}/reject'
  */
 reject.post = (args: { overtime: number | { id: number } } | [overtime: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -216,7 +216,7 @@ reject.post = (args: { overtime: number | { id: number } } | [overtime: number |
 
     /**
 * @see \App\Http\Controllers\Time\OvertimeController::reject
- * @see app/Http/Controllers/Time/OvertimeController.php:80
+ * @see app/Http/Controllers/Time/OvertimeController.php:89
  * @route '/modules/overtime/{overtime}/reject'
  */
     const rejectForm = (args: { overtime: number | { id: number } } | [overtime: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -226,7 +226,7 @@ reject.post = (args: { overtime: number | { id: number } } | [overtime: number |
 
             /**
 * @see \App\Http\Controllers\Time\OvertimeController::reject
- * @see app/Http/Controllers/Time/OvertimeController.php:80
+ * @see app/Http/Controllers/Time/OvertimeController.php:89
  * @route '/modules/overtime/{overtime}/reject'
  */
         rejectForm.post = (args: { overtime: number | { id: number } } | [overtime: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

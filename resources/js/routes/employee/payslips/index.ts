@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
 export const downloadLatest = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ downloadLatest.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
 downloadLatest.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ downloadLatest.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
 downloadLatest.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ downloadLatest.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
 downloadLatest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ downloadLatest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
     /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
     const downloadLatestForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ downloadLatest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
 
             /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
         downloadLatestForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ downloadLatest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => 
         })
             /**
 * @see \App\Http\Controllers\Employee\EmployeePayslipController::downloadLatest
- * @see [unknown]:0
+ * @see app/Http/Controllers/Employee/EmployeePayslipController.php:12
  * @route '/employee/payslips/latest/download'
  */
         downloadLatestForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

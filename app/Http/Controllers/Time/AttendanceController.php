@@ -74,6 +74,15 @@ class AttendanceController extends Controller
     public function approve(Request $request, AttendanceLog $attendance)
     {
         DB::transaction(function () use ($attendance, $request) {
+            if ($attendance->approval_status !== 'pending') {
+                return;
+            }
+
+            $attendance->loadMissing('employee:id,user_id');
+            if ((int) ($attendance->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve presensi Anda sendiri.');
+            }
+
             $attendance->update([
                 'approval_status' => 'approved',
                 'approved_by_user_id' => $request->user()->id,
@@ -87,6 +96,15 @@ class AttendanceController extends Controller
     public function reject(Request $request, AttendanceLog $attendance)
     {
         DB::transaction(function () use ($attendance, $request) {
+            if ($attendance->approval_status !== 'pending') {
+                return;
+            }
+
+            $attendance->loadMissing('employee:id,user_id');
+            if ((int) ($attendance->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve presensi Anda sendiri.');
+            }
+
             $attendance->update([
                 'approval_status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,

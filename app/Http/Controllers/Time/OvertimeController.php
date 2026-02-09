@@ -67,6 +67,15 @@ class OvertimeController extends Controller
     public function approve(Request $request, OvertimeRequest $overtime)
     {
         DB::transaction(function () use ($overtime, $request) {
+            if ($overtime->status !== 'pending') {
+                return;
+            }
+
+            $overtime->loadMissing('employee:id,user_id');
+            if ((int) ($overtime->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve pengajuan lembur Anda sendiri.');
+            }
+
             $overtime->update([
                 'status' => 'approved',
                 'approved_by_user_id' => $request->user()->id,
@@ -80,6 +89,15 @@ class OvertimeController extends Controller
     public function reject(Request $request, OvertimeRequest $overtime)
     {
         DB::transaction(function () use ($overtime, $request) {
+            if ($overtime->status !== 'pending') {
+                return;
+            }
+
+            $overtime->loadMissing('employee:id,user_id');
+            if ((int) ($overtime->employee?->user_id ?? 0) === (int) $request->user()->id) {
+                abort(403, 'Anda tidak dapat meng-approve pengajuan lembur Anda sendiri.');
+            }
+
             $overtime->update([
                 'status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,

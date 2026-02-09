@@ -29,8 +29,10 @@ type LeaveRequestRow = {
     employee?: {
         employee_code?: string;
         user?: {
+            id: number;
             name: string;
             email: string;
+            role?: string;
         };
     } | null;
     leave_type?: {
@@ -46,6 +48,7 @@ type LeaveRequestRow = {
             step: number;
             status: string;
             approver?: {
+                id: number;
                 name: string;
             } | null;
         }>;
@@ -61,6 +64,7 @@ type PaginationLink = {
 type PageProps = {
     auth?: {
         user?: {
+            id?: number | null;
             role?: string | null;
         } | null;
     } | null;
@@ -114,6 +118,7 @@ export default function LeaveRequestIndex() {
     const { auth, requests, filters, stats, leaveTypes } =
         usePage<PageProps>().props;
     const role = auth?.user?.role ?? 'employee';
+    const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
     const [status, setStatus] = useState(
         filters.status || ALL_OPTION_VALUE,
@@ -147,10 +152,29 @@ export default function LeaveRequestIndex() {
     const rows = useMemo(() => requests.data ?? [], [requests.data]);
     const totalSteps = (row: LeaveRequestRow) =>
         row.approval?.steps?.length ?? 2;
-    const canApproveStep = (step: number) => {
+    const canApproveStep = (step: number, row: LeaveRequestRow) => {
+        const requesterRole = row.employee?.user?.role ?? 'employee';
+
+        if (requesterRole === 'admin' || requesterRole === 'superadmin') {
+            return step === 1 && role === 'superadmin';
+        }
+
         if (step === 1) return role === 'admin' || role === 'superadmin';
         if (step === 2) return role === 'superadmin';
         return false;
+    };
+    const isSelfRequest = (row: LeaveRequestRow) =>
+        currentUserId !== null && row.employee?.user?.id === currentUserId;
+    const hasDecidedPreviousStep = (row: LeaveRequestRow) => {
+        if (currentUserId === null) return false;
+
+        const currentStep = row.approval?.current_step ?? 1;
+        return (row.approval?.steps ?? []).some(
+            (step) =>
+                step.step < currentStep &&
+                step.approver?.id === currentUserId &&
+                step.status !== 'pending',
+        );
     };
 
     return (
@@ -433,10 +457,17 @@ export default function LeaveRequestIndex() {
                                                         disabled={
                                                             request.status !==
                                                             'pending' ||
+                                                            isSelfRequest(
+                                                                request,
+                                                            ) ||
+                                                            hasDecidedPreviousStep(
+                                                                request,
+                                                            ) ||
                                                             !canApproveStep(
                                                                 request.approval
                                                                     ?.current_step ??
                                                                     1,
+                                                                request,
                                                             )
                                                         }
                                                         onClick={() =>
@@ -453,10 +484,17 @@ export default function LeaveRequestIndex() {
                                                         disabled={
                                                             request.status !==
                                                             'pending' ||
+                                                            isSelfRequest(
+                                                                request,
+                                                            ) ||
+                                                            hasDecidedPreviousStep(
+                                                                request,
+                                                            ) ||
                                                             !canApproveStep(
                                                                 request.approval
                                                                     ?.current_step ??
                                                                     1,
+                                                                request,
                                                             )
                                                         }
                                                         onClick={() => {
