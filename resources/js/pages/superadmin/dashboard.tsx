@@ -1,6 +1,14 @@
 import { Head, Link, usePage } from '@inertiajs/react';
-import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import {
+    Bell,
+    ClipboardCheck,
+    ShieldCheck,
+    UserCheck,
+    Users,
+    Wallet,
+} from 'lucide-react';
+import { useMemo, useState } from 'react';
 import {
     Area,
     AreaChart,
@@ -13,14 +21,6 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import {
-    Bell,
-    ClipboardCheck,
-    ShieldCheck,
-    UserCheck,
-    Users,
-    Wallet,
-} from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import {
     EmployeeQuickDialog,
@@ -494,8 +494,10 @@ export default function SuperAdminDashboard() {
                                     </Badge>
                                 </div>
                             ))}
-                            <Button variant="outline" className="w-full">
-                                Lihat Semua Approval
+                            <Button variant="outline" className="w-full" asChild>
+                                <Link href="/modules/leave-requests">
+                                    Lihat Semua Approval
+                                </Link>
                             </Button>
                         </CardContent>
                     </Card>
@@ -523,8 +525,8 @@ export default function SuperAdminDashboard() {
                                 <p className="text-xs text-muted-foreground">
                                     3 event perlu review hari ini.
                                 </p>
-                                <Button variant="secondary" size="sm">
-                                    Lihat Audit
+                                <Button variant="secondary" size="sm" asChild>
+                                    <Link href="/modules/audit-logs">Lihat Audit</Link>
                                 </Button>
                             </div>
                         </CardContent>

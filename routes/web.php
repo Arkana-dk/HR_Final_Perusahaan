@@ -8,6 +8,7 @@ use App\Http\Controllers\Documents\EmployeeDocumentController;
 use App\Http\Controllers\Employee\AttendanceController as EmployeeAttendanceController;
 use App\Http\Controllers\Employee\EmployeeLeaveRequestController;
 use App\Http\Controllers\Employee\EmployeeOvertimeController;
+use App\Http\Controllers\Employee\EmployeePayslipController;
 use App\Http\Controllers\Employee\EmployeeReimburseController;
 use App\Http\Controllers\Employees\EmployeeController;
 use App\Http\Controllers\Finance\ReimburseController;
@@ -456,6 +457,9 @@ Route::middleware(['auth', 'role:employee,admin,superadmin'])->prefix('employee'
         ->name('employee.leave-requests.index');
     Route::post('leave-requests', [EmployeeLeaveRequestController::class, 'store'])
         ->name('employee.leave-requests.store');
+
+    Route::get('payslips/latest/download', [EmployeePayslipController::class, 'downloadLatest'])
+        ->name('employee.payslips.download-latest');
 
     Route::get('overtime', [EmployeeOvertimeController::class, 'index'])
         ->name('employee.overtime.index');

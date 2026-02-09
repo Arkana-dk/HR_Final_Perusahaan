@@ -1,5 +1,11 @@
-import { Head } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import {
+    CalendarDays,
+    ClipboardCheck,
+    UserCheck,
+    Wallet,
+} from 'lucide-react';
 import {
     Bar,
     BarChart,
@@ -11,12 +17,6 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import {
-    CalendarDays,
-    ClipboardCheck,
-    UserCheck,
-    Wallet,
-} from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -126,10 +126,20 @@ export default function EmployeeDashboard() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <Button>Ajukan Cuti</Button>
-                            <Button variant="outline">Unduh Slip</Button>
-                            <Button variant="secondary">
-                                Check-In Cepat
+                            <Button asChild>
+                                <Link href="/employee/leave-requests">
+                                    Ajukan Cuti
+                                </Link>
+                            </Button>
+                            <Button variant="outline" asChild>
+                                <a href="/employee/payslips/latest/download">
+                                    Unduh Slip
+                                </a>
+                            </Button>
+                            <Button variant="secondary" asChild>
+                                <Link href="/employee/attendance">
+                                    Check-In Cepat
+                                </Link>
                             </Button>
                         </div>
                     </div>

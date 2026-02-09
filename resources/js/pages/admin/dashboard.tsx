@@ -1,5 +1,12 @@
-import { Head, usePage } from '@inertiajs/react';
+import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
+import {
+    CalendarCheck,
+    ClipboardList,
+    UserCheck,
+    Users,
+    Wallet,
+} from 'lucide-react';
 import {
     Bar,
     BarChart,
@@ -12,13 +19,6 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import {
-    CalendarCheck,
-    ClipboardList,
-    UserCheck,
-    Users,
-    Wallet,
-} from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import {
     EmployeeQuickDialog,
@@ -142,11 +142,15 @@ export default function AdminDashboard() {
                         </div>
                         <div className="flex flex-wrap gap-2">
                             <EmployeeQuickDialog role="admin" data={employeeQuick} />
-                            <Button variant="outline">
-                                Import Absensi
+                            <Button variant="outline" asChild>
+                                <Link href="/modules/attendance">
+                                    Import Absensi
+                                </Link>
                             </Button>
-                            <Button variant="secondary">
-                                Review Payroll
+                            <Button variant="secondary" asChild>
+                                <Link href="/modules/analytics">
+                                    Review Payroll
+                                </Link>
                             </Button>
                         </div>
                     </div>

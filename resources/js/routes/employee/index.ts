@@ -1,6 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 import attendance from './attendance'
 import leaveRequests from './leave-requests'
+import payslips from './payslips'
 import overtime from './overtime'
 import reimburse from './reimburse'
 /**
@@ -84,6 +85,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 const employee = {
     attendance: Object.assign(attendance, attendance),
 leaveRequests: Object.assign(leaveRequests, leaveRequests),
+payslips: Object.assign(payslips, payslips),
 overtime: Object.assign(overtime, overtime),
 reimburse: Object.assign(reimburse, reimburse),
 dashboard: Object.assign(dashboard, dashboard),
