@@ -14,13 +14,29 @@ Human Resources management system built with Laravel 12, Inertia, and React (Vit
 - Node.js 18+ and npm
 - SQLite (default) or a configured database
 
-## Setup
+## Installation
 ```bash
+# 1) Install backend dependencies
 composer install
+
+# 2) Create environment file
 cp .env.example .env
+
+# 3) Generate app key
 php artisan key:generate
+
+# 4) Prepare database (SQLite by default)
 php artisan migrate
+
+# 5) Install frontend dependencies
 npm install
+```
+
+## Configuration
+- Default database is SQLite. Update DB settings in `.env` if you use MySQL/PostgreSQL.
+- If you use storage features, you may need a public link:
+```bash
+php artisan storage:link
 ```
 
 ## Run (development)
