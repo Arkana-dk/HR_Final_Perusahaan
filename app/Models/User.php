@@ -24,6 +24,7 @@ class User extends Authenticatable
         'email',
         'password',
         'role',
+        'is_active',
     ];
 
     /**
@@ -49,6 +50,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'two_factor_confirmed_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
     }
 
@@ -75,5 +77,71 @@ class User extends Authenticatable
     public function approvedLeaveRequests()
     {
         return $this->hasMany(LeaveRequest::class, 'approved_by_user_id');
+    }
+
+    public function hrNotifications()
+    {
+        return $this->hasMany(SystemNotification::class, 'user_id');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class);
+    }
+
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function announcementsCreated()
+    {
+        return $this->hasMany(Announcement::class, 'created_by_user_id');
+    }
+
+    public function hasRole(string $role): bool
+    {
+        $normalizedRole = match ($role) {
+            'super_admin', 'super-admin' => 'superadmin',
+            'hr_admin', 'hr-admin' => 'admin',
+            'atasan' => 'manager',
+            default => $role,
+        };
+
+        if ($this->role === $normalizedRole) {
+            return true;
+        }
+
+        if (!$this->relationLoaded('roles')) {
+            $this->load('roles:id,slug');
+        }
+
+        return $this->roles->contains(fn ($item) => $item->slug === $normalizedRole);
+    }
+
+    /**
+     * @param  string[]  $roles
+     */
+    public function hasAnyRole(array $roles): bool
+    {
+        foreach ($roles as $role) {
+            if ($this->hasRole($role)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function hasPermission(string $permission): bool
+    {
+        if ($this->hasRole('superadmin')) {
+            return true;
+        }
+
+        return Permission::query()
+            ->where('slug', $permission)
+            ->whereHas('roles.users', fn ($query) => $query->where('users.id', $this->id))
+            ->exists();
     }
 }

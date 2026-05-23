@@ -1,6 +1,6 @@
+import { Link, useForm, usePage } from '@inertiajs/react';
 import type { FormEventHandler } from 'react';
 import { useMemo, useState } from 'react';
-import { Link, useForm, usePage } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

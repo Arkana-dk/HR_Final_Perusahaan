@@ -1,6 +1,6 @@
+import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import type { FormEventHandler } from 'react';
 import { useMemo } from 'react';
-import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -153,11 +153,16 @@ export default function PayslipForm() {
 
     const updateItem = (index: number, key: keyof PayslipItem, value: string) => {
         const next = [...data.items];
-        next[index] = { ...next[index], [key]: value };
+        const current = next[index];
+        if (!current) {
+            return;
+        }
 
-        if (key === 'component_id' && next[index].amount === '') {
+        next[index] = { ...current, [key]: value };
+
+        if (key === 'component_id' && current.amount === '') {
             const component = componentMap.get(value);
-            if (component?.default_amount !== null) {
+            if (component && component.default_amount !== null) {
                 next[index].amount = String(component.default_amount ?? '');
             }
         }

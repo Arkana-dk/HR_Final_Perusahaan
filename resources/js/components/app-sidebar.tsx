@@ -1,5 +1,4 @@
 ﻿import { Link, usePage } from '@inertiajs/react';
-import { useMemo } from 'react';
 import {
     BarChart3,
     BookOpen,
@@ -23,6 +22,7 @@ import {
     Users,
     Wallet,
 } from 'lucide-react';
+import { useMemo } from 'react';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
 import { NavUser } from '@/components/nav-user';
@@ -266,11 +266,11 @@ export function AppSidebar() {
     const filteredSections = useMemo(() => {
         const isModuleRestricted = (href: unknown) => {
             if (!href) return false;
-            const hrefValue =
+            const hrefValue: string =
                 typeof href === 'string'
                     ? href
                     : typeof (href as { url?: string }).url === 'string'
-                      ? (href as { url?: string }).url
+                      ? ((href as { url?: string }).url ?? '')
                       : '';
 
             if (!hrefValue.startsWith('/modules/')) return false;
@@ -290,7 +290,7 @@ export function AppSidebar() {
                     }
 
                     if (role === 'superadmin') return true;
-                    if (role === 'admin') {
+                    if (role === 'admin' || role === 'manager') {
                         return !isModuleRestricted(item.href);
                     }
                     return !String(item.href).startsWith('/modules/');

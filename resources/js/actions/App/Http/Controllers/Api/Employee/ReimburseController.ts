@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::index
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:18
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:28
  * @route '/api/v1/employee/reimburse/requests'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
 export const show = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
 show.url = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ show.url = (args: { reimburseRequest: number | { id: number } } | [reimburseRequ
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
 show.get = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ show.get = (args: { reimburseRequest: number | { id: number } } | [reimburseRequ
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
 show.head = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ show.head = (args: { reimburseRequest: number | { id: number } } | [reimburseReq
 
     /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
     const showForm = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ show.head = (args: { reimburseRequest: number | { id: number } } | [reimburseReq
 
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
         showForm.get = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ show.head = (args: { reimburseRequest: number | { id: number } } | [reimburseReq
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::show
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:62
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:74
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}'
  */
         showForm.head = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -181,7 +181,7 @@ show.head = (args: { reimburseRequest: number | { id: number } } | [reimburseReq
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::store
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:73
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:86
  * @route '/api/v1/employee/reimburse/requests'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,7 +196,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::store
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:73
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:86
  * @route '/api/v1/employee/reimburse/requests'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -205,7 +205,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::store
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:73
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:86
  * @route '/api/v1/employee/reimburse/requests'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::store
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:73
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:86
  * @route '/api/v1/employee/reimburse/requests'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::store
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:73
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:86
  * @route '/api/v1/employee/reimburse/requests'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -236,7 +236,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::cancel
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:111
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:151
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}/cancel'
  */
 export const cancel = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -251,7 +251,7 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::cancel
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:111
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:151
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}/cancel'
  */
 cancel.url = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -284,7 +284,7 @@ cancel.url = (args: { reimburseRequest: number | { id: number } } | [reimburseRe
 
 /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::cancel
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:111
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:151
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}/cancel'
  */
 cancel.post = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -294,7 +294,7 @@ cancel.post = (args: { reimburseRequest: number | { id: number } } | [reimburseR
 
     /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::cancel
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:111
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:151
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}/cancel'
  */
     const cancelForm = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -304,7 +304,7 @@ cancel.post = (args: { reimburseRequest: number | { id: number } } | [reimburseR
 
             /**
 * @see \App\Http\Controllers\Api\Employee\ReimburseController::cancel
- * @see app/Http/Controllers/Api/Employee/ReimburseController.php:111
+ * @see app/Http/Controllers/Api/Employee/ReimburseController.php:151
  * @route '/api/v1/employee/reimburse/requests/{reimburseRequest}/cancel'
  */
         cancelForm.post = (args: { reimburseRequest: number | { id: number } } | [reimburseRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

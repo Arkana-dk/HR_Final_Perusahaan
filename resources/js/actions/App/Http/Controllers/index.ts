@@ -10,6 +10,7 @@ import Assets from './Assets'
 import Contracts from './Contracts'
 import Documents from './Documents'
 import Payroll from './Payroll'
+import NotificationController from './NotificationController'
 import Modules from './Modules'
 import SuperAdmin from './SuperAdmin'
 import Admin from './Admin'
@@ -27,6 +28,7 @@ Assets: Object.assign(Assets, Assets),
 Contracts: Object.assign(Contracts, Contracts),
 Documents: Object.assign(Documents, Documents),
 Payroll: Object.assign(Payroll, Payroll),
+NotificationController: Object.assign(NotificationController, NotificationController),
 Modules: Object.assign(Modules, Modules),
 SuperAdmin: Object.assign(SuperAdmin, SuperAdmin),
 Admin: Object.assign(Admin, Admin),

@@ -156,7 +156,7 @@ function TwoFactorVerificationStep({
 
     return (
         <Form
-            {...confirm.form()}
+            {...confirm()}
             onSuccess={() => onClose()}
             resetOnError
             resetOnSuccess
@@ -345,3 +345,4 @@ export default function TwoFactorSetupModal({
         </Dialog>
     );
 }
+

@@ -1,4 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
+import { ClipboardCheck, Users, UserCheck, Wallet } from 'lucide-react';
 import {
     Area,
     AreaChart,
@@ -11,7 +12,6 @@ import {
     XAxis,
     YAxis,
 } from 'recharts';
-import { ClipboardCheck, Users, UserCheck, Wallet } from 'lucide-react';
 import { MetricCard } from '@/components/dashboard/metric-card';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';

@@ -1,6 +1,7 @@
+import { router, useForm } from '@inertiajs/react';
 import type { FormEvent } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { router, useForm } from '@inertiajs/react';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,7 +21,6 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import InputError from '@/components/input-error';
 
 type Option = {
     id: number;

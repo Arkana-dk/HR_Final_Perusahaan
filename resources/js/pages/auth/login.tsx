@@ -1,14 +1,14 @@
-import type { FormEventHandler } from 'react';
-import { useState } from 'react';
 import { Head, Link, useForm } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import { Building2, Eye, EyeOff, Lock, Mail } from 'lucide-react';
+import { useState } from 'react';
+import type { FormEventHandler } from 'react';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { request } from '@/routes/password';
 import { store } from '@/routes/login';
+import { request } from '@/routes/password';
 
 type Props = {
     status?: string;
@@ -26,7 +26,7 @@ export default function Login({ status, canResetPassword }: Props) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-        post(store(), {
+        post(store.url(), {
             onFinish: () => reset('password'),
         });
     };

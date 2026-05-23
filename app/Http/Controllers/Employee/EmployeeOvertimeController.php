@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\OvertimeRequest;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -13,6 +15,12 @@ use Inertia\Inertia;
 
 class EmployeeOvertimeController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $employee = Employee::with('company:id,name')
@@ -64,8 +72,9 @@ class EmployeeOvertimeController extends Controller
 
         $totalHours = round($start->diffInMinutes($end) / 60, 2);
 
-        DB::transaction(function () use ($employee, $data, $totalHours) {
-            OvertimeRequest::create([
+        $overtimeRequest = null;
+        DB::transaction(function () use (&$overtimeRequest, $employee, $data, $totalHours) {
+            $overtimeRequest = OvertimeRequest::create([
                 'employee_id' => $employee->id,
                 'work_date' => $data['work_date'],
                 'start_time' => $data['start_time'],
@@ -77,7 +86,33 @@ class EmployeeOvertimeController extends Controller
             ]);
         });
 
-        return back();
+        if ($overtimeRequest) {
+            $employee->loadMissing('manager');
+            $reference = $this->notificationService->buildReference($overtimeRequest);
+
+            $this->notificationService->notifyApprovalAudience($employee, [
+                ...$reference,
+                'type' => 'overtime.request.created',
+                'title' => 'Pengajuan Lembur Baru',
+                'message' => sprintf(
+                    '%s mengajukan lembur pada %s (%s - %s).',
+                    $request->user()->name,
+                    Carbon::parse($overtimeRequest->work_date)->format('Y-m-d'),
+                    $overtimeRequest->start_time,
+                    $overtimeRequest->end_time,
+                ),
+            ]);
+
+            $this->auditLogService->fromRequest($request, 'overtime_requests', 'overtime.create.web', [
+                'subject' => 'overtime_request',
+                'reference_type' => $overtimeRequest::class,
+                'reference_id' => $overtimeRequest->id,
+                'notes' => 'Pengajuan lembur dibuat dari web self-service.',
+                'after_data' => $overtimeRequest->toArray(),
+            ]);
+        }
+
+        return back()->with('success', 'Pengajuan lembur berhasil dikirim.');
     }
 
     private function paginationPayload(LengthAwarePaginator $paginator): array

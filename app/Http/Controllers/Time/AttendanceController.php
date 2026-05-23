@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Time;
 
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class AttendanceController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $filters = [
@@ -73,6 +81,7 @@ class AttendanceController extends Controller
 
     public function approve(Request $request, AttendanceLog $attendance)
     {
+        $before = $attendance->toArray();
         DB::transaction(function () use ($attendance, $request) {
             if ($attendance->approval_status !== 'pending') {
                 return;
@@ -90,11 +99,36 @@ class AttendanceController extends Controller
             ]);
         });
 
+        $attendance->refresh();
+        if ($attendance->approval_status === 'approved') {
+            $requesterUserId = (int) ($attendance->employee?->user_id ?? 0);
+            $reference = $this->notificationService->buildReference($attendance);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'attendance.approval.approved',
+                    'title' => 'Koreksi Presensi Disetujui',
+                    'message' => 'Permintaan presensi Anda telah disetujui.',
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'attendance_logs', 'attendance.approve', [
+                'subject' => 'attendance_log',
+                'reference_type' => $attendance::class,
+                'reference_id' => $attendance->id,
+                'notes' => 'Presensi disetujui.',
+                'before_data' => $before,
+                'after_data' => $attendance->toArray(),
+            ]);
+        }
+
         return back();
     }
 
     public function reject(Request $request, AttendanceLog $attendance)
     {
+        $before = $attendance->toArray();
         DB::transaction(function () use ($attendance, $request) {
             if ($attendance->approval_status !== 'pending') {
                 return;
@@ -112,6 +146,33 @@ class AttendanceController extends Controller
                 'notes' => $request->string('notes')->toString() ?: $attendance->notes,
             ]);
         });
+
+        $attendance->refresh();
+        if ($attendance->approval_status === 'rejected') {
+            $requesterUserId = (int) ($attendance->employee?->user_id ?? 0);
+            $reference = $this->notificationService->buildReference($attendance);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'attendance.approval.rejected',
+                    'title' => 'Koreksi Presensi Ditolak',
+                    'message' => 'Permintaan presensi Anda ditolak.',
+                    'meta' => [
+                        'notes' => $attendance->notes,
+                    ],
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'attendance_logs', 'attendance.reject', [
+                'subject' => 'attendance_log',
+                'reference_type' => $attendance::class,
+                'reference_id' => $attendance->id,
+                'notes' => 'Presensi ditolak.',
+                'before_data' => $before,
+                'after_data' => $attendance->toArray(),
+            ]);
+        }
 
         return back();
     }

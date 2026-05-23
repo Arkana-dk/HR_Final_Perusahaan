@@ -5,6 +5,13 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 
 type Column = {
@@ -68,8 +75,10 @@ export default function MasterDataIndex() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { data, setData, post, processing, errors, reset } = useForm<{
         file: File | null;
+        duplicate_mode: 'update' | 'skip' | 'error';
     }>({
         file: null,
+        duplicate_mode: 'update',
     });
 
     const filteredRows = useMemo(() => {
@@ -93,7 +102,7 @@ export default function MasterDataIndex() {
 
     const submitImport = () => {
         if (!data.file) {
-            alert('Pilih file CSV terlebih dahulu.');
+            alert('Pilih file import terlebih dahulu (CSV/XLSX).');
             return;
         }
 
@@ -132,16 +141,16 @@ export default function MasterDataIndex() {
                                 <Link href={createUrl}>Tambah Baru</Link>
                             </Button>
                             <Button variant="ghost" asChild>
-                                <a href={templateUrl}>Download Template CSV</a>
+                                <a href={templateUrl}>Download Template Excel</a>
                             </Button>
                             <Button variant="outline" asChild>
-                                <a href={exportUrl}>Export Excel (CSV)</a>
+                                <a href={exportUrl}>Export Excel</a>
                             </Button>
                             <div className="flex flex-wrap items-center gap-2">
                                 <Input
                                     ref={fileInputRef}
                                     type="file"
-                                    accept=".csv"
+                                    accept=".csv,.txt,.xlsx,.xls"
                                     className="max-w-[220px]"
                                     onChange={(event) =>
                                         setData(
@@ -150,6 +159,30 @@ export default function MasterDataIndex() {
                                         )
                                     }
                                 />
+                                <Select
+                                    value={data.duplicate_mode}
+                                    onValueChange={(value) =>
+                                        setData(
+                                            'duplicate_mode',
+                                            value as 'update' | 'skip' | 'error',
+                                        )
+                                    }
+                                >
+                                    <SelectTrigger className="w-[180px]">
+                                        <SelectValue placeholder="Mode duplikat" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="update">
+                                            Update Duplikat
+                                        </SelectItem>
+                                        <SelectItem value="skip">
+                                            Lewati Duplikat
+                                        </SelectItem>
+                                        <SelectItem value="error">
+                                            Error Jika Duplikat
+                                        </SelectItem>
+                                    </SelectContent>
+                                </Select>
                                 <Button
                                     variant="secondary"
                                     onClick={submitImport}
@@ -157,14 +190,14 @@ export default function MasterDataIndex() {
                                 >
                                     {processing
                                         ? 'Mengimpor...'
-                                        : 'Import Excel (CSV)'}
+                                        : 'Import File'}
                                 </Button>
                             </div>
                         </div>
                     </div>
                     {templateColumns.length > 0 && (
                         <p className="mt-3 text-xs text-muted-foreground">
-                            Kolom CSV: {templateColumns.join(', ')}
+                            Template memiliki baris 1 (header), baris 2 (contoh), dan validasi dropdown untuk kolom tertentu. Kolom internal: {templateColumns.join(', ')}
                         </p>
                     )}
                     <InputError message={errors.file} />

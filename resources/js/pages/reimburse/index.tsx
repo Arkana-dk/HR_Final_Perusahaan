@@ -85,7 +85,7 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, string> = {
+const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -418,3 +418,4 @@ export default function ReimburseIndex() {
         </AppLayout>
     );
 }
+

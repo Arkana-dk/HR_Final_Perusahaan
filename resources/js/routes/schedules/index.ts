@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
 export const template = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ template.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
 template.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ template.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
 template.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ template.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
 template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
     const templateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
         templateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:170
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:266
  * @route '/modules/schedules/template'
  */
         templateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     template.form = templateForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:137
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:206
  * @route '/modules/schedules/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     exportMethod.form = exportMethodForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:189
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:338
  * @route '/modules/schedules/import'
  */
 export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ importMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:189
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:338
  * @route '/modules/schedules/import'
  */
 importMethod.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ importMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:189
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:338
  * @route '/modules/schedules/import'
  */
 importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:189
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:338
  * @route '/modules/schedules/import'
  */
     const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:189
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:338
  * @route '/modules/schedules/import'
  */
         importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     importMethod.form = importMethodForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -236,7 +236,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -245,7 +245,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -255,7 +255,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -265,7 +265,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -274,7 +274,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::index
- * @see app/Http/Controllers/MasterData/MasterDataController.php:34
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:47
  * @route '/modules/schedules'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -290,7 +290,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -305,7 +305,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -314,7 +314,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -323,7 +323,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -333,7 +333,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -343,7 +343,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -352,7 +352,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::create
- * @see app/Http/Controllers/MasterData/MasterDataController.php:58
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:71
  * @route '/modules/schedules/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -368,7 +368,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::store
- * @see app/Http/Controllers/MasterData/MasterDataController.php:74
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:87
  * @route '/modules/schedules'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -383,7 +383,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::store
- * @see app/Http/Controllers/MasterData/MasterDataController.php:74
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:87
  * @route '/modules/schedules'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -392,7 +392,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::store
- * @see app/Http/Controllers/MasterData/MasterDataController.php:74
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:87
  * @route '/modules/schedules'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -402,7 +402,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::store
- * @see app/Http/Controllers/MasterData/MasterDataController.php:74
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:87
  * @route '/modules/schedules'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -412,7 +412,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::store
- * @see app/Http/Controllers/MasterData/MasterDataController.php:74
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:87
  * @route '/modules/schedules'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -423,7 +423,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
 export const edit = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -438,7 +438,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
 edit.url = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -466,7 +466,7 @@ edit.url = (args: { record: string | number } | [record: string | number ] | str
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
 edit.get = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -475,7 +475,7 @@ edit.get = (args: { record: string | number } | [record: string | number ] | str
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
 edit.head = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -485,7 +485,7 @@ edit.head = (args: { record: string | number } | [record: string | number ] | st
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
     const editForm = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -495,7 +495,7 @@ edit.head = (args: { record: string | number } | [record: string | number ] | st
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
         editForm.get = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -504,7 +504,7 @@ edit.head = (args: { record: string | number } | [record: string | number ] | st
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::edit
- * @see app/Http/Controllers/MasterData/MasterDataController.php:89
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:106
  * @route '/modules/schedules/{record}/edit'
  */
         editForm.head = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -520,7 +520,7 @@ edit.head = (args: { record: string | number } | [record: string | number ] | st
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::update
- * @see app/Http/Controllers/MasterData/MasterDataController.php:108
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:125
  * @route '/modules/schedules/{record}'
  */
 export const update = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -535,7 +535,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::update
- * @see app/Http/Controllers/MasterData/MasterDataController.php:108
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:125
  * @route '/modules/schedules/{record}'
  */
 update.url = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -563,7 +563,7 @@ update.url = (args: { record: string | number } | [record: string | number ] | s
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::update
- * @see app/Http/Controllers/MasterData/MasterDataController.php:108
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:125
  * @route '/modules/schedules/{record}'
  */
 update.put = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -573,7 +573,7 @@ update.put = (args: { record: string | number } | [record: string | number ] | s
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::update
- * @see app/Http/Controllers/MasterData/MasterDataController.php:108
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:125
  * @route '/modules/schedules/{record}'
  */
     const updateForm = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -588,7 +588,7 @@ update.put = (args: { record: string | number } | [record: string | number ] | s
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::update
- * @see app/Http/Controllers/MasterData/MasterDataController.php:108
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:125
  * @route '/modules/schedules/{record}'
  */
         updateForm.put = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -604,7 +604,7 @@ update.put = (args: { record: string | number } | [record: string | number ] | s
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::destroy
- * @see app/Http/Controllers/MasterData/MasterDataController.php:125
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:146
  * @route '/modules/schedules/{record}'
  */
 export const destroy = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -619,7 +619,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::destroy
- * @see app/Http/Controllers/MasterData/MasterDataController.php:125
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:146
  * @route '/modules/schedules/{record}'
  */
 destroy.url = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions) => {
@@ -647,7 +647,7 @@ destroy.url = (args: { record: string | number } | [record: string | number ] | 
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::destroy
- * @see app/Http/Controllers/MasterData/MasterDataController.php:125
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:146
  * @route '/modules/schedules/{record}'
  */
 destroy.delete = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -657,7 +657,7 @@ destroy.delete = (args: { record: string | number } | [record: string | number ]
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::destroy
- * @see app/Http/Controllers/MasterData/MasterDataController.php:125
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:146
  * @route '/modules/schedules/{record}'
  */
     const destroyForm = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -672,7 +672,7 @@ destroy.delete = (args: { record: string | number } | [record: string | number ]
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::destroy
- * @see app/Http/Controllers/MasterData/MasterDataController.php:125
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:146
  * @route '/modules/schedules/{record}'
  */
         destroyForm.delete = (args: { record: string | number } | [record: string | number ] | string | number, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -32,7 +32,10 @@ class AttendanceLog extends Model
         'approval_status',
         'late_minutes',
         'overtime_minutes',
+        'is_early_leave',
+        'early_leave_reason',
         'notes',
+        'source',
         'approved_by_user_id',
         'approved_at',
     ];
@@ -49,6 +52,7 @@ class AttendanceLog extends Model
         'check_out_distance_meters' => 'integer',
         'late_minutes' => 'integer',
         'overtime_minutes' => 'integer',
+        'is_early_leave' => 'boolean',
         'approved_at' => 'datetime',
         'approval_status' => 'string',
     ];
@@ -81,5 +85,10 @@ class AttendanceLog extends Model
     public function approval()
     {
         return $this->morphOne(Approval::class, 'approvable');
+    }
+
+    public function corrections()
+    {
+        return $this->hasMany(AttendanceCorrection::class, 'attendance_log_id');
     }
 }

@@ -16,18 +16,31 @@ use App\Models\PayrollPeriod;
 use App\Models\Position;
 use App\Models\Appraisal;
 use App\Models\AuditLog;
+use App\Models\AttendanceLog;
 use App\Models\KpiOkr;
 use App\Models\SalaryComponent;
 use App\Models\Shift;
 use App\Models\Training;
 use App\Models\WorkLocation;
 use App\Models\WorkSchedule;
+use App\Models\EmployeeProfile;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
+use PhpOffice\PhpSpreadsheet\Cell\Coordinate;
+use PhpOffice\PhpSpreadsheet\Cell\DataValidation;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class MasterDataController extends Controller
 {
@@ -78,6 +91,10 @@ class MasterDataController extends Controller
 
         $validated = $request->validate($this->rulesFor($resource));
 
+        if ($resource === 'schedules') {
+            $this->assertScheduleNoConflict($validated);
+        }
+
         DB::transaction(function () use ($resource, $validated) {
             $model = $this->modelFor($resource);
             $model::create($validated);
@@ -115,6 +132,10 @@ class MasterDataController extends Controller
 
         $validated = $request->validate($this->rulesFor($resource, $item));
 
+        if ($resource === 'schedules') {
+            $this->assertScheduleNoConflict($validated, $item);
+        }
+
         DB::transaction(function () use ($item, $validated) {
             $item->update($validated);
         });
@@ -129,7 +150,55 @@ class MasterDataController extends Controller
 
         $model = $this->modelFor($resource);
         $item = $model::findOrFail($record);
+
+        if ($resource === 'departments') {
+            $hasActiveEmployees = $item->employees()
+                ->where('is_active', true)
+                ->whereNotIn('employment_status', ['resign', 'terminated'])
+                ->exists();
+
+            if ($hasActiveEmployees) {
+                $item->update(['is_active' => false]);
+
+                return back()->withErrors([
+                    'delete' => 'Departemen memiliki karyawan aktif. Status diubah menjadi nonaktif.',
+                ]);
+            }
+        }
+
+        if ($resource === 'positions') {
+            $hasActiveEmployees = $item->employees()
+                ->where('is_active', true)
+                ->whereNotIn('employment_status', ['resign', 'terminated'])
+                ->exists();
+
+            if ($hasActiveEmployees) {
+                $item->update(['is_active' => false]);
+
+                return back()->withErrors([
+                    'delete' => 'Jabatan memiliki karyawan aktif. Status diubah menjadi nonaktif.',
+                ]);
+            }
+        }
+
         $item->delete();
+
+        return redirect()->to($config['basePath']);
+    }
+
+    public function restore(Request $request, string $resource, string $record)
+    {
+        $config = $this->config($resource);
+        $this->ensureAccess($request, $config);
+
+        $model = $this->modelFor($resource);
+        $item = $model::withTrashed()->findOrFail($record);
+
+        $item->restore();
+
+        if ($item->isFillable('is_active')) {
+            $item->update(['is_active' => true]);
+        }
 
         return redirect()->to($config['basePath']);
     }
@@ -139,32 +208,59 @@ class MasterDataController extends Controller
         $config = $this->config($resource);
         $this->ensureAccess($request, $config);
 
+        if ($request->string('format')->toString() === 'csv') {
+            return $this->exportCsv($resource);
+        }
+
+        $fields = $this->fieldsFor($resource);
         $columns = $this->importColumns($resource);
         $rows = $this->listQuery($resource)->get();
-        $filename = sprintf('%s-%s.csv', $resource, now()->format('Ymd_His'));
+        $filename = sprintf('%s-%s.xlsx', $resource, now()->format('Ymd_His'));
 
-        $callback = function () use ($resource, $columns, $rows) {
-            $output = fopen('php://output', 'w');
-            fputcsv($output, $columns);
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle(Str::limit(strtoupper($resource), 31, ''));
 
-            foreach ($rows as $row) {
-                $record = $this->recordData($resource, $row);
-                $data = [];
+        $lastColumn = Coordinate::stringFromColumnIndex(max(1, count($columns)));
+        $sheet->mergeCells("A1:{$lastColumn}1");
+        $sheet->setCellValue('A1', strtoupper($config['title']).' REPORT');
+        $sheet->setCellValue('A2', 'Company: '.config('app.name'));
+        $sheet->setCellValue('A3', 'Exported at: '.now()->format('Y-m-d H:i:s'));
 
-                foreach ($columns as $column) {
-                    $value = $record[$column] ?? data_get($row, $column);
-                    $data[] = $this->formatValueForExport($resource, $column, $value);
-                }
+        $headerRow = 5;
+        foreach ($fields as $index => $field) {
+            $column = Coordinate::stringFromColumnIndex($index + 1);
+            $label = $field['label'].(!empty($field['required']) ? ' *' : '');
+            $sheet->setCellValue($column.$headerRow, $label);
+        }
 
-                fputcsv($output, $data);
+        $rowPointer = $headerRow + 1;
+        foreach ($rows as $row) {
+            $record = $this->recordData($resource, $row);
+            foreach ($columns as $index => $columnName) {
+                $value = $record[$columnName] ?? data_get($row, $columnName);
+                $sheet->setCellValue(
+                    Coordinate::stringFromColumnIndex($index + 1).$rowPointer,
+                    $this->formatValueForExport($resource, $columnName, $value),
+                );
             }
+            $rowPointer++;
+        }
 
-            fclose($output);
-        };
+        $sheet->getStyle("A1:{$lastColumn}1")->getFont()->setBold(true)->setSize(13);
+        $sheet->getStyle("A{$headerRow}:{$lastColumn}{$headerRow}")->getFont()->setBold(true);
+        $sheet->getStyle("A{$headerRow}:{$lastColumn}{$headerRow}")
+            ->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()
+            ->setARGB('FFE6EEF9');
 
-        return response()->streamDownload($callback, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        foreach (range(1, count($columns)) as $colIndex) {
+            $column = Coordinate::stringFromColumnIndex($colIndex);
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        return $this->downloadSpreadsheet($spreadsheet, $filename);
     }
 
     public function template(Request $request, string $resource)
@@ -172,18 +268,71 @@ class MasterDataController extends Controller
         $config = $this->config($resource);
         $this->ensureAccess($request, $config);
 
+        if ($request->string('format')->toString() === 'csv') {
+            return $this->templateCsv($resource);
+        }
+
+        $fields = $this->fieldsFor($resource);
         $columns = $this->importColumns($resource);
-        $filename = sprintf('%s-template.csv', $resource);
+        $example = $this->templateExampleValues($resource, $columns);
+        $exampleByColumn = $columns !== [] ? (array_combine($columns, $example) ?: []) : [];
+        $filename = sprintf('%s-template.xlsx', $resource);
 
-        $callback = function () use ($columns) {
-            $output = fopen('php://output', 'w');
-            fputcsv($output, $columns);
-            fclose($output);
-        };
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Template');
 
-        return response()->streamDownload($callback, $filename, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
-        ]);
+        foreach ($fields as $index => $field) {
+            $column = Coordinate::stringFromColumnIndex($index + 1);
+            $header = $field['label'].(!empty($field['required']) ? ' *' : '');
+            $sheet->setCellValue($column.'1', $header);
+            $sheet->setCellValue($column.'2', $exampleByColumn[$field['name']] ?? null);
+
+            $comment = $sheet->getComment($column.'1');
+            $comment->getText()->createTextRun($this->templateColumnComment($field));
+            $comment->setAuthor('HR System');
+
+            if (($field['type'] ?? 'text') === 'select' || ($field['type'] ?? 'text') === 'boolean') {
+                $validationValues = $this->fieldValidationValues($field);
+                if ($validationValues !== []) {
+                    $formula = '"'.implode(',', array_map(
+                        fn ($value) => str_replace('"', '""', $value),
+                        $validationValues,
+                    )).'"';
+
+                    foreach (range(3, 500) as $row) {
+                        $validation = $sheet->getCell($column.$row)->getDataValidation();
+                        $validation->setType(DataValidation::TYPE_LIST);
+                        $validation->setErrorStyle(DataValidation::STYLE_STOP);
+                        $validation->setAllowBlank(!$field['required']);
+                        $validation->setShowInputMessage(true);
+                        $validation->setShowErrorMessage(true);
+                        $validation->setShowDropDown(true);
+                        $validation->setErrorTitle('Nilai tidak valid');
+                        $validation->setError('Pilih nilai sesuai daftar.');
+                        $validation->setPromptTitle($field['label']);
+                        $validation->setPrompt($this->templateColumnComment($field));
+                        $validation->setFormula1($formula);
+                    }
+                }
+            }
+        }
+
+        $lastColumn = Coordinate::stringFromColumnIndex(max(1, count($fields)));
+        $sheet->getStyle("A1:{$lastColumn}1")->getFont()->setBold(true);
+        $sheet->getStyle("A1:{$lastColumn}1")
+            ->getFill()
+            ->setFillType(Fill::FILL_SOLID)
+            ->getStartColor()
+            ->setARGB('FFF2F5FA');
+        $sheet->setCellValue('A3', 'Isi data mulai baris 3. Gunakan format tanggal YYYY-MM-DD dan jam HH:mm.');
+
+        foreach (range(1, count($fields)) as $colIndex) {
+            $column = Coordinate::stringFromColumnIndex($colIndex);
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+
+        return $this->downloadSpreadsheet($spreadsheet, $filename);
     }
 
     public function import(Request $request, string $resource)
@@ -191,53 +340,45 @@ class MasterDataController extends Controller
         $config = $this->config($resource);
         $this->ensureAccess($request, $config);
 
+        if ($resource === 'employees') {
+            return $this->importEmployees($request);
+        }
+
+        if ($resource === 'attendance-logs') {
+            return $this->importAttendanceLogs($request);
+        }
+
         $request->validate([
-            'file' => ['required', 'file', 'mimes:csv,txt'],
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
+            'duplicate_mode' => ['nullable', Rule::in(['update', 'skip', 'error'])],
         ]);
 
-        $file = $request->file('file');
-        $handle = fopen($file->getRealPath(), 'r');
+        [$columns, $rowsData] = $this->extractRowsFromFile($request->file('file'));
+        $mappedColumns = $this->resolveImportColumns($resource, $columns);
 
-        if ($handle === false) {
+        if ($mappedColumns['missing'] !== []) {
             return back()->withErrors([
-                'file' => 'File tidak dapat dibaca.',
+                'file' => 'Kolom wajib belum lengkap: '.implode(', ', $mappedColumns['missing']),
             ]);
         }
 
-        $header = fgetcsv($handle);
-        if (!$header) {
-            fclose($handle);
-            return back()->withErrors([
-                'file' => 'Header CSV tidak ditemukan.',
-            ]);
-        }
-
-        $columns = array_map('trim', $header);
         $expected = $this->importColumns($resource);
-        $missing = array_diff($expected, $columns);
-
-        if ($missing) {
-            fclose($handle);
-            return back()->withErrors([
-                'file' => 'Kolom wajib belum lengkap: '.implode(', ', $missing),
-            ]);
-        }
-
         $rules = $this->rulesFor($resource);
         $model = $this->modelFor($resource);
         $rows = [];
+        $duplicateMode = $request->string('duplicate_mode')->toString() ?: 'update';
         $line = 1;
 
-        while (($values = fgetcsv($handle)) !== false) {
+        foreach ($rowsData as $values) {
             $line++;
             $record = [];
 
-            foreach ($columns as $index => $column) {
-                if (!in_array($column, $expected, true)) {
+            foreach ($mappedColumns['indexed'] as $index => $columnName) {
+                if (!in_array($columnName, $expected, true)) {
                     continue;
                 }
 
-                $record[$column] = $values[$index] ?? null;
+                $record[$columnName] = $values[$index] ?? null;
             }
 
             $record = $this->normalizeImportRow($resource, $record);
@@ -246,9 +387,12 @@ class MasterDataController extends Controller
                 continue;
             }
 
+            if ($this->isTemplateExampleRow($resource, $record, $expected)) {
+                continue;
+            }
+
             $validator = Validator::make($record, $rules);
             if ($validator->fails()) {
-                fclose($handle);
                 $message = collect($validator->errors()->all())->implode(', ');
                 return back()->withErrors([
                     'file' => "Baris {$line}: {$message}",
@@ -258,18 +402,28 @@ class MasterDataController extends Controller
             $rows[] = $validator->validated();
         }
 
-        fclose($handle);
-
         if (!$rows) {
             return back()->withErrors([
                 'file' => 'Tidak ada data untuk diimport.',
             ]);
         }
 
-        DB::transaction(function () use ($model, $resource, $rows) {
+        DB::transaction(function () use ($model, $resource, $rows, $duplicateMode) {
             foreach ($rows as $row) {
                 $unique = $this->uniqueKeysForImport($resource, $row);
                 if ($unique) {
+                    $existing = $model::query()->where($unique)->first();
+
+                    if ($duplicateMode === 'skip' && $existing) {
+                        continue;
+                    }
+
+                    if ($duplicateMode === 'error' && $existing) {
+                        throw ValidationException::withMessages([
+                            'file' => 'Ditemukan data duplikat pada mode error-only import.',
+                        ]);
+                    }
+
                     $model::updateOrCreate($unique, $row);
                     continue;
                 }
@@ -283,9 +437,16 @@ class MasterDataController extends Controller
 
     private function ensureAccess(Request $request, array $config): void
     {
-        $role = $request->user()?->role ?? 'employee';
+        $user = $request->user();
+        if (!$user) {
+            abort(403, 'Unauthorized access.');
+        }
 
-        if (!in_array($role, $config['roles'], true)) {
+        $allowedRoles = $config['roles'] ?? [];
+        $isAllowed = collect($allowedRoles)
+            ->contains(fn ($role) => $user->hasRole((string) $role));
+
+        if (!$isAllowed) {
             abort(403, 'Unauthorized access.');
         }
     }
@@ -301,6 +462,8 @@ class MasterDataController extends Controller
             'work-locations' => WorkLocation::class,
             'shifts' => Shift::class,
             'leave-types' => LeaveType::class,
+            'employees' => Employee::class,
+            'attendance-logs' => AttendanceLog::class,
             'salary-components' => SalaryComponent::class,
             'payroll-periods' => PayrollPeriod::class,
             'schedules' => WorkSchedule::class,
@@ -419,6 +582,34 @@ class MasterDataController extends Controller
                 ],
                 'roles' => ['admin', 'superadmin'],
                 'basePath' => '/modules/leave-types',
+            ],
+            'employees' => [
+                'title' => 'Employees Import/Export',
+                'description' => 'Template dan import data karyawan.',
+                'columns' => [
+                    ['key' => 'employee_code', 'label' => 'Employee ID'],
+                    ['key' => 'name', 'label' => 'Nama'],
+                    ['key' => 'email', 'label' => 'Email'],
+                    ['key' => 'department', 'label' => 'Departemen'],
+                    ['key' => 'position', 'label' => 'Jabatan'],
+                    ['key' => 'status', 'label' => 'Status'],
+                ],
+                'roles' => ['admin', 'superadmin'],
+                'basePath' => '/modules/employees',
+            ],
+            'attendance-logs' => [
+                'title' => 'Attendance Import/Export',
+                'description' => 'Template dan import presensi manual.',
+                'columns' => [
+                    ['key' => 'employee_code', 'label' => 'Employee ID'],
+                    ['key' => 'work_date', 'label' => 'Tanggal'],
+                    ['key' => 'check_in_at', 'label' => 'Jam Masuk'],
+                    ['key' => 'check_out_at', 'label' => 'Jam Pulang'],
+                    ['key' => 'status', 'label' => 'Status'],
+                    ['key' => 'source', 'label' => 'Sumber'],
+                ],
+                'roles' => ['admin', 'superadmin'],
+                'basePath' => '/modules/attendance',
             ],
             'salary-components' => [
                 'title' => 'Salary Components',
@@ -572,6 +763,11 @@ class MasterDataController extends Controller
             'work-locations' => WorkLocation::with(['company:id,name', 'branch:id,name'])->orderBy('name'),
             'shifts' => Shift::with('company:id,name')->orderBy('name'),
             'leave-types' => LeaveType::with('company:id,name')->orderBy('name'),
+            'employees' => Employee::with(['user:id,name,email', 'department:id,name', 'position:id,title'])
+                ->orderBy('employee_code'),
+            'attendance-logs' => AttendanceLog::with(['employee.user:id,name', 'shift:id,name'])
+                ->orderByDesc('work_date')
+                ->orderByDesc('check_in_at'),
             'salary-components' => SalaryComponent::with('company:id,name')->orderBy('name'),
             'payroll-periods' => PayrollPeriod::with('company:id,name')->orderByDesc('start_date'),
             'schedules' => WorkSchedule::with(['employee.user:id,name', 'shift:id,name,start_time,end_time', 'workLocation:id,name'])
@@ -667,6 +863,28 @@ class MasterDataController extends Controller
                 'allocation' => $item->default_allocation,
                 'paid' => $item->paid ? 'Ya' : 'Tidak',
                 'status' => $item->is_active ? 'Aktif' : 'Nonaktif',
+                'edit_url' => $basePath.'/'.$item->id.'/edit',
+                'delete_url' => $basePath.'/'.$item->id,
+            ],
+            'employees' => [
+                'id' => $item->id,
+                'employee_code' => $item->employee_code,
+                'name' => $item->user?->name ?? '-',
+                'email' => $item->user?->email ?? '-',
+                'department' => $item->department?->name ?? '-',
+                'position' => $item->position?->title ?? '-',
+                'status' => ucfirst($item->employment_status),
+                'edit_url' => $basePath.'/'.$item->id.'/edit',
+                'delete_url' => $basePath.'/'.$item->id,
+            ],
+            'attendance-logs' => [
+                'id' => $item->id,
+                'employee_code' => $item->employee?->employee_code ?? '-',
+                'work_date' => $this->formatDate($item->work_date),
+                'check_in_at' => $item->check_in_at ? Carbon::parse($item->check_in_at)->format('H:i') : '-',
+                'check_out_at' => $item->check_out_at ? Carbon::parse($item->check_out_at)->format('H:i') : '-',
+                'status' => ucfirst($item->status),
+                'source' => $item->source ?? '-',
                 'edit_url' => $basePath.'/'.$item->id.'/edit',
                 'delete_url' => $basePath.'/'.$item->id,
             ],
@@ -884,6 +1102,8 @@ class MasterDataController extends Controller
                 'name' => ['required', 'string', 'max:255'],
                 'start_time' => ['required', 'date_format:H:i'],
                 'end_time' => ['required', 'date_format:H:i'],
+                'check_in_cutoff_time' => ['nullable', 'date_format:H:i'],
+                'check_out_cutoff_time' => ['nullable', 'date_format:H:i'],
                 'break_minutes' => ['nullable', 'integer', 'min:0'],
                 'grace_minutes' => ['nullable', 'integer', 'min:0'],
                 'is_overnight' => ['nullable', 'boolean'],
@@ -901,6 +1121,33 @@ class MasterDataController extends Controller
                 'paid' => ['nullable', 'boolean'],
                 'description' => ['nullable', 'string'],
                 'is_active' => ['nullable', 'boolean'],
+            ],
+            'employees' => [
+                'company_id' => $companyRule,
+                'employee_code' => ['required', 'string', 'max:50'],
+                'nik' => ['required', 'string', 'max:32'],
+                'name' => ['required', 'string', 'max:255'],
+                'email' => ['required', 'email', 'max:255'],
+                'work_phone' => ['nullable', 'string', 'max:30'],
+                'gender' => ['nullable', Rule::in(['male', 'female', 'other'])],
+                'birth_date' => ['nullable', 'date'],
+                'address_line1' => ['nullable', 'string', 'max:255'],
+                'department_id' => ['required', 'exists:departments,id'],
+                'position_id' => ['required', 'exists:positions,id'],
+                'join_date' => ['required', 'date'],
+                'employment_status' => ['required', Rule::in(['active', 'probation', 'contract', 'resign', 'terminated'])],
+                'default_shift_id' => ['nullable', 'exists:shifts,id'],
+                'role' => ['nullable', Rule::in(['employee', 'manager', 'admin', 'superadmin'])],
+                'account_status' => ['nullable', Rule::in(['active', 'inactive'])],
+            ],
+            'attendance-logs' => [
+                'employee_code' => ['required', 'string', 'max:50'],
+                'work_date' => ['required', 'date'],
+                'check_in_time' => ['nullable', 'date_format:H:i'],
+                'check_out_time' => ['nullable', 'date_format:H:i'],
+                'status' => ['required', Rule::in(['present', 'late', 'absent', 'on_leave', 'sick', 'permission'])],
+                'notes' => ['nullable', 'string'],
+                'source' => ['nullable', Rule::in(['import', 'manual', 'device'])],
             ],
             'salary-components' => [
                 'company_id' => $companyRule,
@@ -1091,6 +1338,8 @@ class MasterDataController extends Controller
                 $this->field('name', 'Nama Shift', true),
                 $this->field('start_time', 'Jam Masuk', true, 'time'),
                 $this->field('end_time', 'Jam Pulang', true, 'time'),
+                $this->field('check_in_cutoff_time', 'Batas Absen Masuk', false, 'time'),
+                $this->field('check_out_cutoff_time', 'Batas Absen Pulang', false, 'time'),
                 $this->field('break_minutes', 'Break (menit)', false, 'number'),
                 $this->field('grace_minutes', 'Grace (menit)', false, 'number'),
                 $this->field('is_overnight', 'Overnight', false, 'boolean'),
@@ -1108,6 +1357,62 @@ class MasterDataController extends Controller
                 $this->field('paid', 'Paid', false, 'boolean'),
                 $this->field('description', 'Deskripsi', false, 'textarea'),
                 $this->field('is_active', 'Status Aktif', false, 'boolean'),
+            ],
+            'employees' => [
+                $this->selectField('company_id', 'Perusahaan', $this->companyOptions(), true),
+                $this->field('employee_code', 'Employee ID', true),
+                $this->field('nik', 'NIK', true),
+                $this->field('name', 'Nama Lengkap', true),
+                $this->field('email', 'Email', true, 'email'),
+                $this->field('work_phone', 'Nomor HP'),
+                $this->selectField('gender', 'Jenis Kelamin', [
+                    ['value' => 'male', 'label' => 'Male'],
+                    ['value' => 'female', 'label' => 'Female'],
+                    ['value' => 'other', 'label' => 'Other'],
+                ]),
+                $this->field('birth_date', 'Tanggal Lahir', false, 'date'),
+                $this->field('address_line1', 'Alamat', false, 'textarea'),
+                $this->selectField('department_id', 'Departemen', $this->departmentOptions(), true),
+                $this->selectField('position_id', 'Jabatan', $this->positionOptions(), true),
+                $this->field('join_date', 'Tanggal Masuk', true, 'date'),
+                $this->selectField('employment_status', 'Status Kerja', [
+                    ['value' => 'probation', 'label' => 'Probation'],
+                    ['value' => 'contract', 'label' => 'Kontrak'],
+                    ['value' => 'active', 'label' => 'Tetap'],
+                    ['value' => 'resign', 'label' => 'Resign'],
+                    ['value' => 'terminated', 'label' => 'Nonaktif'],
+                ], true),
+                $this->selectField('default_shift_id', 'Shift Default', $this->shiftOptions()),
+                $this->selectField('role', 'Role Akun', [
+                    ['value' => 'employee', 'label' => 'Employee'],
+                    ['value' => 'manager', 'label' => 'Manager'],
+                    ['value' => 'admin', 'label' => 'HR Admin'],
+                    ['value' => 'superadmin', 'label' => 'Super Admin'],
+                ]),
+                $this->selectField('account_status', 'Status Akun', [
+                    ['value' => 'active', 'label' => 'Active'],
+                    ['value' => 'inactive', 'label' => 'Inactive'],
+                ]),
+            ],
+            'attendance-logs' => [
+                $this->field('employee_code', 'Employee ID', true),
+                $this->field('work_date', 'Tanggal', true, 'date'),
+                $this->field('check_in_time', 'Jam Masuk', false, 'time'),
+                $this->field('check_out_time', 'Jam Pulang', false, 'time'),
+                $this->selectField('status', 'Status Presensi', [
+                    ['value' => 'present', 'label' => 'Hadir'],
+                    ['value' => 'late', 'label' => 'Terlambat'],
+                    ['value' => 'absent', 'label' => 'Alfa'],
+                    ['value' => 'on_leave', 'label' => 'Cuti'],
+                    ['value' => 'sick', 'label' => 'Sakit'],
+                    ['value' => 'permission', 'label' => 'Izin'],
+                ], true),
+                $this->field('notes', 'Keterangan', false, 'textarea'),
+                $this->selectField('source', 'Sumber Data', [
+                    ['value' => 'import', 'label' => 'Import'],
+                    ['value' => 'manual', 'label' => 'Manual'],
+                    ['value' => 'device', 'label' => 'Device'],
+                ]),
             ],
             'salary-components' => [
                 $this->selectField('company_id', 'Perusahaan', $this->companyOptions(), true),
@@ -1306,6 +1611,10 @@ class MasterDataController extends Controller
                 'company_id' => $companyId,
                 'code' => $code,
             ] : null,
+            'schedules' => isset($row['employee_id'], $row['work_date']) ? [
+                'employee_id' => $row['employee_id'],
+                'work_date' => $row['work_date'],
+            ] : null,
             'kpi-okr',
             'training',
             'job-posts',
@@ -1398,6 +1707,12 @@ class MasterDataController extends Controller
                 'end_time' => $item->end_time
                     ? Carbon::parse($item->end_time)->format('H:i')
                     : null,
+                'check_in_cutoff_time' => $item->check_in_cutoff_time
+                    ? Carbon::parse($item->check_in_cutoff_time)->format('H:i')
+                    : null,
+                'check_out_cutoff_time' => $item->check_out_cutoff_time
+                    ? Carbon::parse($item->check_out_cutoff_time)->format('H:i')
+                    : null,
                 'break_minutes' => $item->break_minutes,
                 'grace_minutes' => $item->grace_minutes,
                 'is_overnight' => $item->is_overnight,
@@ -1416,6 +1731,43 @@ class MasterDataController extends Controller
                 'description',
                 'is_active',
             ]),
+            'employees' => [
+                'company_id' => $item->company_id,
+                'employee_code' => $item->employee_code,
+                'nik' => $item->profile?->nik,
+                'name' => $item->user?->name,
+                'email' => $item->user?->email,
+                'work_phone' => $item->work_phone,
+                'gender' => $item->profile?->gender,
+                'birth_date' => $item->profile?->birth_date
+                    ? Carbon::parse($item->profile->birth_date)->format('Y-m-d')
+                    : null,
+                'address_line1' => $item->profile?->address_line1,
+                'department_id' => $item->department_id,
+                'position_id' => $item->position_id,
+                'join_date' => $item->join_date
+                    ? Carbon::parse($item->join_date)->format('Y-m-d')
+                    : null,
+                'employment_status' => $item->employment_status,
+                'default_shift_id' => $item->default_shift_id,
+                'role' => $item->user?->role,
+                'account_status' => $item->user?->is_active ? 'active' : 'inactive',
+            ],
+            'attendance-logs' => [
+                'employee_code' => $item->employee?->employee_code,
+                'work_date' => $item->work_date
+                    ? Carbon::parse($item->work_date)->format('Y-m-d')
+                    : null,
+                'check_in_time' => $item->check_in_at
+                    ? Carbon::parse($item->check_in_at)->format('H:i')
+                    : null,
+                'check_out_time' => $item->check_out_at
+                    ? Carbon::parse($item->check_out_at)->format('H:i')
+                    : null,
+                'status' => $item->status,
+                'notes' => $item->notes,
+                'source' => $item->source,
+            ],
             'salary-components' => $item->only([
                 'company_id',
                 'code',
@@ -1622,6 +1974,113 @@ class MasterDataController extends Controller
         return true;
     }
 
+    private function isTemplateExampleRow(string $resource, array $row, array $columns): bool
+    {
+        $exampleValues = $this->templateExampleValues($resource, $columns);
+        if ($exampleValues === []) {
+            return false;
+        }
+
+        $preparedRow = [];
+        foreach ($columns as $index => $column) {
+            $preparedRow[$column] = array_key_exists($column, $row)
+                ? trim((string) $row[$column])
+                : '';
+        }
+
+        foreach ($columns as $index => $column) {
+            $exampleValue = trim((string) ($exampleValues[$index] ?? ''));
+            if ($exampleValue === '') {
+                continue;
+            }
+
+            if (($preparedRow[$column] ?? '') !== $exampleValue) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private function templateExampleValues(string $resource, array $columns): array
+    {
+        $examples = $this->templateExamples($resource);
+        if ($examples === []) {
+            return [];
+        }
+
+        return collect($columns)
+            ->map(fn ($column) => $examples[$column] ?? '')
+            ->all();
+    }
+
+    private function templateExamples(string $resource): array
+    {
+        return match ($resource) {
+            'shifts' => [
+                'company_id' => '1',
+                'name' => 'SHIFT_PAGI',
+                'start_time' => '08:00',
+                'end_time' => '17:00',
+                'check_in_cutoff_time' => '09:00',
+                'check_out_cutoff_time' => '18:00',
+                'break_minutes' => '60',
+                'grace_minutes' => '10',
+                'is_overnight' => '0',
+                'is_active' => '1',
+            ],
+            'schedules' => [
+                'employee_id' => '1001',
+                'shift_id' => '2',
+                'work_location_id' => '1',
+                'work_date' => '2026-05-23',
+                'status' => 'scheduled',
+                'notes' => 'Jadwal reguler',
+            ],
+            'leave-types' => [
+                'company_id' => '1',
+                'code' => 'ANNUAL',
+                'name' => 'Cuti Tahunan',
+                'category' => 'annual',
+                'default_allocation' => '12',
+                'carry_over_limit' => '3',
+                'requires_attachment' => '0',
+                'requires_approval' => '1',
+                'paid' => '1',
+                'description' => 'Cuti tahunan reguler',
+                'is_active' => '1',
+            ],
+            'employees' => [
+                'company_id' => '1',
+                'employee_code' => 'EMP-1001',
+                'nik' => '3175090101010001',
+                'name' => 'Budi Santoso',
+                'email' => 'budi@example.com',
+                'work_phone' => '081234567890',
+                'gender' => 'male',
+                'birth_date' => '1990-05-01',
+                'address_line1' => 'Jl. Mawar No. 1',
+                'department_id' => '2',
+                'position_id' => '5',
+                'join_date' => '2026-05-23',
+                'employment_status' => 'active',
+                'default_shift_id' => '1',
+                'role' => 'employee',
+                'account_status' => 'active',
+            ],
+            'attendance-logs' => [
+                'employee_code' => 'EMP-1001',
+                'work_date' => '2026-05-23',
+                'check_in_time' => '08:05',
+                'check_out_time' => '17:10',
+                'status' => 'present',
+                'notes' => 'Import manual',
+                'source' => 'import',
+            ],
+            default => [],
+        };
+    }
+
     private function formatValueForExport(string $resource, string $column, $value)
     {
         if (is_bool($value)) {
@@ -1641,6 +2100,227 @@ class MasterDataController extends Controller
         }
 
         return $value;
+    }
+
+    private function exportCsv(string $resource)
+    {
+        $columns = $this->importColumns($resource);
+        $rows = $this->listQuery($resource)->get();
+        $filename = sprintf('%s-%s.csv', $resource, now()->format('Ymd_His'));
+
+        $callback = function () use ($resource, $columns, $rows) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, $columns);
+
+            foreach ($rows as $row) {
+                $record = $this->recordData($resource, $row);
+                $data = [];
+
+                foreach ($columns as $column) {
+                    $value = $record[$column] ?? data_get($row, $column);
+                    $data[] = $this->formatValueForExport($resource, $column, $value);
+                }
+
+                fputcsv($output, $data);
+            }
+
+            fclose($output);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    private function templateCsv(string $resource)
+    {
+        $columns = $this->importColumns($resource);
+        $example = $this->templateExampleValues($resource, $columns);
+        $filename = sprintf('%s-template.csv', $resource);
+
+        $callback = function () use ($columns, $example) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, $columns);
+            if ($example !== []) {
+                fputcsv($output, $example);
+            }
+            fclose($output);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
+    private function downloadSpreadsheet(Spreadsheet $spreadsheet, string $filename)
+    {
+        $writer = new Xlsx($spreadsheet);
+
+        return response()->streamDownload(function () use ($writer) {
+            $writer->save('php://output');
+        }, $filename, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ]);
+    }
+
+    /**
+     * @return array{0: array<int,string>, 1: array<int,array<int,mixed>>}
+     */
+    private function extractRowsFromFile(?UploadedFile $file): array
+    {
+        if (!$file) {
+            throw ValidationException::withMessages([
+                'file' => 'File tidak ditemukan.',
+            ]);
+        }
+
+        $extension = strtolower((string) $file->getClientOriginalExtension());
+        if (in_array($extension, ['csv', 'txt'], true)) {
+            $handle = fopen($file->getRealPath(), 'r');
+            if ($handle === false) {
+                throw ValidationException::withMessages([
+                    'file' => 'File tidak dapat dibaca.',
+                ]);
+            }
+
+            $header = fgetcsv($handle);
+            if (!$header) {
+                fclose($handle);
+                throw ValidationException::withMessages([
+                    'file' => 'Header file tidak ditemukan.',
+                ]);
+            }
+
+            $rows = [];
+            while (($values = fgetcsv($handle)) !== false) {
+                $rows[] = $values;
+            }
+
+            fclose($handle);
+
+            return [array_map(fn ($item) => trim((string) $item), $header), $rows];
+        }
+
+        $spreadsheet = IOFactory::load($file->getRealPath());
+        $sheet = $spreadsheet->getActiveSheet();
+        $highestColumn = $sheet->getHighestColumn();
+        $highestColumnIndex = Coordinate::columnIndexFromString($highestColumn);
+        $highestRow = $sheet->getHighestRow();
+
+        $header = [];
+        for ($col = 1; $col <= $highestColumnIndex; $col++) {
+            $header[] = trim((string) $sheet->getCellByColumnAndRow($col, 1)->getValue());
+        }
+
+        if (collect($header)->filter()->isEmpty()) {
+            throw ValidationException::withMessages([
+                'file' => 'Header file tidak ditemukan.',
+            ]);
+        }
+
+        $rows = [];
+        for ($row = 2; $row <= $highestRow; $row++) {
+            $values = [];
+            for ($col = 1; $col <= $highestColumnIndex; $col++) {
+                $cellValue = $sheet->getCellByColumnAndRow($col, $row)->getCalculatedValue();
+                if (is_string($cellValue)) {
+                    $cellValue = trim($cellValue);
+                }
+                $values[] = $cellValue;
+            }
+            $rows[] = $values;
+        }
+
+        return [$header, $rows];
+    }
+
+    /**
+     * @return array{indexed: array<int,string>, missing: array<int,string>}
+     */
+    private function resolveImportColumns(string $resource, array $header): array
+    {
+        $fields = $this->fieldsFor($resource);
+        $expected = $this->importColumns($resource);
+        $nameByNormalized = [];
+
+        foreach ($fields as $field) {
+            $name = (string) $field['name'];
+            $label = (string) $field['label'];
+            $nameByNormalized[$this->normalizeImportHeader($name)] = $name;
+            $nameByNormalized[$this->normalizeImportHeader($label)] = $name;
+            $nameByNormalized[$this->normalizeImportHeader($label.' *')] = $name;
+        }
+
+        $indexed = [];
+        foreach ($header as $index => $column) {
+            $normalized = $this->normalizeImportHeader((string) $column);
+            $indexed[$index] = $nameByNormalized[$normalized] ?? trim((string) $column);
+        }
+
+        $missing = array_values(array_filter($expected, function ($columnName) use ($indexed) {
+            return !in_array($columnName, $indexed, true);
+        }));
+
+        return [
+            'indexed' => $indexed,
+            'missing' => $missing,
+        ];
+    }
+
+    private function normalizeImportHeader(string $value): string
+    {
+        $normalized = str_replace(['*', "\r", "\n"], '', $value);
+        $normalized = preg_replace('/\s+/', ' ', $normalized ?? '');
+
+        return Str::of((string) $normalized)
+            ->lower()
+            ->trim()
+            ->replace('  ', ' ')
+            ->toString();
+    }
+
+    private function templateColumnComment(array $field): string
+    {
+        $name = (string) ($field['name'] ?? '');
+        $type = (string) ($field['type'] ?? 'text');
+        $required = !empty($field['required']) ? 'Wajib.' : 'Opsional.';
+
+        $comment = "{$field['label']} ({$name}). {$required}";
+        if (in_array($type, ['date'], true)) {
+            $comment .= ' Format: YYYY-MM-DD.';
+        }
+        if (in_array($type, ['time'], true)) {
+            $comment .= ' Format: HH:mm.';
+        }
+        if (in_array($type, ['boolean'], true)) {
+            $comment .= ' Nilai: 1=Ya, 0=Tidak.';
+        }
+        if (in_array($type, ['select'], true) && !empty($field['options'])) {
+            $options = collect($field['options'])
+                ->map(fn ($option) => ($option['value'] ?? '').'='.$option['label'])
+                ->implode(', ');
+            $comment .= $options !== '' ? ' Pilihan: '.$options.'.' : '';
+        }
+
+        return $comment;
+    }
+
+    private function fieldValidationValues(array $field): array
+    {
+        $type = (string) ($field['type'] ?? 'text');
+        if ($type === 'boolean') {
+            return ['1', '0'];
+        }
+
+        if ($type !== 'select') {
+            return [];
+        }
+
+        return collect($field['options'] ?? [])
+            ->map(fn ($option) => (string) ($option['value'] ?? ''))
+            ->filter(fn ($value) => $value !== '')
+            ->values()
+            ->all();
     }
 
     private function booleanFields(string $resource): array
@@ -1671,6 +2351,8 @@ class MasterDataController extends Controller
         return match ($resource) {
             'payroll-periods' => ['start_date', 'end_date', 'pay_date'],
             'schedules' => ['work_date'],
+            'employees' => ['birth_date', 'join_date'],
+            'attendance-logs' => ['work_date'],
             'kpi-okr' => ['period_start', 'period_end'],
             'appraisals' => ['period_start', 'period_end'],
             'training' => ['training_date'],
@@ -1685,7 +2367,8 @@ class MasterDataController extends Controller
     private function timeFields(string $resource): array
     {
         return match ($resource) {
-            'shifts' => ['start_time', 'end_time'],
+            'shifts' => ['start_time', 'end_time', 'check_in_cutoff_time', 'check_out_cutoff_time'],
+            'attendance-logs' => ['check_in_time', 'check_out_time'],
             'interviews' => ['interview_time'],
             default => [],
         };
@@ -1823,6 +2506,381 @@ class MasterDataController extends Controller
             ->all();
     }
 
+    private function importEmployees(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
+            'duplicate_mode' => ['nullable', Rule::in(['update', 'skip', 'error'])],
+        ]);
+
+        [$columns, $rowsData] = $this->extractRowsFromFile($request->file('file'));
+        $mappedColumns = $this->resolveImportColumns('employees', $columns);
+
+        if ($mappedColumns['missing'] !== []) {
+            return back()->withErrors([
+                'file' => 'Kolom wajib belum lengkap: '.implode(', ', $mappedColumns['missing']),
+            ]);
+        }
+
+        $expected = $this->importColumns('employees');
+        $rows = [];
+        $duplicateMode = $request->string('duplicate_mode')->toString() ?: 'update';
+        $line = 1;
+
+        foreach ($rowsData as $values) {
+            $line++;
+            $record = [];
+
+            foreach ($mappedColumns['indexed'] as $index => $columnName) {
+                if (!in_array($columnName, $expected, true)) {
+                    continue;
+                }
+
+                $record[$columnName] = $values[$index] ?? null;
+            }
+
+            $record = $this->normalizeImportRow('employees', $record);
+
+            if ($this->isEmptyRow($record)) {
+                continue;
+            }
+
+            if ($this->isTemplateExampleRow('employees', $record, $expected)) {
+                continue;
+            }
+
+            $validator = Validator::make($record, $this->rulesFor('employees'));
+            if ($validator->fails()) {
+                $message = collect($validator->errors()->all())->implode(', ');
+                return back()->withErrors([
+                    'file' => "Baris {$line}: {$message}",
+                ]);
+            }
+
+            $rows[] = $validator->validated();
+        }
+
+        if (!$rows) {
+            return back()->withErrors([
+                'file' => 'Tidak ada data untuk diimport.',
+            ]);
+        }
+
+        $actorRole = $request->user()?->role ?? 'employee';
+
+        DB::transaction(function () use ($rows, $duplicateMode, $actorRole) {
+            foreach ($rows as $row) {
+                $departmentId = $this->resolveDepartmentId($row['department_id']);
+                $positionId = $this->resolvePositionId($row['position_id']);
+                $defaultShiftId = $this->resolveShiftId($row['default_shift_id'] ?? null);
+
+                if (!$departmentId || !$positionId) {
+                    throw ValidationException::withMessages([
+                        'file' => 'Departemen atau jabatan tidak ditemukan pada data master.',
+                    ]);
+                }
+
+                $employeeCode = trim((string) $row['employee_code']);
+                $existingEmployee = Employee::withTrashed()
+                    ->where('employee_code', $employeeCode)
+                    ->first();
+
+                if ($existingEmployee && $duplicateMode === 'skip') {
+                    continue;
+                }
+
+                if ($existingEmployee && $duplicateMode === 'error') {
+                    throw ValidationException::withMessages([
+                        'file' => 'Ditemukan Employee ID duplikat pada mode error-only import.',
+                    ]);
+                }
+
+                $role = $row['role'] ?? 'employee';
+                if ($actorRole !== 'superadmin') {
+                    $role = 'employee';
+                }
+
+                $accountStatus = ($row['account_status'] ?? 'active') === 'active';
+
+                $employmentStatus = $row['employment_status'];
+                $userIsActive = $accountStatus && !in_array($employmentStatus, ['resign', 'terminated'], true);
+
+                if ($existingEmployee) {
+                    $user = $existingEmployee->user;
+
+                    if ($user && $user->email !== $row['email']) {
+                        $emailExists = User::query()
+                            ->where('email', $row['email'])
+                            ->where('id', '!=', $user->id)
+                            ->exists();
+                        if ($emailExists) {
+                            throw ValidationException::withMessages([
+                                'file' => 'Email sudah digunakan user lain.',
+                            ]);
+                        }
+                    }
+
+                    if ($existingEmployee->trashed()) {
+                        $existingEmployee->restore();
+                    }
+
+                    $user?->update([
+                        'name' => $row['name'],
+                        'email' => $row['email'],
+                        'role' => $role,
+                        'is_active' => $userIsActive,
+                    ]);
+
+                    $existingEmployee->update([
+                        'company_id' => $row['company_id'],
+                        'department_id' => $departmentId,
+                        'position_id' => $positionId,
+                        'default_shift_id' => $defaultShiftId,
+                        'employment_status' => $employmentStatus,
+                        'join_date' => $row['join_date'],
+                        'work_phone' => $row['work_phone'] ?? null,
+                        'work_email' => $row['email'],
+                        'is_active' => $userIsActive,
+                    ]);
+
+                    EmployeeProfile::updateOrCreate(
+                        ['employee_id' => $existingEmployee->id],
+                        [
+                            'nik' => $row['nik'],
+                            'gender' => $row['gender'] ?? null,
+                            'birth_date' => $row['birth_date'] ?? null,
+                            'address_line1' => $row['address_line1'] ?? null,
+                        ],
+                    );
+
+                    continue;
+                }
+
+                $emailExists = User::query()
+                    ->where('email', $row['email'])
+                    ->exists();
+                if ($emailExists) {
+                    throw ValidationException::withMessages([
+                        'file' => 'Email sudah digunakan user lain.',
+                    ]);
+                }
+
+                $user = User::query()->create([
+                    'name' => $row['name'],
+                    'email' => $row['email'],
+                    'role' => $role,
+                    'password' => Hash::make(Str::random(12)),
+                    'email_verified_at' => now(),
+                    'is_active' => $userIsActive,
+                ]);
+
+                $employee = Employee::query()->create([
+                    'user_id' => $user->id,
+                    'company_id' => $row['company_id'],
+                    'department_id' => $departmentId,
+                    'position_id' => $positionId,
+                    'default_shift_id' => $defaultShiftId,
+                    'employee_code' => $employeeCode,
+                    'employment_status' => $employmentStatus,
+                    'employment_type' => 'permanent',
+                    'join_date' => $row['join_date'],
+                    'work_email' => $row['email'],
+                    'work_phone' => $row['work_phone'] ?? null,
+                    'is_active' => $userIsActive,
+                ]);
+
+                EmployeeProfile::query()->create([
+                    'employee_id' => $employee->id,
+                    'nik' => $row['nik'],
+                    'gender' => $row['gender'] ?? null,
+                    'birth_date' => $row['birth_date'] ?? null,
+                    'address_line1' => $row['address_line1'] ?? null,
+                ]);
+            }
+        });
+
+        return back();
+    }
+
+    private function importAttendanceLogs(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
+            'duplicate_mode' => ['nullable', Rule::in(['update', 'skip', 'error'])],
+        ]);
+
+        [$columns, $rowsData] = $this->extractRowsFromFile($request->file('file'));
+        $mappedColumns = $this->resolveImportColumns('attendance-logs', $columns);
+
+        if ($mappedColumns['missing'] !== []) {
+            return back()->withErrors([
+                'file' => 'Kolom wajib belum lengkap: '.implode(', ', $mappedColumns['missing']),
+            ]);
+        }
+
+        $expected = $this->importColumns('attendance-logs');
+        $rows = [];
+        $duplicateMode = $request->string('duplicate_mode')->toString() ?: 'update';
+        $line = 1;
+
+        foreach ($rowsData as $values) {
+            $line++;
+            $record = [];
+
+            foreach ($mappedColumns['indexed'] as $index => $columnName) {
+                if (!in_array($columnName, $expected, true)) {
+                    continue;
+                }
+
+                $record[$columnName] = $values[$index] ?? null;
+            }
+
+            $record = $this->normalizeImportRow('attendance-logs', $record);
+
+            if ($this->isEmptyRow($record)) {
+                continue;
+            }
+
+            if ($this->isTemplateExampleRow('attendance-logs', $record, $expected)) {
+                continue;
+            }
+
+            $validator = Validator::make($record, $this->rulesFor('attendance-logs'));
+            if ($validator->fails()) {
+                $message = collect($validator->errors()->all())->implode(', ');
+                return back()->withErrors([
+                    'file' => "Baris {$line}: {$message}",
+                ]);
+            }
+
+            $rows[] = $validator->validated();
+        }
+
+        if (!$rows) {
+            return back()->withErrors([
+                'file' => 'Tidak ada data untuk diimport.',
+            ]);
+        }
+
+        DB::transaction(function () use ($rows, $duplicateMode, $request) {
+            foreach ($rows as $row) {
+                $employee = Employee::query()
+                    ->where('employee_code', $row['employee_code'])
+                    ->first();
+
+                if (!$employee) {
+                    throw ValidationException::withMessages([
+                        'file' => 'Employee ID tidak ditemukan pada data master.',
+                    ]);
+                }
+
+                $workDate = Carbon::parse($row['work_date'])->toDateString();
+                $checkInAt = $row['check_in_time']
+                    ? Carbon::parse($workDate.' '.$row['check_in_time'])
+                    : null;
+                $checkOutAt = $row['check_out_time']
+                    ? Carbon::parse($workDate.' '.$row['check_out_time'])
+                    : null;
+
+                if ($checkInAt && $checkOutAt && $checkOutAt->lessThanOrEqualTo($checkInAt)) {
+                    throw ValidationException::withMessages([
+                        'file' => 'Jam pulang harus setelah jam masuk.',
+                    ]);
+                }
+
+                $existing = AttendanceLog::query()
+                    ->where('employee_id', $employee->id)
+                    ->whereDate('work_date', $workDate)
+                    ->first();
+
+                if ($existing && $duplicateMode === 'skip') {
+                    continue;
+                }
+
+                if ($existing && $duplicateMode === 'error') {
+                    throw ValidationException::withMessages([
+                        'file' => 'Ditemukan presensi duplikat pada mode error-only import.',
+                    ]);
+                }
+
+                $payload = [
+                    'employee_id' => $employee->id,
+                    'work_date' => $workDate,
+                    'check_in_at' => $checkInAt,
+                    'check_out_at' => $checkOutAt,
+                    'status' => $row['status'],
+                    'notes' => $row['notes'] ?? null,
+                    'source' => $row['source'] ?? 'import',
+                    'check_in_method' => $checkInAt ? 'manual' : null,
+                    'check_out_method' => $checkOutAt ? 'manual' : null,
+                    'approval_status' => 'approved',
+                    'approved_by_user_id' => $request->user()->id,
+                    'approved_at' => now(),
+                ];
+
+                if ($existing) {
+                    $existing->update($payload);
+                    continue;
+                }
+
+                AttendanceLog::query()->create($payload);
+            }
+        });
+
+        return back();
+    }
+
+    private function resolveDepartmentId($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        $department = Department::query()
+            ->where('name', (string) $value)
+            ->first();
+
+        return $department?->id;
+    }
+
+    private function resolvePositionId($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        $position = Position::query()
+            ->where('title', (string) $value)
+            ->first();
+
+        return $position?->id;
+    }
+
+    private function resolveShiftId($value): ?int
+    {
+        if ($value === null || $value === '') {
+            return null;
+        }
+
+        if (is_numeric($value)) {
+            return (int) $value;
+        }
+
+        $shift = Shift::query()
+            ->where('name', (string) $value)
+            ->first();
+
+        return $shift?->id;
+    }
+
     private function leaveCategoryOptions(): array
     {
         return [
@@ -1872,5 +2930,29 @@ class MasterDataController extends Controller
             (string) $unit,
             $percentage,
         );
+    }
+
+    private function assertScheduleNoConflict(array $data, ?WorkSchedule $current = null): void
+    {
+        $employeeId = (int) ($data['employee_id'] ?? 0);
+        $workDate = $data['work_date'] ?? null;
+
+        if ($employeeId <= 0 || !$workDate) {
+            return;
+        }
+
+        $query = WorkSchedule::query()
+            ->where('employee_id', $employeeId)
+            ->whereDate('work_date', $workDate);
+
+        if ($current) {
+            $query->where('id', '!=', $current->id);
+        }
+
+        if ($query->exists()) {
+            throw ValidationException::withMessages([
+                'work_date' => 'Jadwal untuk karyawan ini pada tanggal tersebut sudah ada.',
+            ]);
+        }
     }
 }

@@ -1,5 +1,6 @@
-import type { FormEvent } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import type { FormEvent } from 'react';
+import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,7 +14,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
-import InputError from '@/components/input-error';
 
 type EmployeeOption = {
     id: number;

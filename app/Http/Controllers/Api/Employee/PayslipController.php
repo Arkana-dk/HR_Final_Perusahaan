@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Employee;
 
+use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
@@ -10,6 +11,7 @@ use Illuminate\Http\Request;
 
 class PayslipController extends Controller
 {
+    use ApiResponse;
     use ResolvesEmployee;
 
     public function index(Request $request)
@@ -32,18 +34,20 @@ class PayslipController extends Controller
         $perPage = (int) ($filters['per_page'] ?? 10);
         $payslips = $query->paginate($perPage)->withQueryString();
 
-        return response()->json([
-            'data' => $payslips->getCollection()
+        return $this->successResponse(
+            $payslips->getCollection()
                 ->map(fn (Payslip $payslip) => $this->mapPayslip($payslip, false))
                 ->values()
                 ->all(),
-            'meta' => [
+            'Daftar payslip berhasil diambil.',
+            200,
+            [
                 'current_page' => $payslips->currentPage(),
                 'last_page' => $payslips->lastPage(),
                 'per_page' => $payslips->perPage(),
                 'total' => $payslips->total(),
             ],
-        ]);
+        );
     }
 
     public function latest(Request $request)
@@ -58,12 +62,13 @@ class PayslipController extends Controller
             ->orderByDesc('id')
             ->first();
 
-        return response()->json([
-            'data' => [
+        return $this->successResponse(
+            [
                 'latest' => $payslip ? $this->mapPayslip($payslip, true) : null,
                 'download_latest_url' => url('/api/v1/employee/payslips/latest/download'),
             ],
-        ]);
+            'Payslip terbaru berhasil diambil.',
+        );
     }
 
     public function show(Request $request, Payslip $payslip)
@@ -76,9 +81,10 @@ class PayslipController extends Controller
             'items.component:id,name,type',
         ]);
 
-        return response()->json([
-            'data' => $this->mapPayslip($payslip, true),
-        ]);
+        return $this->successResponse(
+            $this->mapPayslip($payslip, true),
+            'Detail payslip berhasil diambil.',
+        );
     }
 
     private function assertOwnedByEmployee(Employee $employee, Payslip $payslip): void

@@ -12,6 +12,8 @@ use App\Models\EmployeeProfile;
 use App\Models\JobLevel;
 use App\Models\Position;
 use App\Models\User;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -21,6 +23,12 @@ use Inertia\Inertia;
 
 class EmployeeController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     /**
      * Display a listing of employees.
      */
@@ -107,12 +115,19 @@ class EmployeeController extends Controller
         }
 
         $employee = DB::transaction(function () use ($validated, $request) {
+            $userIsActive = !in_array(
+                (string) ($validated['employment_status'] ?? 'active'),
+                ['resign', 'terminated'],
+                true,
+            );
+
             $user = User::create([
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'role' => $validated['role'],
                 'password' => Hash::make($validated['password']),
                 'email_verified_at' => now(),
+                'is_active' => $userIsActive,
             ]);
 
             $employee = Employee::create([
@@ -129,6 +144,42 @@ class EmployeeController extends Controller
 
             return $employee;
         });
+
+        $employee->loadMissing(['user', 'company']);
+        $reference = $this->notificationService->buildReference($employee);
+
+        $this->notificationService->notifyRoles(['admin', 'superadmin'], [
+            ...$reference,
+            'type' => 'employee.created',
+            'title' => 'Data Karyawan Baru',
+            'message' => sprintf(
+                'Karyawan baru %s (%s) telah ditambahkan.',
+                $employee->user?->name,
+                $employee->employee_code,
+            ),
+            'meta' => [
+                'employee_id' => $employee->id,
+                'company_id' => $employee->company_id,
+            ],
+        ]);
+
+        $this->notificationService->notifyUsers([(int) $employee->user_id], [
+            ...$reference,
+            'type' => 'employee.account.created',
+            'title' => 'Akun HR Aktif',
+            'message' => 'Akun HR Anda sudah dibuat dan siap digunakan.',
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'employees', 'employee.create', [
+            'subject' => 'employee',
+            'reference_type' => $employee::class,
+            'reference_id' => $employee->id,
+            'notes' => 'Data karyawan baru ditambahkan.',
+            'after_data' => [
+                'employee' => $employee->toArray(),
+                'user' => $employee->user?->toArray(),
+            ],
+        ]);
 
         if ($this->shouldRedirectBack($request)) {
             return redirect()->back();
@@ -206,16 +257,28 @@ class EmployeeController extends Controller
         $actor = $request->user();
         $this->ensureRoleManagement($employee);
         $validated = $request->validate($this->rules($employee, $actor));
+        $before = [
+            'employee' => $employee->toArray(),
+            'user' => $employee->user?->toArray(),
+            'profile' => $employee->profile?->toArray(),
+        ];
 
         if ($actor->role !== 'superadmin') {
             $validated['role'] = 'employee';
         }
 
         DB::transaction(function () use ($validated, $employee, $request) {
+            $userIsActive = !in_array(
+                (string) ($validated['employment_status'] ?? $employee->employment_status),
+                ['resign', 'terminated'],
+                true,
+            );
+
             $userData = [
                 'name' => $validated['name'],
                 'email' => $validated['email'],
                 'role' => $validated['role'],
+                'is_active' => $userIsActive,
             ];
 
             if (!empty($validated['password'])) {
@@ -233,6 +296,41 @@ class EmployeeController extends Controller
             $this->storeDocuments($request, $employee);
         });
 
+        $employee->refresh();
+        $employee->loadMissing(['user', 'profile']);
+        $reference = $this->notificationService->buildReference($employee);
+
+        $this->notificationService->notifyUsers([(int) $employee->user_id], [
+            ...$reference,
+            'type' => 'employee.profile.updated',
+            'title' => 'Data Karyawan Diperbarui',
+            'message' => 'Data profil dan status kerja Anda diperbarui oleh HR.',
+        ]);
+
+        $this->notificationService->notifyRoles(['admin', 'superadmin'], [
+            ...$reference,
+            'type' => 'employee.updated',
+            'title' => 'Perubahan Data Karyawan',
+            'message' => sprintf(
+                'Data karyawan %s (%s) telah diperbarui.',
+                $employee->user?->name,
+                $employee->employee_code,
+            ),
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'employees', 'employee.update', [
+            'subject' => 'employee',
+            'reference_type' => $employee::class,
+            'reference_id' => $employee->id,
+            'notes' => 'Data karyawan diperbarui.',
+            'before_data' => $before,
+            'after_data' => [
+                'employee' => $employee->toArray(),
+                'user' => $employee->user?->toArray(),
+                'profile' => $employee->profile?->toArray(),
+            ],
+        ]);
+
         if ($this->shouldRedirectBack($request)) {
             return redirect()->back();
         }
@@ -243,9 +341,13 @@ class EmployeeController extends Controller
     /**
      * Deactivate the specified employee.
      */
-    public function destroy(Request $request, Employee $employee)
+    public function deactivate(Request $request, Employee $employee)
     {
         $this->ensureRoleManagement($employee);
+        $before = [
+            'employee' => $employee->toArray(),
+            'user' => $employee->user?->toArray(),
+        ];
 
         DB::transaction(function () use ($employee) {
             $employee->update([
@@ -253,13 +355,159 @@ class EmployeeController extends Controller
                 'resign_date' => now()->toDateString(),
                 'is_active' => false,
             ]);
+
+            $employee->user()?->update([
+                'is_active' => false,
+            ]);
         });
+
+        $employee->refresh();
+        $reference = $this->notificationService->buildReference($employee);
+        $this->notificationService->notifyUsers([(int) $employee->user_id], [
+            ...$reference,
+            'type' => 'employee.account.deactivated',
+            'title' => 'Akun Dinonaktifkan',
+            'message' => 'Akun HR Anda telah dinonaktifkan karena status kerja berubah.',
+        ]);
+
+        $this->notificationService->notifyRoles(['admin', 'superadmin'], [
+            ...$reference,
+            'type' => 'employee.deactivated',
+            'title' => 'Karyawan Dinonaktifkan',
+            'message' => sprintf(
+                '%s (%s) dinonaktifkan.',
+                $employee->user?->name,
+                $employee->employee_code,
+            ),
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'employees', 'employee.deactivate', [
+            'subject' => 'employee',
+            'reference_type' => $employee::class,
+            'reference_id' => $employee->id,
+            'notes' => 'Data karyawan dinonaktifkan.',
+            'before_data' => $before,
+            'after_data' => [
+                'employee' => $employee->toArray(),
+                'user' => $employee->user?->toArray(),
+            ],
+        ]);
 
         if ($this->shouldRedirectBack($request)) {
             return redirect()->back();
         }
 
         return redirect()->route('employees.index');
+    }
+
+    /**
+     * Soft delete the specified employee.
+     */
+    public function destroy(Request $request, Employee $employee)
+    {
+        $this->ensureRoleManagement($employee);
+
+        $before = [
+            'employee' => $employee->toArray(),
+            'user' => $employee->user?->toArray(),
+        ];
+
+        DB::transaction(function () use ($employee) {
+            $employee->update([
+                'employment_status' => 'terminated',
+                'resign_date' => $employee->resign_date ?? now()->toDateString(),
+                'is_active' => false,
+            ]);
+
+            $employee->user()?->update([
+                'is_active' => false,
+            ]);
+
+            $employee->delete();
+        });
+
+        $employee->refresh();
+        $reference = $this->notificationService->buildReference($employee);
+
+        $this->notificationService->notifyRoles(['admin', 'superadmin'], [
+            ...$reference,
+            'type' => 'employee.deleted',
+            'title' => 'Karyawan Dihapus (Soft Delete)',
+            'message' => sprintf(
+                '%s (%s) dihapus dari daftar aktif (soft delete).',
+                $employee->user?->name,
+                $employee->employee_code,
+            ),
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'employees', 'employee.soft_delete', [
+            'subject' => 'employee',
+            'reference_type' => $employee::class,
+            'reference_id' => $employee->id,
+            'notes' => 'Data karyawan dihapus (soft delete).',
+            'before_data' => $before,
+            'after_data' => [
+                'employee' => $employee->toArray(),
+                'user' => $employee->user?->toArray(),
+            ],
+        ]);
+
+        if ($this->shouldRedirectBack($request)) {
+            return redirect()->back();
+        }
+
+        return redirect()->route('employees.index');
+    }
+
+    /**
+     * Restore the specified employee.
+     */
+    public function restore(Request $request, int $employee)
+    {
+        $employee = Employee::withTrashed()->with('user')->findOrFail($employee);
+        $this->ensureRoleManagement($employee);
+
+        $before = [
+            'employee' => $employee->toArray(),
+            'user' => $employee->user?->toArray(),
+        ];
+
+        DB::transaction(function () use ($employee) {
+            $employee->restore();
+            $employee->update([
+                'employment_status' => 'active',
+                'resign_date' => null,
+                'is_active' => true,
+            ]);
+
+            $employee->user()?->update([
+                'is_active' => true,
+            ]);
+        });
+
+        $employee->refresh();
+        $reference = $this->notificationService->buildReference($employee);
+
+        $this->notificationService->notifyUsers([(int) $employee->user_id], [
+            ...$reference,
+            'type' => 'employee.restored',
+            'title' => 'Akun Diaktifkan Kembali',
+            'message' => 'Akun Anda telah diaktifkan kembali oleh HR.',
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'employees', 'employee.restore', [
+            'subject' => 'employee',
+            'reference_type' => $employee::class,
+            'reference_id' => $employee->id,
+            'notes' => 'Data karyawan direstore.',
+            'before_data' => $before,
+            'after_data' => [
+                'employee' => $employee->toArray(),
+                'user' => $employee->user?->toArray(),
+            ],
+        ]);
+
+        return redirect()->route('employees.show', $employee);
     }
 
     private function shouldRedirectBack(Request $request): bool
@@ -395,10 +643,24 @@ class EmployeeController extends Controller
             'join_date' => ['required', 'date'],
             'confirmation_date' => ['nullable', 'date'],
             'resign_date' => ['nullable', 'date'],
-            'work_email' => ['nullable', 'email'],
-            'work_phone' => ['nullable', 'string', 'max:30'],
+            'work_email' => [
+                'nullable',
+                'email',
+                Rule::unique('employees', 'work_email')->ignore($employee),
+            ],
+            'work_phone' => [
+                'nullable',
+                'string',
+                'max:30',
+                Rule::unique('employees', 'work_phone')->ignore($employee),
+            ],
             'office_location' => ['nullable', 'string', 'max:255'],
-            'nik' => ['nullable', 'string', 'max:32'],
+            'nik' => [
+                'nullable',
+                'string',
+                'max:32',
+                Rule::unique('employee_profiles', 'nik')->ignore($employee?->profile?->id),
+            ],
             'kk_number' => ['nullable', 'string', 'max:32'],
             'npwp' => ['nullable', 'string', 'max:32'],
             'bpjs_kes' => ['nullable', 'string', 'max:32'],

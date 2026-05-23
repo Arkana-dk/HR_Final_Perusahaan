@@ -10,11 +10,11 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('superadmin')->group(func
 });
 
 // Admin Routes
-Route::middleware(['auth', 'role:admin,superadmin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'role:admin,superadmin,manager'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [AdminDashboard::class, 'index'])->name('admin.dashboard');
 });
 
 // Employee Routes
-Route::middleware(['auth', 'role:employee,admin,superadmin'])->prefix('employee')->group(function () {
+Route::middleware(['auth', 'role:employee,admin,superadmin,manager'])->prefix('employee')->group(function () {
     Route::get('/dashboard', [EmployeeDashboard::class, 'index'])->name('employee.dashboard');
 });

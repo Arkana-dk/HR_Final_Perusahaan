@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\ReimburseRequest;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +14,12 @@ use Inertia\Inertia;
 
 class EmployeeReimburseController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $employee = Employee::with('company:id,name')
@@ -61,8 +69,9 @@ class EmployeeReimburseController extends Controller
             $path = $request->file('attachment')->store('reimbursements', 'public');
         }
 
-        DB::transaction(function () use ($employee, $data, $path) {
-            ReimburseRequest::create([
+        $reimburseRequest = null;
+        DB::transaction(function () use (&$reimburseRequest, $employee, $data, $path) {
+            $reimburseRequest = ReimburseRequest::create([
                 'employee_id' => $employee->id,
                 'category' => $data['category'],
                 'title' => $data['title'] ?? null,
@@ -75,7 +84,32 @@ class EmployeeReimburseController extends Controller
             ]);
         });
 
-        return back();
+        if ($reimburseRequest) {
+            $employee->loadMissing('manager');
+            $reference = $this->notificationService->buildReference($reimburseRequest);
+
+            $this->notificationService->notifyApprovalAudience($employee, [
+                ...$reference,
+                'type' => 'reimburse.request.created',
+                'title' => 'Pengajuan Reimburse Baru',
+                'message' => sprintf(
+                    '%s mengajukan reimburse %s %.0f.',
+                    $request->user()->name,
+                    strtoupper((string) $reimburseRequest->currency),
+                    (float) $reimburseRequest->amount,
+                ),
+            ]);
+
+            $this->auditLogService->fromRequest($request, 'reimburse_requests', 'reimburse.create.web', [
+                'subject' => 'reimburse_request',
+                'reference_type' => $reimburseRequest::class,
+                'reference_id' => $reimburseRequest->id,
+                'notes' => 'Pengajuan reimburse dibuat dari web self-service.',
+                'after_data' => $reimburseRequest->toArray(),
+            ]);
+        }
+
+        return back()->with('success', 'Pengajuan reimburse berhasil dikirim.');
     }
 
     private function paginationPayload(LengthAwarePaginator $paginator): array

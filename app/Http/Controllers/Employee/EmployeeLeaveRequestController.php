@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Employee;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalStep;
 use App\Models\Employee;
+use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -15,6 +18,12 @@ use Inertia\Inertia;
 
 class EmployeeLeaveRequestController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $employee = Employee::with('company:id,name')
@@ -109,12 +118,30 @@ class EmployeeLeaveRequestController extends Controller
             ]);
         }
 
+        $year = (int) $start->format('Y');
+        $balance = LeaveBalance::query()
+            ->where('employee_id', $employee->id)
+            ->where('leave_type_id', $leaveType->id)
+            ->where('year', $year)
+            ->first();
+
+        $remaining = $balance
+            ? (int) $balance->remaining
+            : (int) $leaveType->default_allocation;
+
+        if ($remaining > 0 && $remaining < $totalDays) {
+            return back()->withErrors([
+                'leave_type_id' => 'Saldo cuti tidak mencukupi untuk tanggal yang dipilih.',
+            ]);
+        }
+
         $path = null;
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('leave-requests', 'public');
         }
 
-        DB::transaction(function () use ($employee, $data, $totalDays, $path, $request) {
+        $leaveRequest = null;
+        DB::transaction(function () use (&$leaveRequest, $employee, $data, $totalDays, $path, $request) {
             $leaveRequest = LeaveRequest::create([
                 'employee_id' => $employee->id,
                 'leave_type_id' => $data['leave_type_id'],
@@ -134,7 +161,7 @@ class EmployeeLeaveRequestController extends Controller
                 'requested_at' => now(),
             ]);
 
-            $requesterRole = $request->user()->role ?? 'employee';
+            $requesterRole = $this->resolveRole($request->user());
 
             foreach ($this->approvalStepsConfig($requesterRole) as $step => $roles) {
                 ApprovalStep::create([
@@ -144,6 +171,35 @@ class EmployeeLeaveRequestController extends Controller
                 ]);
             }
         });
+
+        if ($leaveRequest) {
+            $employee->loadMissing('manager');
+            $reference = $this->notificationService->buildReference($leaveRequest);
+
+            $this->notificationService->notifyApprovalAudience($employee, [
+                ...$reference,
+                'type' => 'leave.request.created',
+                'title' => 'Pengajuan Cuti Baru',
+                'message' => sprintf(
+                    '%s mengajukan cuti %s sampai %s.',
+                    $request->user()->name,
+                    Carbon::parse($leaveRequest->start_date)->format('Y-m-d'),
+                    Carbon::parse($leaveRequest->end_date)->format('Y-m-d'),
+                ),
+                'meta' => [
+                    'employee_id' => $employee->id,
+                    'leave_request_id' => $leaveRequest->id,
+                ],
+            ]);
+
+            $this->auditLogService->fromRequest($request, 'leave_requests', 'leave.create.web', [
+                'subject' => 'leave_request',
+                'reference_type' => $leaveRequest::class,
+                'reference_id' => $leaveRequest->id,
+                'notes' => 'Pengajuan cuti dibuat dari web self-service.',
+                'after_data' => $leaveRequest->toArray(),
+            ]);
+        }
 
         return back()->with('success', 'Pengajuan cuti berhasil dikirim.');
     }
@@ -190,10 +246,34 @@ class EmployeeLeaveRequestController extends Controller
             'superadmin' => [
                 1 => ['superadmin'],
             ],
-            default => [
+            'manager' => [
                 1 => ['admin', 'superadmin'],
-                2 => ['superadmin'],
+            ],
+            default => [
+                1 => ['manager', 'admin', 'superadmin'],
+                2 => ['admin', 'superadmin'],
             ],
         };
+    }
+
+    private function resolveRole($user): string
+    {
+        if (!$user) {
+            return 'employee';
+        }
+
+        if ($user->hasRole('superadmin')) {
+            return 'superadmin';
+        }
+
+        if ($user->hasRole('admin')) {
+            return 'admin';
+        }
+
+        if ($user->hasRole('manager')) {
+            return 'manager';
+        }
+
+        return 'employee';
     }
 }

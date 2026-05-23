@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api\Employee;
 
+use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
@@ -16,6 +17,7 @@ use Illuminate\Support\Carbon;
 
 class DashboardController extends Controller
 {
+    use ApiResponse;
     use ResolvesEmployee;
 
     public function index(Request $request)
@@ -103,8 +105,8 @@ class DashboardController extends Controller
             ->values()
             ->all();
 
-        return response()->json([
-            'data' => [
+        return $this->successResponse(
+            [
                 'employee' => [
                     'id' => $employee->id,
                     'employee_code' => $employee->employee_code,
@@ -143,6 +145,7 @@ class DashboardController extends Controller
                 'upcoming_schedules' => $upcomingSchedules,
                 'server_time' => now()->toDateTimeString(),
             ],
-        ]);
+            'Dashboard karyawan berhasil diambil.',
+        );
     }
 }

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::login
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:13
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:18
  * @route '/api/v1/auth/login'
  */
 export const login = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -16,7 +16,7 @@ login.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::login
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:13
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:18
  * @route '/api/v1/auth/login'
  */
 login.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ login.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::login
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:13
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:18
  * @route '/api/v1/auth/login'
  */
 login.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -35,7 +35,7 @@ login.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::login
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:13
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:18
  * @route '/api/v1/auth/login'
  */
     const loginForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -45,7 +45,7 @@ login.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::login
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:13
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:18
  * @route '/api/v1/auth/login'
  */
         loginForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -56,7 +56,7 @@ login.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     login.form = loginForm
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
 export const me = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -71,7 +71,7 @@ me.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
 me.url = (options?: RouteQueryOptions) => {
@@ -80,7 +80,7 @@ me.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
 me.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -89,7 +89,7 @@ me.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
 me.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -99,7 +99,7 @@ me.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
     const meForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -109,7 +109,7 @@ me.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
         meForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -118,7 +118,7 @@ me.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::me
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:63
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:108
  * @route '/api/v1/auth/me'
  */
         meForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -134,7 +134,7 @@ me.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     me.form = meForm
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::logout
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:88
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:135
  * @route '/api/v1/auth/logout'
  */
 export const logout = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -149,7 +149,7 @@ logout.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::logout
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:88
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:135
  * @route '/api/v1/auth/logout'
  */
 logout.url = (options?: RouteQueryOptions) => {
@@ -158,7 +158,7 @@ logout.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::logout
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:88
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:135
  * @route '/api/v1/auth/logout'
  */
 logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -168,7 +168,7 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::logout
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:88
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:135
  * @route '/api/v1/auth/logout'
  */
     const logoutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -178,7 +178,7 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Auth\TokenAuthController::logout
- * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:88
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:135
  * @route '/api/v1/auth/logout'
  */
         logoutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -187,6 +187,61 @@ logout.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
         })
     
     logout.form = logoutForm
-const TokenAuthController = { login, me, logout }
+/**
+* @see \App\Http\Controllers\Api\Auth\TokenAuthController::refresh
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:146
+ * @route '/api/v1/auth/refresh'
+ */
+export const refresh = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: refresh.url(options),
+    method: 'post',
+})
+
+refresh.definition = {
+    methods: ["post"],
+    url: '/api/v1/auth/refresh',
+} satisfies RouteDefinition<["post"]>
+
+/**
+* @see \App\Http\Controllers\Api\Auth\TokenAuthController::refresh
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:146
+ * @route '/api/v1/auth/refresh'
+ */
+refresh.url = (options?: RouteQueryOptions) => {
+    return refresh.definition.url + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\Auth\TokenAuthController::refresh
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:146
+ * @route '/api/v1/auth/refresh'
+ */
+refresh.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+    url: refresh.url(options),
+    method: 'post',
+})
+
+    /**
+* @see \App\Http\Controllers\Api\Auth\TokenAuthController::refresh
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:146
+ * @route '/api/v1/auth/refresh'
+ */
+    const refreshForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        action: refresh.url(options),
+        method: 'post',
+    })
+
+            /**
+* @see \App\Http\Controllers\Api\Auth\TokenAuthController::refresh
+ * @see app/Http/Controllers/Api/Auth/TokenAuthController.php:146
+ * @route '/api/v1/auth/refresh'
+ */
+        refreshForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+            action: refresh.url(options),
+            method: 'post',
+        })
+    
+    refresh.form = refreshForm
+const TokenAuthController = { login, me, logout, refresh }
 
 export default TokenAuthController

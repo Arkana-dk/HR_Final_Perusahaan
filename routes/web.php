@@ -15,6 +15,7 @@ use App\Http\Controllers\Finance\ReimburseController;
 use App\Http\Controllers\Leave\LeaveRequestController;
 use App\Http\Controllers\MasterData\MasterDataController;
 use App\Http\Controllers\Modules\ModuleController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Payroll\PayslipController;
 use App\Http\Controllers\Time\AttendanceController;
 use App\Http\Controllers\Time\OvertimeController;
@@ -25,23 +26,29 @@ Route::get('/', function () {
 
 Route::get('dashboard', function () {
     $user = auth()->user();
-    
-    // Redirect based on user role
-    return match($user->role) {
-        'superadmin' => redirect()->route('superadmin.dashboard'),
-        'admin' => redirect()->route('admin.dashboard'),
-        'employee' => redirect()->route('employee.dashboard'),
-        default => redirect()->route('employee.dashboard'),
-    };
+
+    if ($user->hasRole('superadmin')) {
+        return redirect()->route('superadmin.dashboard');
+    }
+
+    if ($user->hasRole('admin') || $user->hasRole('manager')) {
+        return redirect()->route('admin.dashboard');
+    }
+
+    return redirect()->route('employee.dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::middleware(['auth', 'role:admin,superadmin'])->prefix('modules')->group(function () {
+Route::middleware(['auth', 'role:admin,superadmin,manager'])->prefix('modules')->group(function () {
     Route::get('employees', [EmployeeController::class, 'index'])->name('employees.index');
     Route::get('employees/create', [EmployeeController::class, 'create'])->name('employees.create');
     Route::post('employees', [EmployeeController::class, 'store'])->name('employees.store');
     Route::get('employees/{employee}', [EmployeeController::class, 'show'])->name('employees.show');
     Route::get('employees/{employee}/edit', [EmployeeController::class, 'edit'])->name('employees.edit');
     Route::put('employees/{employee}', [EmployeeController::class, 'update'])->name('employees.update');
+    Route::post('employees/{employee}/deactivate', [EmployeeController::class, 'deactivate'])
+        ->name('employees.deactivate');
+    Route::post('employees/{employee}/restore', [EmployeeController::class, 'restore'])
+        ->name('employees.restore');
     Route::delete('employees/{employee}', [EmployeeController::class, 'destroy'])->name('employees.destroy');
 });
 
@@ -138,6 +145,12 @@ Route::middleware(['auth', 'role:superadmin'])
                 'work-locations',
             ])
             ->name('organization.resources.destroy');
+        Route::post('{resource}/{record}/restore', [MasterDataController::class, 'restore'])
+            ->whereIn('resource', [
+                'departments',
+                'positions',
+            ])
+            ->name('organization.resources.restore');
     });
 
 Route::middleware(['auth', 'role:superadmin'])
@@ -149,6 +162,26 @@ Route::middleware(['auth', 'role:superadmin'])
     ->name('organization.index');
 
 Route::middleware(['auth', 'role:admin,superadmin'])->group(function () {
+    Route::get('modules/employees/template', [MasterDataController::class, 'template'])
+        ->defaults('resource', 'employees')
+        ->name('employees.template');
+    Route::get('modules/employees/export', [MasterDataController::class, 'export'])
+        ->defaults('resource', 'employees')
+        ->name('employees.export');
+    Route::post('modules/employees/import', [MasterDataController::class, 'import'])
+        ->defaults('resource', 'employees')
+        ->name('employees.import');
+
+    Route::get('modules/attendance/template', [MasterDataController::class, 'template'])
+        ->defaults('resource', 'attendance-logs')
+        ->name('attendance-logs.template');
+    Route::get('modules/attendance/export', [MasterDataController::class, 'export'])
+        ->defaults('resource', 'attendance-logs')
+        ->name('attendance-logs.export');
+    Route::post('modules/attendance/import', [MasterDataController::class, 'import'])
+        ->defaults('resource', 'attendance-logs')
+        ->name('attendance-logs.import');
+
     Route::get('modules/shifts/template', [MasterDataController::class, 'template'])
         ->defaults('resource', 'shifts')
         ->name('shifts.template');
@@ -396,7 +429,7 @@ Route::middleware(['auth', 'role:superadmin'])->group(function () {
         ->name('payroll-periods.destroy');
 });
 
-Route::middleware(['auth', 'role:admin,superadmin'])->prefix('modules')->group(function () {
+Route::middleware(['auth', 'role:manager,admin,superadmin'])->prefix('modules')->group(function () {
     Route::get('analytics', [AnalyticsController::class, 'index'])->name('analytics.index');
 
     Route::get('attendance', [AttendanceController::class, 'index'])->name('attendance.index');
@@ -424,25 +457,25 @@ Route::middleware(['auth', 'role:admin,superadmin'])->prefix('modules')->group(f
         ->name('leave-requests.reject');
 
     Route::get('assets', [AssetController::class, 'index'])->name('assets.index');
-    Route::get('assets/create', [AssetController::class, 'create'])->name('assets.create');
-    Route::post('assets', [AssetController::class, 'store'])->name('assets.store');
-    Route::get('assets/{asset}/edit', [AssetController::class, 'edit'])->name('assets.edit');
-    Route::put('assets/{asset}', [AssetController::class, 'update'])->name('assets.update');
-    Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->name('assets.destroy');
+    Route::get('assets/create', [AssetController::class, 'create'])->middleware('role:admin,superadmin')->name('assets.create');
+    Route::post('assets', [AssetController::class, 'store'])->middleware('role:admin,superadmin')->name('assets.store');
+    Route::get('assets/{asset}/edit', [AssetController::class, 'edit'])->middleware('role:admin,superadmin')->name('assets.edit');
+    Route::put('assets/{asset}', [AssetController::class, 'update'])->middleware('role:admin,superadmin')->name('assets.update');
+    Route::delete('assets/{asset}', [AssetController::class, 'destroy'])->middleware('role:admin,superadmin')->name('assets.destroy');
 
     Route::get('contracts', [EmployeeContractController::class, 'index'])->name('contracts.index');
-    Route::get('contracts/create', [EmployeeContractController::class, 'create'])->name('contracts.create');
-    Route::post('contracts', [EmployeeContractController::class, 'store'])->name('contracts.store');
-    Route::get('contracts/{contract}/edit', [EmployeeContractController::class, 'edit'])->name('contracts.edit');
-    Route::put('contracts/{contract}', [EmployeeContractController::class, 'update'])->name('contracts.update');
-    Route::delete('contracts/{contract}', [EmployeeContractController::class, 'destroy'])->name('contracts.destroy');
+    Route::get('contracts/create', [EmployeeContractController::class, 'create'])->middleware('role:admin,superadmin')->name('contracts.create');
+    Route::post('contracts', [EmployeeContractController::class, 'store'])->middleware('role:admin,superadmin')->name('contracts.store');
+    Route::get('contracts/{contract}/edit', [EmployeeContractController::class, 'edit'])->middleware('role:admin,superadmin')->name('contracts.edit');
+    Route::put('contracts/{contract}', [EmployeeContractController::class, 'update'])->middleware('role:admin,superadmin')->name('contracts.update');
+    Route::delete('contracts/{contract}', [EmployeeContractController::class, 'destroy'])->middleware('role:admin,superadmin')->name('contracts.destroy');
 
     Route::get('documents', [EmployeeDocumentController::class, 'index'])->name('documents.index');
-    Route::get('documents/create', [EmployeeDocumentController::class, 'create'])->name('documents.create');
-    Route::post('documents', [EmployeeDocumentController::class, 'store'])->name('documents.store');
-    Route::get('documents/{document}/edit', [EmployeeDocumentController::class, 'edit'])->name('documents.edit');
-    Route::put('documents/{document}', [EmployeeDocumentController::class, 'update'])->name('documents.update');
-    Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->name('documents.destroy');
+    Route::get('documents/create', [EmployeeDocumentController::class, 'create'])->middleware('role:admin,superadmin')->name('documents.create');
+    Route::post('documents', [EmployeeDocumentController::class, 'store'])->middleware('role:admin,superadmin')->name('documents.store');
+    Route::get('documents/{document}/edit', [EmployeeDocumentController::class, 'edit'])->middleware('role:admin,superadmin')->name('documents.edit');
+    Route::put('documents/{document}', [EmployeeDocumentController::class, 'update'])->middleware('role:admin,superadmin')->name('documents.update');
+    Route::delete('documents/{document}', [EmployeeDocumentController::class, 'destroy'])->middleware('role:admin,superadmin')->name('documents.destroy');
 });
 
 Route::middleware(['auth', 'role:employee,admin,superadmin'])->prefix('employee')->group(function () {
@@ -480,8 +513,16 @@ Route::middleware(['auth', 'role:superadmin'])->prefix('modules')->group(functio
     Route::put('payslips/{payslip}', [PayslipController::class, 'update'])->name('payslips.update');
 });
 
+Route::middleware(['auth'])->prefix('notifications')->group(function () {
+    Route::get('/', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::post('{notification}/read', [NotificationController::class, 'markAsRead'])
+        ->name('notifications.read');
+    Route::post('read-all', [NotificationController::class, 'markAllAsRead'])
+        ->name('notifications.read-all');
+});
+
 Route::get('modules/{slug}', [ModuleController::class, 'show'])
-    ->middleware(['auth', 'role:admin,superadmin'])
+    ->middleware(['auth', 'role:manager,admin,superadmin'])
     ->name('modules.show');
 
 require __DIR__.'/roles.php';

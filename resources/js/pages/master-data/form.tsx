@@ -1,5 +1,5 @@
-import type { FormEventHandler } from 'react';
 import { Head, useForm, usePage } from '@inertiajs/react';
+import type { FormEventHandler } from 'react';
 import InputError from '@/components/input-error';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';

@@ -1,5 +1,5 @@
-import type { FormEvent } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
+import type { FormEvent } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -54,7 +54,7 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, string> = {
+const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -104,6 +104,8 @@ export default function EmployeeReimburse() {
     const to = requests.meta?.to ?? requests.to ?? 0;
     const total = requests.meta?.total ?? requests.total ?? 0;
     const rows = requests.data ?? [];
+    const employeeError = (errors as Record<string, string | undefined>)
+        .employee;
 
     return (
         <AppLayout>
@@ -133,9 +135,9 @@ export default function EmployeeReimburse() {
                     </Card>
                 )}
 
-                {errors.employee && (
+                {employeeError && (
                     <p className="text-sm text-destructive">
-                        {errors.employee}
+                        {employeeError}
                     </p>
                 )}
 
@@ -381,3 +383,4 @@ export default function EmployeeReimburse() {
         </AppLayout>
     );
 }
+

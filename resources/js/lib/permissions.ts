@@ -1,4 +1,5 @@
-import { UserRole, rolePermissions } from '@/types/role';
+import type { UserRole} from '@/types/role';
+import { rolePermissions } from '@/types/role';
 
 export function hasPermission(
     userRole: UserRole,
@@ -11,6 +12,7 @@ export function redirectByRole(role: UserRole): string {
     const roleRoutes: Record<UserRole, string> = {
         superadmin: '/superadmin/dashboard',
         admin: '/admin/dashboard',
+        manager: '/admin/dashboard',
         employee: '/employee/dashboard',
     };
 

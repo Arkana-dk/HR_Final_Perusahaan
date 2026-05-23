@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers\Api\Employee;
 
+use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\ApprovalStep;
 use App\Models\Employee;
+use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -16,7 +20,14 @@ use Illuminate\Validation\ValidationException;
 
 class LeaveController extends Controller
 {
+    use ApiResponse;
     use ResolvesEmployee;
+
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
 
     public function types(Request $request)
     {
@@ -38,9 +49,10 @@ class LeaveController extends Controller
             ->values()
             ->all();
 
-        return response()->json([
-            'data' => $leaveTypes,
-        ]);
+        return $this->successResponse(
+            $leaveTypes,
+            'Daftar jenis cuti berhasil diambil.',
+        );
     }
 
     public function index(Request $request)
@@ -82,18 +94,20 @@ class LeaveController extends Controller
         $perPage = (int) ($filters['per_page'] ?? 10);
         $requests = $query->paginate($perPage)->withQueryString();
 
-        return response()->json([
-            'data' => $requests->getCollection()
+        return $this->successResponse(
+            $requests->getCollection()
                 ->map(fn (LeaveRequest $leaveRequest) => $this->mapLeaveRequest($leaveRequest))
                 ->values()
                 ->all(),
-            'meta' => [
+            'Riwayat pengajuan cuti berhasil diambil.',
+            200,
+            [
                 'current_page' => $requests->currentPage(),
                 'last_page' => $requests->lastPage(),
                 'per_page' => $requests->perPage(),
                 'total' => $requests->total(),
             ],
-        ]);
+        );
     }
 
     public function show(Request $request, LeaveRequest $leaveRequest)
@@ -107,9 +121,10 @@ class LeaveController extends Controller
             'approval.steps.approver:id,name',
         ]);
 
-        return response()->json([
-            'data' => $this->mapLeaveRequest($leaveRequest),
-        ]);
+        return $this->successResponse(
+            $this->mapLeaveRequest($leaveRequest),
+            'Detail pengajuan cuti berhasil diambil.',
+        );
     }
 
     public function store(Request $request)
@@ -159,6 +174,23 @@ class LeaveController extends Controller
             ]);
         }
 
+        $year = (int) $start->format('Y');
+        $balance = LeaveBalance::query()
+            ->where('employee_id', $employee->id)
+            ->where('leave_type_id', $leaveType->id)
+            ->where('year', $year)
+            ->first();
+
+        $remaining = $balance
+            ? (int) $balance->remaining
+            : (int) $leaveType->default_allocation;
+
+        if ($remaining > 0 && $remaining < $totalDays) {
+            throw ValidationException::withMessages([
+                'leave_type_id' => 'Saldo cuti tidak mencukupi untuk tanggal yang dipilih.',
+            ]);
+        }
+
         $path = null;
         if ($request->hasFile('attachment')) {
             $path = $request->file('attachment')->store('leave-requests', 'public');
@@ -194,7 +226,7 @@ class LeaveController extends Controller
                 'requested_at' => now(),
             ]);
 
-            foreach ($this->approvalStepsConfig($user->role ?? 'employee') as $step => $roles) {
+            foreach ($this->approvalStepsConfig($this->resolveRole($user)) as $step => $roles) {
                 ApprovalStep::create([
                     'approval_id' => $approval->id,
                     'step' => $step,
@@ -209,10 +241,39 @@ class LeaveController extends Controller
             'approval.steps.approver:id,name',
         ]);
 
-        return response()->json([
-            'message' => 'Pengajuan cuti berhasil dikirim.',
-            'data' => $this->mapLeaveRequest($leaveRequest),
-        ], 201);
+        $employee->loadMissing('manager');
+        $reference = $this->notificationService->buildReference($leaveRequest);
+
+        $this->notificationService->notifyApprovalAudience($employee, [
+            ...$reference,
+            'type' => 'leave.request.created',
+            'title' => 'Pengajuan Cuti Baru',
+            'message' => sprintf(
+                '%s mengajukan cuti %s sampai %s.',
+                $request->user()->name,
+                Carbon::parse($leaveRequest->start_date)->format('Y-m-d'),
+                Carbon::parse($leaveRequest->end_date)->format('Y-m-d'),
+            ),
+            'meta' => [
+                'employee_id' => $employee->id,
+                'leave_request_id' => $leaveRequest->id,
+                'status' => $leaveRequest->status,
+            ],
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'leave_requests', 'leave.create', [
+            'subject' => 'leave_request',
+            'reference_type' => $leaveRequest::class,
+            'reference_id' => $leaveRequest->id,
+            'notes' => 'Pengajuan cuti dibuat dari mobile.',
+            'after_data' => $leaveRequest->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapLeaveRequest($leaveRequest),
+            'Pengajuan cuti berhasil dikirim.',
+            201,
+        );
     }
 
     public function cancel(Request $request, LeaveRequest $leaveRequest)
@@ -225,6 +286,8 @@ class LeaveController extends Controller
                 'status' => 'Hanya pengajuan pending yang dapat dibatalkan.',
             ]);
         }
+
+        $before = $leaveRequest->toArray();
 
         DB::transaction(function () use ($leaveRequest) {
             $leaveRequest->update([
@@ -244,10 +307,31 @@ class LeaveController extends Controller
             'approval.steps.approver:id,name',
         ]);
 
-        return response()->json([
-            'message' => 'Pengajuan cuti dibatalkan.',
-            'data' => $this->mapLeaveRequest($leaveRequest),
+        $reference = $this->notificationService->buildReference($leaveRequest);
+        $this->notificationService->notifyUsers([(int) $request->user()->id], [
+            ...$reference,
+            'type' => 'leave.request.cancelled',
+            'title' => 'Pengajuan Cuti Dibatalkan',
+            'message' => sprintf(
+                'Pengajuan cuti %s sampai %s berhasil dibatalkan.',
+                Carbon::parse($leaveRequest->start_date)->format('Y-m-d'),
+                Carbon::parse($leaveRequest->end_date)->format('Y-m-d'),
+            ),
         ]);
+
+        $this->auditLogService->fromRequest($request, 'leave_requests', 'leave.cancel', [
+            'subject' => 'leave_request',
+            'reference_type' => $leaveRequest::class,
+            'reference_id' => $leaveRequest->id,
+            'notes' => 'Pengajuan cuti dibatalkan dari mobile.',
+            'before_data' => $before,
+            'after_data' => $leaveRequest->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapLeaveRequest($leaveRequest),
+            'Pengajuan cuti dibatalkan.',
+        );
     }
 
     private function assertOwnedByEmployee(Employee $employee, LeaveRequest $leaveRequest): void
@@ -304,10 +388,34 @@ class LeaveController extends Controller
             'superadmin' => [
                 1 => ['superadmin'],
             ],
-            default => [
+            'manager' => [
                 1 => ['admin', 'superadmin'],
-                2 => ['superadmin'],
+            ],
+            default => [
+                1 => ['manager', 'admin', 'superadmin'],
+                2 => ['admin', 'superadmin'],
             ],
         };
+    }
+
+    private function resolveRole($user): string
+    {
+        if (!$user) {
+            return 'employee';
+        }
+
+        if ($user->hasRole('superadmin')) {
+            return 'superadmin';
+        }
+
+        if ($user->hasRole('admin')) {
+            return 'admin';
+        }
+
+        if ($user->hasRole('manager')) {
+            return 'manager';
+        }
+
+        return 'employee';
     }
 }

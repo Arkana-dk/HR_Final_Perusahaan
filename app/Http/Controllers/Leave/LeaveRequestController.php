@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Leave;
 use App\Http\Controllers\Controller;
 use App\Models\Approval;
 use App\Models\ApprovalStep;
+use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -14,6 +17,12 @@ use Inertia\Inertia;
 
 class LeaveRequestController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $filters = [
@@ -92,8 +101,10 @@ class LeaveRequestController extends Controller
 
     public function approve(Request $request, LeaveRequest $leaveRequest)
     {
-        $role = $request->user()->role ?? 'employee';
+        $role = $this->resolveRole($request->user());
         $approverUserId = (int) $request->user()->id;
+        $before = $leaveRequest->toArray();
+        $finalized = false;
 
         DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId) {
             $approval = $this->ensureApprovalFlow($leaveRequest);
@@ -130,6 +141,8 @@ class LeaveRequestController extends Controller
                 'final_decided_at' => now(),
             ]);
 
+            $this->reserveLeaveBalance($leaveRequest);
+
             $leaveRequest->update([
                 'status' => 'approved',
                 'approved_by_user_id' => $approverUserId,
@@ -137,13 +150,44 @@ class LeaveRequestController extends Controller
             ]);
         });
 
+        $leaveRequest->refresh();
+        $finalized = $leaveRequest->status === 'approved';
+
+        if ($finalized) {
+            $reference = $this->notificationService->buildReference($leaveRequest);
+            $requesterUserId = (int) ($leaveRequest->employee?->user_id ?? 0);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'leave.request.approved',
+                    'title' => 'Pengajuan Cuti Disetujui',
+                    'message' => sprintf(
+                        'Pengajuan cuti %s sampai %s telah disetujui.',
+                        Carbon::parse($leaveRequest->start_date)->format('Y-m-d'),
+                        Carbon::parse($leaveRequest->end_date)->format('Y-m-d'),
+                    ),
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'leave_requests', 'leave.approve', [
+                'subject' => 'leave_request',
+                'reference_type' => $leaveRequest::class,
+                'reference_id' => $leaveRequest->id,
+                'notes' => 'Pengajuan cuti disetujui.',
+                'before_data' => $before,
+                'after_data' => $leaveRequest->toArray(),
+            ]);
+        }
+
         return back();
     }
 
     public function reject(Request $request, LeaveRequest $leaveRequest)
     {
-        $role = $request->user()->role ?? 'employee';
+        $role = $this->resolveRole($request->user());
         $approverUserId = (int) $request->user()->id;
+        $before = $leaveRequest->toArray();
 
         DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId) {
             $approval = $this->ensureApprovalFlow($leaveRequest);
@@ -183,6 +227,37 @@ class LeaveRequestController extends Controller
                 'approval_notes' => $notes ?: $leaveRequest->approval_notes,
             ]);
         });
+
+        $leaveRequest->refresh();
+        if ($leaveRequest->status === 'rejected') {
+            $reference = $this->notificationService->buildReference($leaveRequest);
+            $requesterUserId = (int) ($leaveRequest->employee?->user_id ?? 0);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'leave.request.rejected',
+                    'title' => 'Pengajuan Cuti Ditolak',
+                    'message' => sprintf(
+                        'Pengajuan cuti %s sampai %s ditolak.',
+                        Carbon::parse($leaveRequest->start_date)->format('Y-m-d'),
+                        Carbon::parse($leaveRequest->end_date)->format('Y-m-d'),
+                    ),
+                    'meta' => [
+                        'approval_notes' => $leaveRequest->approval_notes,
+                    ],
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'leave_requests', 'leave.reject', [
+                'subject' => 'leave_request',
+                'reference_type' => $leaveRequest::class,
+                'reference_id' => $leaveRequest->id,
+                'notes' => 'Pengajuan cuti ditolak.',
+                'before_data' => $before,
+                'after_data' => $leaveRequest->toArray(),
+            ]);
+        }
 
         return back();
     }
@@ -231,9 +306,12 @@ class LeaveRequestController extends Controller
             'superadmin' => [
                 1 => ['superadmin'],
             ],
-            default => [
+            'manager' => [
                 1 => ['admin', 'superadmin'],
-                2 => ['superadmin'],
+            ],
+            default => [
+                1 => ['manager', 'admin', 'superadmin'],
+                2 => ['admin', 'superadmin'],
             ],
         };
     }
@@ -268,7 +346,7 @@ class LeaveRequestController extends Controller
     {
         $leaveRequest->loadMissing('employee.user:id,role');
 
-        return $leaveRequest->employee?->user?->role ?? 'employee';
+        return $this->resolveRole($leaveRequest->employee?->user);
     }
 
     private function assertRoleForStep(string $role, int $step, array $stepsConfig): void
@@ -310,5 +388,59 @@ class LeaveRequestController extends Controller
         if ($alreadyDecided) {
             abort(403, 'Approver di setiap step harus berbeda pengguna.');
         }
+    }
+
+    private function resolveRole($user): string
+    {
+        if (!$user) {
+            return 'employee';
+        }
+
+        if ($user->hasRole('superadmin')) {
+            return 'superadmin';
+        }
+
+        if ($user->hasRole('admin')) {
+            return 'admin';
+        }
+
+        if ($user->hasRole('manager')) {
+            return 'manager';
+        }
+
+        return 'employee';
+    }
+
+    private function reserveLeaveBalance(LeaveRequest $leaveRequest): void
+    {
+        $leaveRequest->loadMissing('employee', 'leaveType');
+
+        if (!$leaveRequest->employee || !$leaveRequest->leaveType) {
+            return;
+        }
+
+        $year = Carbon::parse($leaveRequest->start_date)->year;
+        $requestedDays = (int) round((float) $leaveRequest->total_days);
+
+        $balance = LeaveBalance::query()
+            ->lockForUpdate()
+            ->firstOrCreate([
+                'employee_id' => $leaveRequest->employee_id,
+                'leave_type_id' => $leaveRequest->leave_type_id,
+                'year' => $year,
+            ], [
+                'allocated' => (int) $leaveRequest->leaveType->default_allocation,
+                'used' => 0,
+                'remaining' => (int) $leaveRequest->leaveType->default_allocation,
+                'expires_at' => Carbon::create($year, 12, 31)->toDateString(),
+            ]);
+
+        if ((int) $balance->remaining < $requestedDays) {
+            abort(422, 'Saldo cuti tidak mencukupi untuk menyetujui pengajuan ini.');
+        }
+
+        $balance->used = (int) $balance->used + $requestedDays;
+        $balance->remaining = max(0, (int) $balance->remaining - $requestedDays);
+        $balance->save();
     }
 }

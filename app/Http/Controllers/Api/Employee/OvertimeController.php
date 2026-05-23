@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\Employee;
 
+use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\OvertimeRequest;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +16,14 @@ use Illuminate\Validation\ValidationException;
 
 class OvertimeController extends Controller
 {
+    use ApiResponse;
     use ResolvesEmployee;
+
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
 
     public function index(Request $request)
     {
@@ -45,18 +55,20 @@ class OvertimeController extends Controller
         $perPage = (int) ($filters['per_page'] ?? 10);
         $requests = $query->paginate($perPage)->withQueryString();
 
-        return response()->json([
-            'data' => $requests->getCollection()
+        return $this->successResponse(
+            $requests->getCollection()
                 ->map(fn (OvertimeRequest $item) => $this->mapRequest($item))
                 ->values()
                 ->all(),
-            'meta' => [
+            'Riwayat lembur berhasil diambil.',
+            200,
+            [
                 'current_page' => $requests->currentPage(),
                 'last_page' => $requests->lastPage(),
                 'per_page' => $requests->perPage(),
                 'total' => $requests->total(),
             ],
-        ]);
+        );
     }
 
     public function show(Request $request, OvertimeRequest $overtimeRequest)
@@ -65,9 +77,10 @@ class OvertimeController extends Controller
         $this->assertOwnedByEmployee($employee, $overtimeRequest);
         $overtimeRequest->load('approvedBy:id,name');
 
-        return response()->json([
-            'data' => $this->mapRequest($overtimeRequest),
-        ]);
+        return $this->successResponse(
+            $this->mapRequest($overtimeRequest),
+            'Detail lembur berhasil diambil.',
+        );
     }
 
     public function store(Request $request)
@@ -103,10 +116,38 @@ class OvertimeController extends Controller
             ]);
         });
 
-        return response()->json([
-            'message' => 'Pengajuan lembur berhasil dikirim.',
-            'data' => $this->mapRequest($overtime),
-        ], 201);
+        $employee->loadMissing('manager');
+        $reference = $this->notificationService->buildReference($overtime);
+        $this->notificationService->notifyApprovalAudience($employee, [
+            ...$reference,
+            'type' => 'overtime.request.created',
+            'title' => 'Pengajuan Lembur Baru',
+            'message' => sprintf(
+                '%s mengajukan lembur pada %s (%s - %s).',
+                $request->user()->name,
+                Carbon::parse($overtime->work_date)->format('Y-m-d'),
+                $overtime->start_time,
+                $overtime->end_time,
+            ),
+            'meta' => [
+                'employee_id' => $employee->id,
+                'overtime_request_id' => $overtime->id,
+            ],
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'overtime_requests', 'overtime.create', [
+            'subject' => 'overtime_request',
+            'reference_type' => $overtime::class,
+            'reference_id' => $overtime->id,
+            'notes' => 'Pengajuan lembur dibuat dari mobile.',
+            'after_data' => $overtime->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapRequest($overtime),
+            'Pengajuan lembur berhasil dikirim.',
+            201,
+        );
     }
 
     public function cancel(Request $request, OvertimeRequest $overtimeRequest)
@@ -120,14 +161,32 @@ class OvertimeController extends Controller
             ]);
         }
 
+        $before = $overtimeRequest->toArray();
         $overtimeRequest->update([
             'status' => 'cancelled',
         ]);
 
-        return response()->json([
-            'message' => 'Pengajuan lembur dibatalkan.',
-            'data' => $this->mapRequest($overtimeRequest),
+        $reference = $this->notificationService->buildReference($overtimeRequest);
+        $this->notificationService->notifyUsers([(int) $request->user()->id], [
+            ...$reference,
+            'type' => 'overtime.request.cancelled',
+            'title' => 'Pengajuan Lembur Dibatalkan',
+            'message' => 'Pengajuan lembur Anda berhasil dibatalkan.',
         ]);
+
+        $this->auditLogService->fromRequest($request, 'overtime_requests', 'overtime.cancel', [
+            'subject' => 'overtime_request',
+            'reference_type' => $overtimeRequest::class,
+            'reference_id' => $overtimeRequest->id,
+            'notes' => 'Pengajuan lembur dibatalkan dari mobile.',
+            'before_data' => $before,
+            'after_data' => $overtimeRequest->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapRequest($overtimeRequest),
+            'Pengajuan lembur dibatalkan.',
+        );
     }
 
     private function assertOwnedByEmployee(Employee $employee, OvertimeRequest $request): void

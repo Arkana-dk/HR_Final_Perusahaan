@@ -1,4 +1,4 @@
-export type UserRole = 'superadmin' | 'admin' | 'employee';
+export type UserRole = 'superadmin' | 'admin' | 'manager' | 'employee';
 
 export interface RolePermissions {
     canManageUsers: boolean;
@@ -25,6 +25,15 @@ export const rolePermissions: Record<UserRole, RolePermissions> = {
         canManageEmployees: true,
         canManageAttendance: true,
         canManagePayroll: true,
+        canViewReports: true,
+        canManageSettings: false,
+        canManageRoles: false,
+    },
+    manager: {
+        canManageUsers: false,
+        canManageEmployees: false,
+        canManageAttendance: true,
+        canManagePayroll: false,
         canViewReports: true,
         canManageSettings: false,
         canManageRoles: false,

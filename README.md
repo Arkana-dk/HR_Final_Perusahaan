@@ -73,3 +73,8 @@ composer test
 ## Notes
 - Default database is SQLite. Update DB settings in `.env` as needed.
 - Queue and session use database drivers by default. Run migrations before starting.
+- Attendance check-in/check-out now enforces:
+  - active work schedule for current date (`scheduled` only),
+  - server-side geofence validation (if work location radius is set),
+  - early check-out reason + pending approval status,
+  - open-session protection (cannot check-in when previous session not checked out).

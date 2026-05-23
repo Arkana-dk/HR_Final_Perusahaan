@@ -14,6 +14,8 @@ class Shift extends Model
         'name',
         'start_time',
         'end_time',
+        'check_in_cutoff_time',
+        'check_out_cutoff_time',
         'break_minutes',
         'grace_minutes',
         'is_overnight',

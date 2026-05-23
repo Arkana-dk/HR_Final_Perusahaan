@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Employee extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -15,6 +17,7 @@ class Employee extends Model
         'branch_id',
         'department_id',
         'position_id',
+        'default_shift_id',
         'job_level_id',
         'manager_id',
         'employee_code',
@@ -59,6 +62,11 @@ class Employee extends Model
     public function position()
     {
         return $this->belongsTo(Position::class);
+    }
+
+    public function defaultShift()
+    {
+        return $this->belongsTo(Shift::class, 'default_shift_id');
     }
 
     public function jobLevel()
@@ -124,6 +132,11 @@ class Employee extends Model
     public function reimburseRequests()
     {
         return $this->hasMany(ReimburseRequest::class);
+    }
+
+    public function attendanceCorrections()
+    {
+        return $this->hasMany(AttendanceCorrection::class);
     }
 
     public function assignedAssets()

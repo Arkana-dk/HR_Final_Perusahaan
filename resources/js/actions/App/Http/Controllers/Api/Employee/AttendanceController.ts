@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
 export const today = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ today.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
 today.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ today.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
 today.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ today.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
 today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
     const todayForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
         todayForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::today
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:21
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:31
  * @route '/api/v1/employee/attendance/today'
  */
         todayForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ today.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     today.form = todayForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
 export const history = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ history.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
 history.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ history.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
 history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ history.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
 history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
     const historyForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
         historyForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::history
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:76
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:96
  * @route '/api/v1/employee/attendance/history'
  */
         historyForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ history.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     history.form = historyForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkIn
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:125
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:147
  * @route '/api/v1/employee/attendance/check-in'
  */
 export const checkIn = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ checkIn.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkIn
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:125
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:147
  * @route '/api/v1/employee/attendance/check-in'
  */
 checkIn.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ checkIn.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkIn
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:125
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:147
  * @route '/api/v1/employee/attendance/check-in'
  */
 checkIn.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ checkIn.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkIn
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:125
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:147
  * @route '/api/v1/employee/attendance/check-in'
  */
     const checkInForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ checkIn.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkIn
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:125
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:147
  * @route '/api/v1/employee/attendance/check-in'
  */
         checkInForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ checkIn.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     checkIn.form = checkInForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkOut
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:230
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:323
  * @route '/api/v1/employee/attendance/check-out'
  */
 export const checkOut = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -227,7 +227,7 @@ checkOut.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkOut
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:230
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:323
  * @route '/api/v1/employee/attendance/check-out'
  */
 checkOut.url = (options?: RouteQueryOptions) => {
@@ -236,7 +236,7 @@ checkOut.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkOut
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:230
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:323
  * @route '/api/v1/employee/attendance/check-out'
  */
 checkOut.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -246,7 +246,7 @@ checkOut.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkOut
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:230
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:323
  * @route '/api/v1/employee/attendance/check-out'
  */
     const checkOutForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -256,7 +256,7 @@ checkOut.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceController::checkOut
- * @see app/Http/Controllers/Api/Employee/AttendanceController.php:230
+ * @see app/Http/Controllers/Api/Employee/AttendanceController.php:323
  * @route '/api/v1/employee/attendance/check-out'
  */
         checkOutForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Company;
+use App\Models\AttendanceLog;
 use App\Models\Employee;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
@@ -8,7 +9,12 @@ use App\Models\OvertimeRequest;
 use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Models\ReimburseRequest;
+use App\Models\Shift;
+use App\Models\SystemNotification;
 use App\Models\User;
+use App\Models\WorkLocation;
+use App\Models\WorkSchedule;
+use Illuminate\Support\Carbon;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Sanctum\Sanctum;
@@ -31,6 +37,37 @@ function seedMobileEmployeeContext(): array
     ]);
 
     return [$user, $employee, $company];
+}
+
+function seedTodayAttendanceSchedule(Employee $employee, Company $company, ?array $shiftOverrides = null): void
+{
+    $workLocation = WorkLocation::create([
+        'company_id' => $company->id,
+        'name' => 'Head Office',
+        'latitude' => -6.1751,
+        'longitude' => 106.8650,
+        'radius_meters' => 250,
+        'is_active' => true,
+    ]);
+
+    $shift = Shift::create(array_merge([
+        'company_id' => $company->id,
+        'name' => 'Regular Shift',
+        'start_time' => '08:00',
+        'end_time' => '17:00',
+        'break_minutes' => 60,
+        'grace_minutes' => 10,
+        'is_overnight' => false,
+        'is_active' => true,
+    ], $shiftOverrides ?? []));
+
+    WorkSchedule::create([
+        'employee_id' => $employee->id,
+        'shift_id' => $shift->id,
+        'work_location_id' => $workLocation->id,
+        'work_date' => Carbon::today()->toDateString(),
+        'status' => 'scheduled',
+    ]);
 }
 
 test('mobile login returns sanctum token and me endpoint returns employee payload', function () {
@@ -119,7 +156,9 @@ test('employee can create leave request via mobile api and approval steps are ge
 });
 
 test('employee can check in via mobile api', function () {
-    [$user, $employee] = seedMobileEmployeeContext();
+    [$user, $employee, $company] = seedMobileEmployeeContext();
+    seedTodayAttendanceSchedule($employee, $company);
+
     Storage::fake('public');
     Sanctum::actingAs($user, ['mobile']);
 
@@ -133,14 +172,82 @@ test('employee can check in via mobile api', function () {
         ->assertOk()
         ->assertJsonPath('message', 'Check-in berhasil.');
 
-    $this->assertDatabaseHas('attendance_logs', [
-        'employee_id' => $employee->id,
-        'work_date' => now()->startOfDay()->toDateTimeString(),
-        'approval_status' => 'pending',
-    ]);
+    expect(
+        AttendanceLog::query()
+            ->where('employee_id', $employee->id)
+            ->whereDate('work_date', now()->toDateString())
+            ->where('approval_status', 'pending')
+            ->exists()
+    )->toBeTrue();
 
     $photoPath = \App\Models\AttendancePhoto::query()->firstOrFail()->file_path;
     Storage::disk('public')->assertExists($photoPath);
+});
+
+test('employee cannot check out before shift end without early leave reason', function () {
+    [$user, $employee, $company] = seedMobileEmployeeContext();
+
+    $now = Carbon::now();
+    seedTodayAttendanceSchedule($employee, $company, [
+        'start_time' => $now->copy()->subHour()->format('H:i'),
+        'end_time' => $now->copy()->addHours(3)->format('H:i'),
+    ]);
+
+    Storage::fake('public');
+    Sanctum::actingAs($user, ['mobile']);
+
+    $this->post('/api/v1/employee/attendance/check-in', [
+        'latitude' => -6.1751,
+        'longitude' => 106.8650,
+        'photo' => UploadedFile::fake()->image('selfie-in.jpg'),
+        'device_id' => 'android-device-1',
+    ], [
+        'Accept' => 'application/json',
+    ])->assertOk();
+
+    $this->post('/api/v1/employee/attendance/check-out', [
+        'latitude' => -6.1751,
+        'longitude' => 106.8650,
+        'photo' => UploadedFile::fake()->image('selfie-out.jpg'),
+        'device_id' => 'android-device-1',
+    ], [
+        'Accept' => 'application/json',
+    ])->assertStatus(422)
+        ->assertJsonValidationErrors(['early_leave_reason']);
+});
+
+test('employee can check out early with reason and marked pending approval', function () {
+    [$user, $employee, $company] = seedMobileEmployeeContext();
+
+    $now = Carbon::now();
+    seedTodayAttendanceSchedule($employee, $company, [
+        'start_time' => $now->copy()->subHour()->format('H:i'),
+        'end_time' => $now->copy()->addHours(3)->format('H:i'),
+    ]);
+
+    Storage::fake('public');
+    Sanctum::actingAs($user, ['mobile']);
+
+    $this->post('/api/v1/employee/attendance/check-in', [
+        'latitude' => -6.1751,
+        'longitude' => 106.8650,
+        'photo' => UploadedFile::fake()->image('selfie-in.jpg'),
+        'device_id' => 'android-device-1',
+    ], [
+        'Accept' => 'application/json',
+    ])->assertOk();
+
+    $this->post('/api/v1/employee/attendance/check-out', [
+        'latitude' => -6.1751,
+        'longitude' => 106.8650,
+        'photo' => UploadedFile::fake()->image('selfie-out.jpg'),
+        'device_id' => 'android-device-1',
+        'early_leave_reason' => 'Perlu kontrol ke dokter',
+    ], [
+        'Accept' => 'application/json',
+    ])->assertOk()
+        ->assertJsonPath('data.is_early_leave', true)
+        ->assertJsonPath('data.approval_status', 'pending');
 });
 
 test('employee can create overtime request via mobile api', function () {
@@ -212,4 +319,30 @@ test('employee can read latest payslip via mobile api', function () {
         ->assertOk()
         ->assertJsonPath('data.latest.status', 'final')
         ->assertJsonPath('data.latest.period.name', 'Feb 2026');
+});
+
+test('employee can read and mark notifications via mobile api', function () {
+    [$user] = seedMobileEmployeeContext();
+    Sanctum::actingAs($user, ['mobile']);
+
+    $notification = SystemNotification::create([
+        'user_id' => $user->id,
+        'title' => 'Pengajuan Baru',
+        'message' => 'Ada pengajuan cuti baru untuk ditinjau.',
+        'type' => 'leave.request.created',
+    ]);
+
+    $this->getJson('/api/v1/notifications')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('meta.unread_count', 1);
+
+    $this->postJson('/api/v1/notifications/'.$notification->id.'/read')
+        ->assertOk()
+        ->assertJsonPath('success', true)
+        ->assertJsonPath('data.is_read', true);
+
+    $this->getJson('/api/v1/notifications/unread-count')
+        ->assertOk()
+        ->assertJsonPath('data.unread_count', 0);
 });

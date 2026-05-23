@@ -26,6 +26,8 @@ type AttendanceRow = {
     work_date: string;
     status: string;
     approval_status: string;
+    is_early_leave?: boolean;
+    early_leave_reason?: string | null;
     check_in_at?: string | null;
     check_out_at?: string | null;
     check_in_method?: string | null;
@@ -106,7 +108,9 @@ const formatTime = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, string> = {
+type BadgeTone = 'default' | 'destructive' | 'outline' | 'secondary';
+
+const statusBadge: Record<string, BadgeTone> = {
     present: 'default',
     late: 'destructive',
     absent: 'outline',
@@ -115,7 +119,7 @@ const statusBadge: Record<string, string> = {
     permission: 'outline',
 };
 
-const approvalBadge: Record<string, string> = {
+const approvalBadge: Record<string, BadgeTone> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -401,15 +405,28 @@ export default function AttendanceIndex() {
                                                     m
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    <Badge
-                                                        variant={
-                                                            statusBadge[
-                                                                log.status
-                                                            ] ?? 'outline'
-                                                        }
-                                                    >
-                                                        {log.status}
-                                                    </Badge>
+                                                    <div className="flex flex-col gap-1">
+                                                        <Badge
+                                                            variant={
+                                                                statusBadge[
+                                                                    log.status
+                                                                ] ?? 'outline'
+                                                            }
+                                                        >
+                                                            {log.status}
+                                                        </Badge>
+                                                        {log.is_early_leave && (
+                                                            <Badge variant="secondary">
+                                                                early leave
+                                                            </Badge>
+                                                        )}
+                                                        {log.is_early_leave &&
+                                                            log.early_leave_reason && (
+                                                                <p className="max-w-[220px] text-xs text-muted-foreground">
+                                                                    {log.early_leave_reason}
+                                                                </p>
+                                                            )}
+                                                    </div>
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <Badge

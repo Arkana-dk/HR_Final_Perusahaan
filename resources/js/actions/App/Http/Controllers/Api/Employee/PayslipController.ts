@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::index
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:15
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:17
  * @route '/api/v1/employee/payslips'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
 export const latest = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ latest.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
 latest.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ latest.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
 latest.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ latest.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
 latest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ latest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
     const latestForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ latest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
         latestForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ latest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::latest
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:49
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:53
  * @route '/api/v1/employee/payslips/latest'
  */
         latestForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ latest.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     latest.form = latestForm
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
 export const show = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
 show.url = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -205,7 +205,7 @@ show.url = (args: { payslip: number | { id: number } } | [payslip: number | { id
 
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
 show.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -214,7 +214,7 @@ show.get = (args: { payslip: number | { id: number } } | [payslip: number | { id
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
 show.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -224,7 +224,7 @@ show.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
 
     /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
     const showForm = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -234,7 +234,7 @@ show.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
 
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
         showForm.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -243,7 +243,7 @@ show.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\PayslipController::show
- * @see app/Http/Controllers/Api/Employee/PayslipController.php:69
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:74
  * @route '/api/v1/employee/payslips/{payslip}'
  */
         showForm.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

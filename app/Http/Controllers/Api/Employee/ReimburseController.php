@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Api\Employee;
 
+use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\ReimburseRequest;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -13,7 +16,14 @@ use Illuminate\Validation\ValidationException;
 
 class ReimburseController extends Controller
 {
+    use ApiResponse;
     use ResolvesEmployee;
+
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
 
     public function index(Request $request)
     {
@@ -45,18 +55,20 @@ class ReimburseController extends Controller
         $perPage = (int) ($filters['per_page'] ?? 10);
         $requests = $query->paginate($perPage)->withQueryString();
 
-        return response()->json([
-            'data' => $requests->getCollection()
+        return $this->successResponse(
+            $requests->getCollection()
                 ->map(fn (ReimburseRequest $item) => $this->mapRequest($item))
                 ->values()
                 ->all(),
-            'meta' => [
+            'Riwayat reimburse berhasil diambil.',
+            200,
+            [
                 'current_page' => $requests->currentPage(),
                 'last_page' => $requests->lastPage(),
                 'per_page' => $requests->perPage(),
                 'total' => $requests->total(),
             ],
-        ]);
+        );
     }
 
     public function show(Request $request, ReimburseRequest $reimburseRequest)
@@ -65,9 +77,10 @@ class ReimburseController extends Controller
         $this->assertOwnedByEmployee($employee, $reimburseRequest);
         $reimburseRequest->load('approvedBy:id,name');
 
-        return response()->json([
-            'data' => $this->mapRequest($reimburseRequest),
-        ]);
+        return $this->successResponse(
+            $this->mapRequest($reimburseRequest),
+            'Detail reimburse berhasil diambil.',
+        );
     }
 
     public function store(Request $request)
@@ -102,10 +115,37 @@ class ReimburseController extends Controller
             ]);
         });
 
-        return response()->json([
-            'message' => 'Pengajuan reimburse berhasil dikirim.',
-            'data' => $this->mapRequest($reimburse),
-        ], 201);
+        $employee->loadMissing('manager');
+        $reference = $this->notificationService->buildReference($reimburse);
+        $this->notificationService->notifyApprovalAudience($employee, [
+            ...$reference,
+            'type' => 'reimburse.request.created',
+            'title' => 'Pengajuan Reimburse Baru',
+            'message' => sprintf(
+                '%s mengajukan reimburse %s %.0f.',
+                $request->user()->name,
+                strtoupper((string) $reimburse->currency),
+                (float) $reimburse->amount,
+            ),
+            'meta' => [
+                'employee_id' => $employee->id,
+                'reimburse_request_id' => $reimburse->id,
+            ],
+        ]);
+
+        $this->auditLogService->fromRequest($request, 'reimburse_requests', 'reimburse.create', [
+            'subject' => 'reimburse_request',
+            'reference_type' => $reimburse::class,
+            'reference_id' => $reimburse->id,
+            'notes' => 'Pengajuan reimburse dibuat dari mobile.',
+            'after_data' => $reimburse->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapRequest($reimburse),
+            'Pengajuan reimburse berhasil dikirim.',
+            201,
+        );
     }
 
     public function cancel(Request $request, ReimburseRequest $reimburseRequest)
@@ -119,14 +159,32 @@ class ReimburseController extends Controller
             ]);
         }
 
+        $before = $reimburseRequest->toArray();
         $reimburseRequest->update([
             'status' => 'cancelled',
         ]);
 
-        return response()->json([
-            'message' => 'Pengajuan reimburse dibatalkan.',
-            'data' => $this->mapRequest($reimburseRequest),
+        $reference = $this->notificationService->buildReference($reimburseRequest);
+        $this->notificationService->notifyUsers([(int) $request->user()->id], [
+            ...$reference,
+            'type' => 'reimburse.request.cancelled',
+            'title' => 'Pengajuan Reimburse Dibatalkan',
+            'message' => 'Pengajuan reimburse Anda berhasil dibatalkan.',
         ]);
+
+        $this->auditLogService->fromRequest($request, 'reimburse_requests', 'reimburse.cancel', [
+            'subject' => 'reimburse_request',
+            'reference_type' => $reimburseRequest::class,
+            'reference_id' => $reimburseRequest->id,
+            'notes' => 'Pengajuan reimburse dibatalkan dari mobile.',
+            'before_data' => $before,
+            'after_data' => $reimburseRequest->toArray(),
+        ]);
+
+        return $this->successResponse(
+            $this->mapRequest($reimburseRequest),
+            'Pengajuan reimburse dibatalkan.',
+        );
     }
 
     private function assertOwnedByEmployee(Employee $employee, ReimburseRequest $request): void

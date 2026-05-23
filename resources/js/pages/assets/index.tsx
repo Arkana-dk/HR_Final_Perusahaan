@@ -63,7 +63,7 @@ type PageProps = {
     };
 };
 
-const statusBadge: Record<string, string> = {
+const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
     available: 'outline',
     assigned: 'secondary',
     maintenance: 'destructive',
@@ -351,3 +351,4 @@ export default function AssetIndex() {
         </AppLayout>
     );
 }
+

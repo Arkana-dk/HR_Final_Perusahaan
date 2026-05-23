@@ -4,12 +4,20 @@ namespace App\Http\Controllers\Time;
 
 use App\Http\Controllers\Controller;
 use App\Models\OvertimeRequest;
+use App\Services\AuditLogService;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 
 class OvertimeController extends Controller
 {
+    public function __construct(
+        private readonly NotificationService $notificationService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $filters = [
@@ -66,6 +74,7 @@ class OvertimeController extends Controller
 
     public function approve(Request $request, OvertimeRequest $overtime)
     {
+        $before = $overtime->toArray();
         DB::transaction(function () use ($overtime, $request) {
             if ($overtime->status !== 'pending') {
                 return;
@@ -83,11 +92,36 @@ class OvertimeController extends Controller
             ]);
         });
 
+        $overtime->refresh();
+        if ($overtime->status === 'approved') {
+            $requesterUserId = (int) ($overtime->employee?->user_id ?? 0);
+            $reference = $this->notificationService->buildReference($overtime);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'overtime.request.approved',
+                    'title' => 'Pengajuan Lembur Disetujui',
+                    'message' => 'Pengajuan lembur Anda telah disetujui.',
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'overtime_requests', 'overtime.approve', [
+                'subject' => 'overtime_request',
+                'reference_type' => $overtime::class,
+                'reference_id' => $overtime->id,
+                'notes' => 'Pengajuan lembur disetujui.',
+                'before_data' => $before,
+                'after_data' => $overtime->toArray(),
+            ]);
+        }
+
         return back();
     }
 
     public function reject(Request $request, OvertimeRequest $overtime)
     {
+        $before = $overtime->toArray();
         DB::transaction(function () use ($overtime, $request) {
             if ($overtime->status !== 'pending') {
                 return;
@@ -105,6 +139,33 @@ class OvertimeController extends Controller
                 'approval_notes' => $request->string('notes')->toString() ?: $overtime->approval_notes,
             ]);
         });
+
+        $overtime->refresh();
+        if ($overtime->status === 'rejected') {
+            $requesterUserId = (int) ($overtime->employee?->user_id ?? 0);
+            $reference = $this->notificationService->buildReference($overtime);
+
+            if ($requesterUserId > 0) {
+                $this->notificationService->notifyUsers([$requesterUserId], [
+                    ...$reference,
+                    'type' => 'overtime.request.rejected',
+                    'title' => 'Pengajuan Lembur Ditolak',
+                    'message' => 'Pengajuan lembur Anda ditolak.',
+                    'meta' => [
+                        'approval_notes' => $overtime->approval_notes,
+                    ],
+                ]);
+            }
+
+            $this->auditLogService->fromRequest($request, 'overtime_requests', 'overtime.reject', [
+                'subject' => 'overtime_request',
+                'reference_type' => $overtime::class,
+                'reference_id' => $overtime->id,
+                'notes' => 'Pengajuan lembur ditolak.',
+                'before_data' => $before,
+                'after_data' => $overtime->toArray(),
+            ]);
+        }
 
         return back();
     }
