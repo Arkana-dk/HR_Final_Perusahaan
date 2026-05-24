@@ -6,7 +6,7 @@ import overtime from './overtime'
 import reimburse from './reimburse'
 /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
 export const dashboard = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -21,7 +21,7 @@ dashboard.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
 dashboard.url = (options?: RouteQueryOptions) => {
@@ -30,7 +30,7 @@ dashboard.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
 dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -39,7 +39,7 @@ dashboard.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
 dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -49,7 +49,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
     const dashboardForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -59,7 +59,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
         dashboardForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -68,7 +68,7 @@ dashboard.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Employee\DashboardController::dashboard
- * @see app/Http/Controllers/Employee/DashboardController.php:11
+ * @see app/Http/Controllers/Employee/DashboardController.php:16
  * @route '/employee/dashboard'
  */
         dashboardForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({

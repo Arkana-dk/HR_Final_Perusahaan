@@ -1,12 +1,6 @@
 import { Head, Link, usePage } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import {
-    CalendarCheck,
-    ClipboardList,
-    UserCheck,
-    Users,
-    Wallet,
-} from 'lucide-react';
+import { CalendarCheck, ClipboardList, UserCheck, Users, Wallet } from 'lucide-react';
 import {
     Bar,
     BarChart,
@@ -28,63 +22,6 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import AppLayout from '@/layouts/app-layout';
-
-const metrics = [
-    {
-        label: 'Karyawan Aktif',
-        value: '452',
-        delta: '+2.1%',
-        note: '4 departemen utama',
-        tone: 'primary',
-        icon: Users,
-    },
-    {
-        label: 'Absensi Bermasalah',
-        value: '14',
-        delta: '-3 hari ini',
-        note: 'Keterlambatan & alpha',
-        tone: 'danger',
-        icon: UserCheck,
-    },
-    {
-        label: 'Pengajuan Cuti',
-        value: '12',
-        delta: '+4 hari ini',
-        note: 'SLA rata-rata 6 jam',
-        tone: 'amber',
-        icon: ClipboardList,
-    },
-    {
-        label: 'Payroll Draft',
-        value: 'Rp 742M',
-        delta: '93% selesai',
-        note: 'Periode Feb 2026',
-        tone: 'teal',
-        icon: Wallet,
-    },
-] as const;
-
-const attendanceTrend = [
-    { month: 'Sep', hadir: 95, terlambat: 3 },
-    { month: 'Oct', hadir: 94, terlambat: 4 },
-    { month: 'Nov', hadir: 96, terlambat: 3 },
-    { month: 'Dec', hadir: 93, terlambat: 5 },
-    { month: 'Jan', hadir: 95, terlambat: 4 },
-    { month: 'Feb', hadir: 96, terlambat: 3 },
-];
-
-const leaveUsage = [
-    { type: 'Tahunan', value: 62 },
-    { type: 'Sakit', value: 18 },
-    { type: 'Izin', value: 12 },
-    { type: 'Lainnya', value: 8 },
-];
-
-const scheduleAlerts = [
-    '10 karyawan belum check-in sampai pukul 09:30.',
-    'Shift malam hari ini kekurangan 2 personel.',
-    'Lembur di departemen IT melebihi 12 jam/minggu.',
-];
 
 const chartColors = [
     'var(--chart-1)',
@@ -111,10 +48,109 @@ const tooltipStyle = {
     boxShadow: '0 10px 30px rgba(15, 23, 42, 0.12)',
 };
 
+type DashboardSummary = {
+    today: string;
+    employees: {
+        total: number;
+        active: number;
+        inactive: number;
+        resign_terminated: number;
+    };
+    attendance_today: {
+        total: number;
+        checked_in: number;
+        late: number;
+        absent: number;
+    };
+    pending: {
+        leave: number;
+        overtime: number;
+        reimburse: number;
+        attendance: number;
+        attendance_correction: number;
+        approval_total: number;
+    };
+    payroll: {
+        open_periods: number;
+        payslip_draft: number;
+        payslip_final: number;
+    };
+    alerts: {
+        contracts_expiring_30: number;
+        documents_expiring_30: number;
+        assets_assigned: number;
+        unread_notifications: number;
+    };
+};
+
+type TrendRow = {
+    month: string;
+    hadir: number;
+    terlambat: number;
+};
+
+type LeaveUsageRow = {
+    type: string;
+    value: number;
+};
+
 export default function AdminDashboard() {
-    const { employeeQuick } = usePage<{
+    const {
+        employeeQuick,
+        summary,
+        attendanceTrend,
+        leaveUsage,
+        scheduleAlerts,
+        auth,
+    } = usePage<{
         employeeQuick: EmployeeQuickData;
+        summary: DashboardSummary;
+        attendanceTrend: TrendRow[];
+        leaveUsage: LeaveUsageRow[];
+        scheduleAlerts: string[];
+        auth?: {
+            user?: {
+                role?: string | null;
+            } | null;
+        } | null;
     }>().props;
+
+    const role = auth?.user?.role ?? 'admin';
+
+    const metrics = [
+        {
+            label: 'Karyawan Aktif',
+            value: summary.employees.active.toString(),
+            delta: `${summary.employees.inactive} inactive`,
+            note: `Total ${summary.employees.total} karyawan`,
+            tone: 'primary' as const,
+            icon: Users,
+        },
+        {
+            label: 'Absensi Hari Ini',
+            value: summary.attendance_today.checked_in.toString(),
+            delta: `${summary.attendance_today.late} terlambat`,
+            note: `${summary.attendance_today.absent} absent`,
+            tone: 'danger' as const,
+            icon: UserCheck,
+        },
+        {
+            label: 'Approval Pending',
+            value: summary.pending.approval_total.toString(),
+            delta: `${summary.pending.leave} cuti`,
+            note: `${summary.pending.overtime} lembur, ${summary.pending.reimburse} reimburse`,
+            tone: 'amber' as const,
+            icon: ClipboardList,
+        },
+        {
+            label: 'Payroll Aktif',
+            value: summary.payroll.open_periods.toString(),
+            delta: `${summary.payroll.payslip_draft} draft`,
+            note: `${summary.payroll.payslip_final} final/paid`,
+            tone: 'teal' as const,
+            icon: Wallet,
+        },
+    ];
 
     return (
         <AppLayout>
@@ -125,10 +161,8 @@ export default function AdminDashboard() {
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Badge variant="secondary">
-                                    HR Operasional Hari Ini
-                                </Badge>
-                                <Badge variant="outline">Update 09:42</Badge>
+                                <Badge variant="secondary">HR Operasional Hari Ini</Badge>
+                                <Badge variant="outline">{summary.today}</Badge>
                             </div>
                             <h1 className="text-2xl font-semibold tracking-tight">
                                 Admin Dashboard
@@ -139,19 +173,12 @@ export default function AdminDashboard() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <EmployeeQuickDialog
-                                role="admin"
-                                data={employeeQuick}
-                            />
+                            <EmployeeQuickDialog role={role} data={employeeQuick} />
                             <Button variant="outline" asChild>
-                                <Link href="/modules/attendance">
-                                    Import Absensi
-                                </Link>
+                                <Link href="/modules/attendance">Import Absensi</Link>
                             </Button>
                             <Button variant="secondary" asChild>
-                                <Link href="/modules/analytics">
-                                    Review Payroll
-                                </Link>
+                                <Link href="/modules/analytics">Review Payroll</Link>
                             </Button>
                         </div>
                     </div>
@@ -254,8 +281,7 @@ export default function AdminDashboard() {
                                                 key={`${entry.type}-${index}`}
                                                 fill={
                                                     chartColors[
-                                                        index %
-                                                            chartColors.length
+                                                        index % chartColors.length
                                                     ]
                                                 }
                                             />
@@ -277,32 +303,28 @@ export default function AdminDashboard() {
                             <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
                                 <div>
                                     <p className="text-sm font-medium">
-                                        Approval Cuti Departemen Finance
+                                        Approval Cuti dan Overtime
                                     </p>
                                     <p className="text-xs text-muted-foreground">
-                                        3 permintaan, target 13:00
+                                        {summary.pending.approval_total} item perlu ditinjau.
                                     </p>
                                 </div>
                                 <Badge variant="secondary">Prioritas</Badge>
                             </div>
                             <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
                                 <div>
-                                    <p className="text-sm font-medium">
-                                        Finalisasi Payroll
-                                    </p>
+                                    <p className="text-sm font-medium">Review Payroll</p>
                                     <p className="text-xs text-muted-foreground">
-                                        Review komponen lembur & bonus
+                                        {summary.payroll.open_periods} periode payroll masih open.
                                     </p>
                                 </div>
                                 <Badge variant="outline">Hari ini</Badge>
                             </div>
                             <div className="flex items-center justify-between rounded-lg border border-border/60 px-3 py-2">
                                 <div>
-                                    <p className="text-sm font-medium">
-                                        Meeting Headcount Planning
-                                    </p>
+                                    <p className="text-sm font-medium">Follow Up Presensi</p>
                                     <p className="text-xs text-muted-foreground">
-                                        15:00 - 16:00
+                                        {summary.attendance_today.late} terlambat dan {summary.attendance_today.absent} absent.
                                     </p>
                                 </div>
                                 <Badge variant="outline">Terdekat</Badge>

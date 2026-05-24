@@ -48,64 +48,6 @@ import {
 } from '@/components/ui/select';
 import AppLayout from '@/layouts/app-layout';
 
-const metrics = [
-    {
-        label: 'Total Karyawan',
-        value: '1.246',
-        delta: '+3.2% MoM',
-        note: 'Aktif 98% bulan ini',
-        tone: 'primary',
-        icon: Users,
-    },
-    {
-        label: 'Aktif Hari Ini',
-        value: '1.103',
-        delta: '+1.1%',
-        note: 'Rata-rata on-time 94%',
-        tone: 'success',
-        icon: UserCheck,
-    },
-    {
-        label: 'Approval Pending',
-        value: '18',
-        delta: '-6 vs kemarin',
-        note: 'SLA rata-rata 4 jam',
-        tone: 'amber',
-        icon: ClipboardCheck,
-    },
-    {
-        label: 'Payroll Estimasi',
-        value: 'Rp 1.86B',
-        delta: '+2.4%',
-        note: 'Draft periode Feb 2026',
-        tone: 'teal',
-        icon: Wallet,
-    },
-] as const;
-
-const headcountData = [
-    { month: 'Sep', total: 1088 },
-    { month: 'Oct', total: 1123 },
-    { month: 'Nov', total: 1150 },
-    { month: 'Dec', total: 1186 },
-    { month: 'Jan', total: 1210 },
-    { month: 'Feb', total: 1246 },
-];
-
-const attendanceData = [
-    { name: 'Hadir', value: 1103 },
-    { name: 'Terlambat', value: 32 },
-    { name: 'Izin', value: 46 },
-    { name: 'Alpha', value: 12 },
-];
-
-const approvals = [
-    { title: 'Pengajuan Cuti', count: 8, sla: 'Hari ini' },
-    { title: 'Lembur', count: 5, sla: 'Besok' },
-    { title: 'Reimburse', count: 3, sla: '2 hari' },
-    { title: 'Mutasi Internal', count: 2, sla: 'Minggu ini' },
-];
-
 const chartColors = [
     'var(--chart-1)',
     'var(--chart-2)',
@@ -137,8 +79,55 @@ const exportOptions = [
     { id: 'approvals', label: 'Queue Approval' },
 ];
 
+type DashboardSummary = {
+    today: string;
+    employees: {
+        total: number;
+        active: number;
+        inactive: number;
+    };
+    attendance_today: {
+        checked_in: number;
+        late: number;
+        absent: number;
+    };
+    pending: {
+        approval_total: number;
+    };
+    payroll: {
+        open_periods: number;
+        payslip_draft: number;
+    };
+    alerts: {
+        unread_notifications: number;
+        contracts_expiring_30: number;
+        documents_expiring_30: number;
+    };
+};
+
+type HeadcountRow = {
+    month: string;
+    total: number;
+};
+
+type AttendanceDistribution = {
+    name: string;
+    value: number;
+};
+
+type ApprovalQueue = {
+    title: string;
+    count: number;
+    sla: string;
+};
+
 type PageProps = {
     employeeQuick: EmployeeQuickData;
+    summary: DashboardSummary;
+    headcountData: HeadcountRow[];
+    attendanceData: AttendanceDistribution[];
+    approvals: ApprovalQueue[];
+    criticalNotifications: string[];
     auth?: {
         user?: {
             role?: string | null;
@@ -176,8 +165,16 @@ const downloadCsv = (
 };
 
 export default function SuperAdminDashboard() {
-    const { employeeQuick, auth } = usePage<PageProps>().props;
-    const role = auth?.user?.role ?? 'employee';
+    const {
+        employeeQuick,
+        summary,
+        headcountData,
+        attendanceData,
+        approvals,
+        criticalNotifications,
+        auth,
+    } = usePage<PageProps>().props;
+    const role = auth?.user?.role ?? 'superadmin';
 
     const [exportType, setExportType] = useState('headcount');
     const [exportFrom, setExportFrom] = useState('');
@@ -203,7 +200,42 @@ export default function SuperAdminDashboard() {
             bulan: item.month,
             total: item.total,
         }));
-    }, [exportType]);
+    }, [approvals, attendanceData, exportType, headcountData]);
+
+    const metrics = [
+        {
+            label: 'Total Karyawan',
+            value: summary.employees.total.toString(),
+            delta: `${summary.employees.active} aktif`,
+            note: `${summary.employees.inactive} inactive`,
+            tone: 'primary' as const,
+            icon: Users,
+        },
+        {
+            label: 'Kehadiran Hari Ini',
+            value: summary.attendance_today.checked_in.toString(),
+            delta: `${summary.attendance_today.late} terlambat`,
+            note: `${summary.attendance_today.absent} absent`,
+            tone: 'success' as const,
+            icon: UserCheck,
+        },
+        {
+            label: 'Approval Pending',
+            value: summary.pending.approval_total.toString(),
+            delta: 'Semua modul approval',
+            note: 'Pantau SLA harian',
+            tone: 'amber' as const,
+            icon: ClipboardCheck,
+        },
+        {
+            label: 'Payroll Open',
+            value: summary.payroll.open_periods.toString(),
+            delta: `${summary.payroll.payslip_draft} draft`,
+            note: 'Periode payroll berjalan',
+            tone: 'teal' as const,
+            icon: Wallet,
+        },
+    ];
 
     return (
         <AppLayout>
@@ -214,12 +246,8 @@ export default function SuperAdminDashboard() {
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
-                                <Badge variant="secondary">
-                                    Sistem Operasional Normal
-                                </Badge>
-                                <Badge variant="outline">
-                                    Update terakhir 09:42
-                                </Badge>
+                                <Badge variant="secondary">Sistem Operasional</Badge>
+                                <Badge variant="outline">{summary.today}</Badge>
                             </div>
                             <h1 className="text-2xl font-semibold tracking-tight">
                                 Super Admin Dashboard
@@ -230,22 +258,15 @@ export default function SuperAdminDashboard() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <EmployeeQuickDialog
-                                role={role}
-                                data={employeeQuick}
-                            />
+                            <EmployeeQuickDialog role={role} data={employeeQuick} />
 
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline">
-                                        Ekspor Laporan
-                                    </Button>
+                                    <Button variant="outline">Ekspor Laporan</Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-xl">
                                     <DialogHeader>
-                                        <DialogTitle>
-                                            Ekspor Laporan
-                                        </DialogTitle>
+                                        <DialogTitle>Ekspor Laporan</DialogTitle>
                                         <DialogDescription>
                                             Pilih laporan yang ingin diunduh
                                             dalam format CSV.
@@ -262,18 +283,14 @@ export default function SuperAdminDashboard() {
                                                     <SelectValue placeholder="Pilih laporan" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {exportOptions.map(
-                                                        (option) => (
-                                                            <SelectItem
-                                                                key={option.id}
-                                                                value={
-                                                                    option.id
-                                                                }
-                                                            >
-                                                                {option.label}
-                                                            </SelectItem>
-                                                        ),
-                                                    )}
+                                                    {exportOptions.map((option) => (
+                                                        <SelectItem
+                                                            key={option.id}
+                                                            value={option.id}
+                                                        >
+                                                            {option.label}
+                                                        </SelectItem>
+                                                    ))}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -303,10 +320,6 @@ export default function SuperAdminDashboard() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="rounded-lg border border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                                            Data yang diekspor saat ini
-                                            menggunakan sample dashboard.
-                                        </div>
                                         <Button
                                             onClick={() => {
                                                 const suffix =
@@ -325,9 +338,7 @@ export default function SuperAdminDashboard() {
 
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="secondary">
-                                        Audit Akses
-                                    </Button>
+                                    <Button variant="secondary">Audit Akses</Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-xl">
                                     <DialogHeader>
@@ -369,10 +380,6 @@ export default function SuperAdminDashboard() {
                                                     </SelectItem>
                                                 </SelectContent>
                                             </Select>
-                                        </div>
-                                        <div className="rounded-lg border border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                                            Audit log tersedia di modul Audit
-                                            Logs untuk superadmin.
                                         </div>
                                         <Button asChild>
                                             <Link href="/modules/audit-logs">
@@ -496,8 +503,7 @@ export default function SuperAdminDashboard() {
                                                 key={`${entry.name}-${index}`}
                                                 fill={
                                                     chartColors[
-                                                        index %
-                                                            chartColors.length
+                                                        index % chartColors.length
                                                     ]
                                                 }
                                             />
@@ -533,11 +539,7 @@ export default function SuperAdminDashboard() {
                                     </Badge>
                                 </div>
                             ))}
-                            <Button
-                                variant="outline"
-                                className="w-full"
-                                asChild
-                            >
+                            <Button variant="outline" className="w-full" asChild>
                                 <Link href="/modules/leave-requests">
                                     Lihat Semua Approval
                                 </Link>
@@ -551,27 +553,29 @@ export default function SuperAdminDashboard() {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <p className="text-sm font-medium">
-                                    2FA Admin Aktif
-                                </p>
+                                <p className="text-sm font-medium">Notifikasi Belum Dibaca</p>
                                 <p className="text-xs text-muted-foreground">
-                                    92% dari akun admin aktif.
+                                    {summary.alerts.unread_notifications} notifikasi perlu ditinjau.
                                 </p>
                                 <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
-                                    <div className="h-full w-[92%] rounded-full bg-chart-2" />
+                                    <div
+                                        className="h-full rounded-full bg-chart-2"
+                                        style={{
+                                            width: `${Math.min(
+                                                100,
+                                                summary.alerts.unread_notifications * 10,
+                                            )}%`,
+                                        }}
+                                    />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <p className="text-sm font-medium">
-                                    Akses Tak Biasa
-                                </p>
+                                <p className="text-sm font-medium">Audit Aktivitas</p>
                                 <p className="text-xs text-muted-foreground">
-                                    3 event perlu review hari ini.
+                                    Pantau aktivitas sensitif pada modul audit logs.
                                 </p>
                                 <Button variant="secondary" size="sm" asChild>
-                                    <Link href="/modules/audit-logs">
-                                        Lihat Audit
-                                    </Link>
+                                    <Link href="/modules/audit-logs">Lihat Audit</Link>
                                 </Button>
                             </div>
                         </CardContent>
@@ -582,15 +586,14 @@ export default function SuperAdminDashboard() {
                             <Bell className="size-4 text-muted-foreground" />
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm text-muted-foreground">
-                            <div className="rounded-lg border border-border/60 px-3 py-2">
-                                Kontrak 6 karyawan berakhir dalam 30 hari.
-                            </div>
-                            <div className="rounded-lg border border-border/60 px-3 py-2">
-                                2 departemen melewati batas lembur bulanan.
-                            </div>
-                            <div className="rounded-lg border border-border/60 px-3 py-2">
-                                Payroll draft siap direview.
-                            </div>
+                            {criticalNotifications.map((item) => (
+                                <div
+                                    key={item}
+                                    className="rounded-lg border border-border/60 px-3 py-2"
+                                >
+                                    {item}
+                                </div>
+                            ))}
                         </CardContent>
                     </Card>
                 </section>

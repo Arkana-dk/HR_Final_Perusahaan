@@ -9,12 +9,19 @@ use App\Models\Department;
 use App\Models\Employee;
 use App\Models\JobLevel;
 use App\Models\Position;
+use App\Services\DashboardMetricsService;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
 {
+    public function __construct(
+        private readonly DashboardMetricsService $dashboardMetricsService,
+    ) {
+    }
+
     public function index()
     {
+        $user = request()->user();
         $employees = Employee::with('user:id,name,email,role')
             ->orderByDesc('created_at')
             ->take(50)
@@ -74,8 +81,42 @@ class DashboardController extends Controller
                 ->values(),
         ];
 
+        $summary = $this->dashboardMetricsService->buildAdminSummary($user);
+        $headcountData = $this->dashboardMetricsService->buildHeadcountTrend($user);
+        $attendanceData = [
+            ['name' => 'Hadir', 'value' => (int) ($summary['attendance_today']['checked_in'] ?? 0)],
+            ['name' => 'Terlambat', 'value' => (int) ($summary['attendance_today']['late'] ?? 0)],
+            ['name' => 'Alpha', 'value' => (int) ($summary['attendance_today']['absent'] ?? 0)],
+            ['name' => 'Pending', 'value' => (int) ($summary['pending']['attendance'] ?? 0)],
+        ];
+        $approvals = [
+            ['title' => 'Pengajuan Cuti', 'count' => (int) ($summary['pending']['leave'] ?? 0), 'sla' => 'Hari ini'],
+            ['title' => 'Lembur', 'count' => (int) ($summary['pending']['overtime'] ?? 0), 'sla' => 'Maks 1 hari'],
+            ['title' => 'Reimburse', 'count' => (int) ($summary['pending']['reimburse'] ?? 0), 'sla' => 'Maks 2 hari'],
+            ['title' => 'Koreksi Presensi', 'count' => (int) ($summary['pending']['attendance_correction'] ?? 0), 'sla' => 'Maks 1 hari'],
+        ];
+        $criticalNotifications = [
+            sprintf(
+                'Kontrak karyawan yang akan berakhir dalam 30 hari: %d.',
+                (int) ($summary['alerts']['contracts_expiring_30'] ?? 0),
+            ),
+            sprintf(
+                'Dokumen karyawan yang mendekati kadaluarsa: %d.',
+                (int) ($summary['alerts']['documents_expiring_30'] ?? 0),
+            ),
+            sprintf(
+                'Notifikasi belum dibaca: %d.',
+                (int) ($summary['alerts']['unread_notifications'] ?? 0),
+            ),
+        ];
+
         return Inertia::render('superadmin/dashboard', [
             'employeeQuick' => $employeeQuick,
+            'summary' => $summary,
+            'headcountData' => $headcountData,
+            'attendanceData' => $attendanceData,
+            'approvals' => $approvals,
+            'criticalNotifications' => $criticalNotifications,
         ]);
     }
 }
