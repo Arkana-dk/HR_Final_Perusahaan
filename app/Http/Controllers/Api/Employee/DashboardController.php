@@ -31,6 +31,26 @@ class DashboardController extends Controller
             ->where('employee_id', $employee->id)
             ->whereDate('work_date', $today)
             ->first();
+        $hasApprovedLeaveToday = LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today->toDateString())
+            ->whereDate('end_date', '>=', $today->toDateString())
+            ->exists();
+
+        $approvedLeavesThisMonth = LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $endOfMonth->toDateString())
+            ->whereDate('end_date', '>=', $startOfMonth->toDateString())
+            ->get(['start_date', 'end_date']);
+
+        $leaveDaysThisMonth = $approvedLeavesThisMonth->sum(function (LeaveRequest $leave) use ($startOfMonth, $endOfMonth) {
+            $start = Carbon::parse($leave->start_date)->max($startOfMonth);
+            $end = Carbon::parse($leave->end_date)->min($endOfMonth);
+
+            return $start->greaterThan($end) ? 0 : $start->diffInDays($end) + 1;
+        });
 
         $attendanceStats = [
             'present_days_this_month' => AttendanceLog::query()
@@ -38,6 +58,7 @@ class DashboardController extends Controller
                 ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
                 ->whereIn('status', ['present', 'late'])
                 ->count(),
+            'leave_days_this_month' => (int) $leaveDaysThisMonth,
             'late_days_this_month' => AttendanceLog::query()
                 ->where('employee_id', $employee->id)
                 ->whereBetween('work_date', [$startOfMonth, $endOfMonth])
@@ -54,16 +75,16 @@ class DashboardController extends Controller
                     'check_out_at' => optional($todayLog->check_out_at)?->toDateTimeString(),
                     'status' => $todayLog->status,
                     'approval_status' => $todayLog->approval_status,
-                    'can_check_in' => !$todayLog->check_in_at,
+                    'can_check_in' => !$hasApprovedLeaveToday && !$todayLog->check_in_at,
                     'can_check_out' => (bool) $todayLog->check_in_at && !$todayLog->check_out_at,
                 ]
                 : [
                     'work_date' => $today->toDateString(),
                     'check_in_at' => null,
                     'check_out_at' => null,
-                    'status' => null,
+                    'status' => $hasApprovedLeaveToday ? 'on_leave' : null,
                     'approval_status' => 'pending',
-                    'can_check_in' => true,
+                    'can_check_in' => !$hasApprovedLeaveToday,
                     'can_check_out' => false,
                 ],
         ];

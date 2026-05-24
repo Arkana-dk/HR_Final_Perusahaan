@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\ReimburseRequest;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 class ReimburseController extends Controller
 {
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -30,6 +32,7 @@ class ReimburseController extends Controller
             'employee.user:id,name,email',
             'approvedBy:id,name',
         ]);
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -58,11 +61,14 @@ class ReimburseController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $statsQuery = ReimburseRequest::query();
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $statsQuery);
+
         $stats = [
-            'total' => ReimburseRequest::count(),
-            'pending' => ReimburseRequest::where('status', 'pending')->count(),
-            'approved' => ReimburseRequest::where('status', 'approved')->count(),
-            'rejected' => ReimburseRequest::where('status', 'rejected')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
 
         return Inertia::render('reimburse/index', [
@@ -74,6 +80,7 @@ class ReimburseController extends Controller
 
     public function approve(Request $request, ReimburseRequest $reimburse)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $reimburse);
         $before = $reimburse->toArray();
         DB::transaction(function () use ($reimburse, $request) {
             if ($reimburse->status !== 'pending') {
@@ -121,8 +128,13 @@ class ReimburseController extends Controller
 
     public function reject(Request $request, ReimburseRequest $reimburse)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $reimburse);
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+        ]);
+
         $before = $reimburse->toArray();
-        DB::transaction(function () use ($reimburse, $request) {
+        DB::transaction(function () use ($reimburse, $request, $data) {
             if ($reimburse->status !== 'pending') {
                 return;
             }
@@ -136,7 +148,7 @@ class ReimburseController extends Controller
                 'status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,
                 'approved_at' => now(),
-                'approval_notes' => $request->string('notes')->toString() ?: $reimburse->approval_notes,
+                'approval_notes' => trim((string) $data['notes']),
             ]);
         });
 

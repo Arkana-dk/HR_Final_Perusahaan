@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\User;
 use App\Models\UserDevice;
+use App\Services\AuditLogService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
@@ -15,12 +16,17 @@ class TokenAuthController extends Controller
 {
     use ApiResponse;
 
+    public function __construct(
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->validate([
             'email' => ['required', 'email'],
             'password' => ['required', 'string'],
-            'device_name' => ['nullable', 'string', 'max:100'],
+            'device_name' => ['required', 'string', 'max:100'],
             'platform' => ['nullable', 'string', 'max:20'],
             'device_id' => ['nullable', 'string', 'max:191'],
             'push_token' => ['nullable', 'string', 'max:255'],
@@ -44,11 +50,20 @@ class TokenAuthController extends Controller
         }
 
         $user = $request->user();
-        $deviceName = $credentials['device_name'] ?? 'mobile-app';
+        $deviceName = trim((string) ($credentials['device_name'] ?? 'mobile-app'));
+        $deviceId = trim((string) ($credentials['device_id'] ?? ''));
+        $deviceTokenName = $deviceId !== '' ? $deviceName.'::'.$deviceId : $deviceName;
         $resolvedRole = $this->resolveRole($user);
 
-        $user->tokens()->where('name', $deviceName)->delete();
-        $token = $user->createToken($deviceName, ['mobile'])->plainTextToken;
+        if ($deviceId !== '') {
+            $user->tokens()
+                ->where('name', 'like', '%::'.$deviceId)
+                ->delete();
+        } else {
+            $user->tokens()->where('name', $deviceName)->delete();
+        }
+
+        $token = $user->createToken($deviceTokenName, ['mobile'])->plainTextToken;
 
         if (!empty($credentials['push_token'])) {
             $existingDevice = UserDevice::query()
@@ -59,8 +74,8 @@ class TokenAuthController extends Controller
                 $existingDevice->update([
                     'user_id' => $user->id,
                     'platform' => strtolower((string) ($credentials['platform'] ?? 'android')),
-                    'device_name' => $credentials['device_name'] ?? null,
-                    'device_id' => $credentials['device_id'] ?? null,
+                    'device_name' => $deviceName,
+                    'device_id' => $deviceId !== '' ? $deviceId : null,
                     'is_active' => true,
                     'last_seen_at' => now(),
                 ]);
@@ -69,8 +84,8 @@ class TokenAuthController extends Controller
                     'user_id' => $user->id,
                     'push_token' => $credentials['push_token'],
                     'platform' => strtolower((string) ($credentials['platform'] ?? 'android')),
-                    'device_name' => $credentials['device_name'] ?? null,
-                    'device_id' => $credentials['device_id'] ?? null,
+                    'device_name' => $deviceName,
+                    'device_id' => $deviceId !== '' ? $deviceId : null,
                     'is_active' => true,
                     'last_seen_at' => now(),
                 ]);
@@ -80,6 +95,21 @@ class TokenAuthController extends Controller
         $employee = Employee::with('company:id,name')
             ->where('user_id', $user->id)
             ->first();
+
+        $this->auditLogService->fromRequest($request, 'auth', 'auth.mobile_login', [
+            'subject' => 'user',
+            'reference_type' => $user::class,
+            'reference_id' => $user->id,
+            'notes' => 'Login mobile berhasil.',
+            'after_data' => [
+                'device_name' => $deviceName,
+                'device_id' => $deviceId !== '' ? $deviceId : null,
+                'role' => $resolvedRole,
+            ],
+            'context' => [
+                'user_agent' => $request->userAgent(),
+            ],
+        ]);
 
         return $this->successResponse(
             [
@@ -91,6 +121,8 @@ class TokenAuthController extends Controller
                     'email' => $user->email,
                     'role' => $resolvedRole,
                     'roles' => $user->roles()->pluck('slug')->all(),
+                    'device_name' => $deviceName,
+                    'device_id' => $deviceId !== '' ? $deviceId : null,
                     'has_employee_profile' => $employee !== null,
                     'employee' => $employee
                         ? [
@@ -134,10 +166,23 @@ class TokenAuthController extends Controller
 
     public function logout(Request $request)
     {
+        $user = $request->user();
         $token = $request->user()?->currentAccessToken();
 
         if ($token) {
             $token->delete();
+        }
+
+        if ($user) {
+            $this->auditLogService->fromRequest($request, 'auth', 'auth.mobile_logout', [
+                'subject' => 'user',
+                'reference_type' => $user::class,
+                'reference_id' => $user->id,
+                'notes' => 'Logout mobile berhasil.',
+                'context' => [
+                    'user_agent' => $request->userAgent(),
+                ],
+            ]);
         }
 
         return $this->successResponse(null, 'Logout berhasil.');

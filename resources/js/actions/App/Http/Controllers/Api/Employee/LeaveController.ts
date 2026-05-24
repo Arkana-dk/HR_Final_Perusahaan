@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
 export const types = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ types.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
 types.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ types.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
 types.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ types.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
 types.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ types.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
     const typesForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ types.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
         typesForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ types.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::types
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:32
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:35
  * @route '/api/v1/employee/leave/types'
  */
         typesForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ types.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     types.form = typesForm
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::index
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:58
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:61
  * @route '/api/v1/employee/leave/requests'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
 export const show = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -172,7 +172,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
 show.url = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -205,7 +205,7 @@ show.url = (args: { leaveRequest: number | { id: number } } | [leaveRequest: num
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
 show.get = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -214,7 +214,7 @@ show.get = (args: { leaveRequest: number | { id: number } } | [leaveRequest: num
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
 show.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -224,7 +224,7 @@ show.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: nu
 
     /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
     const showForm = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -234,7 +234,7 @@ show.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: nu
 
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
         showForm.get = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -243,7 +243,7 @@ show.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: nu
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::show
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:113
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:116
  * @route '/api/v1/employee/leave/requests/{leaveRequest}'
  */
         showForm.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -259,7 +259,7 @@ show.head = (args: { leaveRequest: number | { id: number } } | [leaveRequest: nu
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::store
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:130
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:133
  * @route '/api/v1/employee/leave/requests'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -274,7 +274,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::store
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:130
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:133
  * @route '/api/v1/employee/leave/requests'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -283,7 +283,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::store
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:130
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:133
  * @route '/api/v1/employee/leave/requests'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -293,7 +293,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::store
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:130
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:133
  * @route '/api/v1/employee/leave/requests'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -303,7 +303,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::store
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:130
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:133
  * @route '/api/v1/employee/leave/requests'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -314,7 +314,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::cancel
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:279
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:289
  * @route '/api/v1/employee/leave/requests/{leaveRequest}/cancel'
  */
 export const cancel = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -329,7 +329,7 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::cancel
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:279
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:289
  * @route '/api/v1/employee/leave/requests/{leaveRequest}/cancel'
  */
 cancel.url = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ cancel.url = (args: { leaveRequest: number | { id: number } } | [leaveRequest: n
 
 /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::cancel
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:279
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:289
  * @route '/api/v1/employee/leave/requests/{leaveRequest}/cancel'
  */
 cancel.post = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -372,7 +372,7 @@ cancel.post = (args: { leaveRequest: number | { id: number } } | [leaveRequest: 
 
     /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::cancel
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:279
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:289
  * @route '/api/v1/employee/leave/requests/{leaveRequest}/cancel'
  */
     const cancelForm = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -382,7 +382,7 @@ cancel.post = (args: { leaveRequest: number | { id: number } } | [leaveRequest: 
 
             /**
 * @see \App\Http\Controllers\Api\Employee\LeaveController::cancel
- * @see app/Http/Controllers/Api/Employee/LeaveController.php:279
+ * @see app/Http/Controllers/Api/Employee/LeaveController.php:289
  * @route '/api/v1/employee/leave/requests/{leaveRequest}/cancel'
  */
         cancelForm.post = (args: { leaveRequest: number | { id: number } } | [leaveRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

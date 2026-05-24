@@ -63,7 +63,10 @@ type PageProps = {
     };
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     available: 'outline',
     assigned: 'secondary',
     maintenance: 'destructive',
@@ -190,9 +193,7 @@ export default function AssetIndex() {
                         <Input
                             placeholder="Cari kode/nama/serial"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Select
                             value={status}
@@ -214,23 +215,19 @@ export default function AssetIndex() {
                                 <SelectItem value="maintenance">
                                     Maintenance
                                 </SelectItem>
-                                <SelectItem value="retired">
-                                    Retired
-                                </SelectItem>
+                                <SelectItem value="retired">Retired</SelectItem>
                             </SelectContent>
                         </Select>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Kode</th>
                                         <th className="px-4 py-3">Nama</th>
                                         <th className="px-4 py-3">Kategori</th>
-                                        <th className="px-4 py-3">
-                                            Assigned
-                                        </th>
+                                        <th className="px-4 py-3">Assigned</th>
                                         <th className="px-4 py-3">Status</th>
                                         <th className="px-4 py-3 text-right">
                                             Aksi
@@ -268,8 +265,8 @@ export default function AssetIndex() {
                                                 {asset.category ?? '-'}
                                             </td>
                                             <td className="px-4 py-3">
-                                                {asset.assigned_employee
-                                                    ?.user?.name ?? '-'}
+                                                {asset.assigned_employee?.user
+                                                    ?.name ?? '-'}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <Badge
@@ -351,4 +348,3 @@ export default function AssetIndex() {
         </AppLayout>
     );
 }
-

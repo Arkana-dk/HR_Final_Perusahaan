@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::index
- * @see app/Http/Controllers/Payroll/PayslipController.php:18
+ * @see app/Http/Controllers/Payroll/PayslipController.php:27
  * @route '/modules/payslips'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::create
- * @see app/Http/Controllers/Payroll/PayslipController.php:40
+ * @see app/Http/Controllers/Payroll/PayslipController.php:49
  * @route '/modules/payslips/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::store
- * @see app/Http/Controllers/Payroll/PayslipController.php:55
+ * @see app/Http/Controllers/Payroll/PayslipController.php:65
  * @route '/modules/payslips'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::store
- * @see app/Http/Controllers/Payroll/PayslipController.php:55
+ * @see app/Http/Controllers/Payroll/PayslipController.php:65
  * @route '/modules/payslips'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::store
- * @see app/Http/Controllers/Payroll/PayslipController.php:55
+ * @see app/Http/Controllers/Payroll/PayslipController.php:65
  * @route '/modules/payslips'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Payroll\PayslipController::store
- * @see app/Http/Controllers/Payroll/PayslipController.php:55
+ * @see app/Http/Controllers/Payroll/PayslipController.php:65
  * @route '/modules/payslips'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::store
- * @see app/Http/Controllers/Payroll/PayslipController.php:55
+ * @see app/Http/Controllers/Payroll/PayslipController.php:65
  * @route '/modules/payslips'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
 export const edit = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
 edit.url = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ edit.url = (args: { payslip: number | { id: number } } | [payslip: number | { id
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
 edit.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ edit.get = (args: { payslip: number | { id: number } } | [payslip: number | { id
 })
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
 edit.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ edit.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
 
     /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
     const editForm = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ edit.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
 
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
         editForm.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ edit.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
         })
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::edit
- * @see app/Http/Controllers/Payroll/PayslipController.php:80
+ * @see app/Http/Controllers/Payroll/PayslipController.php:110
  * @route '/modules/payslips/{payslip}/edit'
  */
         editForm.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ edit.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::update
- * @see app/Http/Controllers/Payroll/PayslipController.php:97
+ * @see app/Http/Controllers/Payroll/PayslipController.php:128
  * @route '/modules/payslips/{payslip}'
  */
 export const update = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -329,7 +329,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::update
- * @see app/Http/Controllers/Payroll/PayslipController.php:97
+ * @see app/Http/Controllers/Payroll/PayslipController.php:128
  * @route '/modules/payslips/{payslip}'
  */
 update.url = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ update.url = (args: { payslip: number | { id: number } } | [payslip: number | { 
 
 /**
 * @see \App\Http\Controllers\Payroll\PayslipController::update
- * @see app/Http/Controllers/Payroll/PayslipController.php:97
+ * @see app/Http/Controllers/Payroll/PayslipController.php:128
  * @route '/modules/payslips/{payslip}'
  */
 update.put = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -372,7 +372,7 @@ update.put = (args: { payslip: number | { id: number } } | [payslip: number | { 
 
     /**
 * @see \App\Http\Controllers\Payroll\PayslipController::update
- * @see app/Http/Controllers/Payroll/PayslipController.php:97
+ * @see app/Http/Controllers/Payroll/PayslipController.php:128
  * @route '/modules/payslips/{payslip}'
  */
     const updateForm = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -387,7 +387,7 @@ update.put = (args: { payslip: number | { id: number } } | [payslip: number | { 
 
             /**
 * @see \App\Http\Controllers\Payroll\PayslipController::update
- * @see app/Http/Controllers/Payroll/PayslipController.php:97
+ * @see app/Http/Controllers/Payroll/PayslipController.php:128
  * @route '/modules/payslips/{payslip}'
  */
         updateForm.put = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

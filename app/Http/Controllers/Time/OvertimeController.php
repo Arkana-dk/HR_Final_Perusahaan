@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\OvertimeRequest;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 class OvertimeController extends Controller
 {
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -30,6 +32,7 @@ class OvertimeController extends Controller
             'employee.user:id,name,email',
             'approvedBy:id,name',
         ]);
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -58,11 +61,14 @@ class OvertimeController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $statsQuery = OvertimeRequest::query();
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $statsQuery);
+
         $stats = [
-            'total' => OvertimeRequest::count(),
-            'pending' => OvertimeRequest::where('status', 'pending')->count(),
-            'approved' => OvertimeRequest::where('status', 'approved')->count(),
-            'rejected' => OvertimeRequest::where('status', 'rejected')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
 
         return Inertia::render('overtime/index', [
@@ -74,6 +80,7 @@ class OvertimeController extends Controller
 
     public function approve(Request $request, OvertimeRequest $overtime)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $overtime);
         $before = $overtime->toArray();
         DB::transaction(function () use ($overtime, $request) {
             if ($overtime->status !== 'pending') {
@@ -121,8 +128,13 @@ class OvertimeController extends Controller
 
     public function reject(Request $request, OvertimeRequest $overtime)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $overtime);
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+        ]);
+
         $before = $overtime->toArray();
-        DB::transaction(function () use ($overtime, $request) {
+        DB::transaction(function () use ($overtime, $request, $data) {
             if ($overtime->status !== 'pending') {
                 return;
             }
@@ -136,7 +148,7 @@ class OvertimeController extends Controller
                 'status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,
                 'approved_at' => now(),
-                'approval_notes' => $request->string('notes')->toString() ?: $overtime->approval_notes,
+                'approval_notes' => trim((string) $data['notes']),
             ]);
         });
 

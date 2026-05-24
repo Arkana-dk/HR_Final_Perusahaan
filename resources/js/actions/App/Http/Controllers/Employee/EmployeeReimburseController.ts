@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::index
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:23
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:27
  * @route '/employee/reimburse'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::store
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:49
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:53
  * @route '/employee/reimburse'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::store
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:49
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:53
  * @route '/employee/reimburse'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::store
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:49
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:53
  * @route '/employee/reimburse'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::store
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:49
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:53
  * @route '/employee/reimburse'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Employee\EmployeeReimburseController::store
- * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:49
+ * @see app/Http/Controllers/Employee/EmployeeReimburseController.php:53
  * @route '/employee/reimburse'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

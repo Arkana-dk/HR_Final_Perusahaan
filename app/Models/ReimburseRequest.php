@@ -30,6 +30,14 @@ class ReimburseRequest extends Model
         'requested_at' => 'datetime',
     ];
 
+    protected $hidden = [
+        'attachment_path',
+    ];
+
+    protected $appends = [
+        'has_attachment',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
@@ -38,5 +46,10 @@ class ReimburseRequest extends Model
     public function approvedBy()
     {
         return $this->belongsTo(User::class, 'approved_by_user_id');
+    }
+
+    public function getHasAttachmentAttribute(): bool
+    {
+        return (bool) $this->attachment_path;
     }
 }

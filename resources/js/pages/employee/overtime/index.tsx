@@ -54,7 +54,10 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -120,9 +123,7 @@ export default function EmployeeOvertime() {
                 )}
 
                 {employeeError && (
-                    <p className="text-sm text-destructive">
-                        {employeeError}
-                    </p>
+                    <p className="text-sm text-destructive">{employeeError}</p>
                 )}
 
                 <Card>
@@ -320,4 +321,3 @@ export default function EmployeeOvertime() {
         </AppLayout>
     );
 }
-

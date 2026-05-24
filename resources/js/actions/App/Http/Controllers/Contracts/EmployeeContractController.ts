@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::index
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:15
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:26
  * @route '/modules/contracts'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::create
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:65
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:120
  * @route '/modules/contracts/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::store
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:74
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:129
  * @route '/modules/contracts'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::store
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:74
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:129
  * @route '/modules/contracts'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::store
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:74
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:129
  * @route '/modules/contracts'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::store
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:74
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:129
  * @route '/modules/contracts'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::store
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:74
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:129
  * @route '/modules/contracts'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
 export const edit = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
 edit.url = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ edit.url = (args: { contract: number | { id: number } } | [contract: number | { 
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
 edit.get = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ edit.get = (args: { contract: number | { id: number } } | [contract: number | { 
 })
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
 edit.head = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ edit.head = (args: { contract: number | { id: number } } | [contract: number | {
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
     const editForm = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ edit.head = (args: { contract: number | { id: number } } | [contract: number | {
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
         editForm.get = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ edit.head = (args: { contract: number | { id: number } } | [contract: number | {
         })
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::edit
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:90
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:164
  * @route '/modules/contracts/{contract}/edit'
  */
         editForm.head = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ edit.head = (args: { contract: number | { id: number } } | [contract: number | {
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::update
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:101
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:176
  * @route '/modules/contracts/{contract}'
  */
 export const update = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -329,7 +329,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::update
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:101
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:176
  * @route '/modules/contracts/{contract}'
  */
 update.url = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ update.url = (args: { contract: number | { id: number } } | [contract: number | 
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::update
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:101
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:176
  * @route '/modules/contracts/{contract}'
  */
 update.put = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -372,7 +372,7 @@ update.put = (args: { contract: number | { id: number } } | [contract: number | 
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::update
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:101
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:176
  * @route '/modules/contracts/{contract}'
  */
     const updateForm = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -387,7 +387,7 @@ update.put = (args: { contract: number | { id: number } } | [contract: number | 
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::update
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:101
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:176
  * @route '/modules/contracts/{contract}'
  */
         updateForm.put = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -403,7 +403,7 @@ update.put = (args: { contract: number | { id: number } } | [contract: number | 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::destroy
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:118
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:214
  * @route '/modules/contracts/{contract}'
  */
 export const destroy = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -418,7 +418,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::destroy
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:118
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:214
  * @route '/modules/contracts/{contract}'
  */
 destroy.url = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -451,7 +451,7 @@ destroy.url = (args: { contract: number | { id: number } } | [contract: number |
 
 /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::destroy
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:118
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:214
  * @route '/modules/contracts/{contract}'
  */
 destroy.delete = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -461,7 +461,7 @@ destroy.delete = (args: { contract: number | { id: number } } | [contract: numbe
 
     /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::destroy
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:118
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:214
  * @route '/modules/contracts/{contract}'
  */
     const destroyForm = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ destroy.delete = (args: { contract: number | { id: number } } | [contract: numbe
 
             /**
 * @see \App\Http\Controllers\Contracts\EmployeeContractController::destroy
- * @see app/Http/Controllers/Contracts/EmployeeContractController.php:118
+ * @see app/Http/Controllers/Contracts/EmployeeContractController.php:214
  * @route '/modules/contracts/{contract}'
  */
         destroyForm.delete = (args: { contract: number | { id: number } } | [contract: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

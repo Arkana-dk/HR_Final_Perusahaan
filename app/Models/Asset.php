@@ -40,4 +40,9 @@ class Asset extends Model
     {
         return $this->belongsTo(Employee::class, 'assigned_employee_id');
     }
+
+    public function assignmentHistories()
+    {
+        return $this->hasMany(AssetAssignmentHistory::class);
+    }
 }

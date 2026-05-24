@@ -107,7 +107,10 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -120,9 +123,7 @@ export default function LeaveRequestIndex() {
     const role = auth?.user?.role ?? 'employee';
     const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(
-        filters.status || ALL_OPTION_VALUE,
-    );
+    const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [type, setType] = useState(filters.type || ALL_OPTION_VALUE);
     const [date, setDate] = useState(filters.date ?? '');
 
@@ -268,9 +269,7 @@ export default function LeaveRequestIndex() {
                         <Input
                             placeholder="Cari nama atau kode"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Input
                             type="date"
@@ -325,20 +324,16 @@ export default function LeaveRequestIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Jenis</th>
                                         <th className="px-4 py-3">Periode</th>
                                         <th className="px-4 py-3">Hari</th>
                                         <th className="px-4 py-3">Status</th>
-                                        <th className="px-4 py-3">
-                                            Lampiran
-                                        </th>
+                                        <th className="px-4 py-3">Lampiran</th>
                                         <th className="px-4 py-3">Flow</th>
-                                        <th className="px-4 py-3">
-                                            Approval
-                                        </th>
+                                        <th className="px-4 py-3">Approval</th>
                                         <th className="px-4 py-3">Catatan</th>
                                         <th className="px-4 py-3 text-right">
                                             Aksi
@@ -372,14 +367,12 @@ export default function LeaveRequestIndex() {
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
-                                                {request.leave_type?.name ?? '-'}
+                                                {request.leave_type?.name ??
+                                                    '-'}
                                             </td>
                                             <td className="px-4 py-3">
-                                                {formatDate(
-                                                    request.start_date,
-                                                )}{' '}
-                                                -{' '}
-                                                {formatDate(request.end_date)}
+                                                {formatDate(request.start_date)}{' '}
+                                                - {formatDate(request.end_date)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 {request.total_days}
@@ -398,7 +391,7 @@ export default function LeaveRequestIndex() {
                                             <td className="px-4 py-3 text-xs">
                                                 {request.attachment_path ? (
                                                     <Link
-                                                        href={`/storage/${request.attachment_path}`}
+                                                        href={`/secure-files/leave-attachments/${request.id}`}
                                                         target="_blank"
                                                         className="text-primary hover:underline"
                                                     >
@@ -435,8 +428,8 @@ export default function LeaveRequestIndex() {
                                             </td>
                                             <td className="px-4 py-3 text-xs text-muted-foreground">
                                                 <div>
-                                                    {request.approved_by?.name ??
-                                                        '-'}
+                                                    {request.approved_by
+                                                        ?.name ?? '-'}
                                                 </div>
                                                 <div>
                                                     {formatDate(
@@ -456,7 +449,7 @@ export default function LeaveRequestIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             ) ||
@@ -483,7 +476,7 @@ export default function LeaveRequestIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             ) ||
@@ -549,4 +542,3 @@ export default function LeaveRequestIndex() {
         </AppLayout>
     );
 }
-

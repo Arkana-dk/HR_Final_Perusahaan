@@ -82,7 +82,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-export const markAsRead = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const markAsRead = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: markAsRead.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ markAsRead.definition = {
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-markAsRead.url = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+markAsRead.url = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notification: args }
     }
@@ -130,7 +130,7 @@ markAsRead.url = (args: { notification: string | number | { id: string | number 
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-markAsRead.post = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+markAsRead.post = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: markAsRead.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ markAsRead.post = (args: { notification: string | number | { id: string | number
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-    const markAsReadForm = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const markAsReadForm = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: markAsRead.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ markAsRead.post = (args: { notification: string | number | { id: string | number
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-        markAsReadForm.post = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        markAsReadForm.post = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: markAsRead.url(args, options),
             method: 'post',
         })

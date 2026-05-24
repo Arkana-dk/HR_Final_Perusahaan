@@ -5,6 +5,9 @@ namespace App\Http\Controllers\Documents;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\EmployeeDocument;
+use App\Services\AuditLogService;
+use App\Services\FileStorageService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -12,6 +15,13 @@ use Inertia\Inertia;
 
 class EmployeeDocumentController extends Controller
 {
+    public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
+        private readonly FileStorageService $fileStorageService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index(Request $request)
     {
         $filters = [
@@ -21,6 +31,7 @@ class EmployeeDocumentController extends Controller
         ];
 
         $query = EmployeeDocument::with(['employee.user:id,name,email']);
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -47,10 +58,18 @@ class EmployeeDocumentController extends Controller
         if ($filters['status'] !== '') {
             $today = Carbon::today();
             $expiringLimit = $today->copy()->addDays(30);
+            $expiring14 = $today->copy()->addDays(14);
+            $expiring7 = $today->copy()->addDays(7);
 
             if ($filters['status'] === 'expired') {
                 $query->whereNotNull('expires_at')
                     ->whereDate('expires_at', '<', $today);
+            } elseif ($filters['status'] === 'expiring_h7') {
+                $query->whereNotNull('expires_at')
+                    ->whereBetween('expires_at', [$today, $expiring7]);
+            } elseif ($filters['status'] === 'expiring_h14') {
+                $query->whereNotNull('expires_at')
+                    ->whereBetween('expires_at', [$today, $expiring14]);
             } elseif ($filters['status'] === 'expiring') {
                 $query->whereNotNull('expires_at')
                     ->whereBetween('expires_at', [$today, $expiringLimit]);
@@ -70,14 +89,25 @@ class EmployeeDocumentController extends Controller
 
         $today = Carbon::today();
         $expiringLimit = $today->copy()->addDays(30);
+        $expiring14 = $today->copy()->addDays(14);
+        $expiring7 = $today->copy()->addDays(7);
+
+        $scopedStatsQuery = EmployeeDocument::query();
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $scopedStatsQuery);
 
         $stats = [
-            'total' => EmployeeDocument::count(),
-            'expired' => EmployeeDocument::whereNotNull('expires_at')
+            'total' => (clone $scopedStatsQuery)->count(),
+            'expired' => (clone $scopedStatsQuery)->whereNotNull('expires_at')
                 ->whereDate('expires_at', '<', $today)
                 ->count(),
-            'expiring' => EmployeeDocument::whereNotNull('expires_at')
+            'expiring' => (clone $scopedStatsQuery)->whereNotNull('expires_at')
                 ->whereBetween('expires_at', [$today, $expiringLimit])
+                ->count(),
+            'expiring_h14' => (clone $scopedStatsQuery)->whereNotNull('expires_at')
+                ->whereBetween('expires_at', [$today, $expiring14])
+                ->count(),
+            'expiring_h7' => (clone $scopedStatsQuery)->whereNotNull('expires_at')
+                ->whereBetween('expires_at', [$today, $expiring7])
                 ->count(),
         ];
 
@@ -100,24 +130,41 @@ class EmployeeDocumentController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate($this->rules());
+        $this->scopeAuthorizationService->assertCanAccessModel(
+            $request->user(),
+            Employee::query()->findOrFail($validated['employee_id']),
+            'Akses dokumen karyawan lintas scope tidak diizinkan.',
+        );
 
-        DB::transaction(function () use ($request, $validated) {
+        $created = null;
+        DB::transaction(function () use ($request, $validated, &$created) {
             $payload = $validated;
             $payload['file_path'] = $request->file('file')
-                ? $request->file('file')->store(
+                ? $this->fileStorageService->storePrivate(
+                    $request->file('file'),
                     "employees/{$validated['employee_id']}/documents",
-                    'public',
                 )
                 : null;
 
-            EmployeeDocument::create($payload);
+            $created = EmployeeDocument::create($payload);
         });
+
+        if ($created instanceof EmployeeDocument) {
+            $this->auditLogService->fromRequest($request, 'documents', 'document.upload', [
+                'subject' => 'employee_document',
+                'reference_type' => $created::class,
+                'reference_id' => $created->id,
+                'notes' => 'Dokumen karyawan diunggah.',
+                'after_data' => $created->toArray(),
+            ]);
+        }
 
         return redirect()->route('documents.index');
     }
 
     public function edit(EmployeeDocument $document)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel(request()->user(), $document);
         $document->load('employee.user');
 
         return Inertia::render('documents/form', [
@@ -129,27 +176,56 @@ class EmployeeDocumentController extends Controller
 
     public function update(Request $request, EmployeeDocument $document)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $document);
         $validated = $request->validate($this->rules());
+        $this->scopeAuthorizationService->assertCanAccessModel(
+            $request->user(),
+            Employee::query()->findOrFail($validated['employee_id']),
+            'Akses dokumen karyawan lintas scope tidak diizinkan.',
+        );
+        $before = $document->toArray();
 
         DB::transaction(function () use ($request, $validated, $document) {
             $payload = $validated;
 
             if ($request->hasFile('file')) {
-                $payload['file_path'] = $request->file('file')->store(
+                $this->fileStorageService->deletePrivate($document->file_path);
+                $payload['file_path'] = $this->fileStorageService->storePrivate(
+                    $request->file('file'),
                     "employees/{$validated['employee_id']}/documents",
-                    'public',
                 );
             }
 
             $document->update($payload);
         });
 
+        $document->refresh();
+        $this->auditLogService->fromRequest($request, 'documents', 'document.update', [
+            'subject' => 'employee_document',
+            'reference_type' => $document::class,
+            'reference_id' => $document->id,
+            'notes' => 'Dokumen karyawan diperbarui.',
+            'before_data' => $before,
+            'after_data' => $document->toArray(),
+        ]);
+
         return redirect()->route('documents.index');
     }
 
-    public function destroy(EmployeeDocument $document)
+    public function destroy(Request $request, EmployeeDocument $document)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $document);
+        $before = $document->toArray();
+        $this->fileStorageService->deletePrivate($document->file_path);
         $document->delete();
+
+        $this->auditLogService->fromRequest($request, 'documents', 'document.delete', [
+            'subject' => 'employee_document',
+            'reference_type' => $document::class,
+            'reference_id' => $document->id,
+            'notes' => 'Dokumen karyawan dihapus.',
+            'before_data' => $before,
+        ]);
 
         return redirect()->route('documents.index');
     }
@@ -169,7 +245,10 @@ class EmployeeDocumentController extends Controller
 
     private function employeeOptions()
     {
-        return Employee::with('user:id,name')
+        $query = Employee::with('user:id,name');
+        $this->scopeAuthorizationService->scopeEmployees(request()->user(), $query);
+
+        return $query
             ->orderBy('employee_code')
             ->get(['id', 'employee_code', 'user_id'])
             ->map(fn ($employee) => [

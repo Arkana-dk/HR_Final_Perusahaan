@@ -1,5 +1,4 @@
 import { usePage } from '@inertiajs/react';
-import { useEffect, useState } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 type FlashPayload = {
@@ -16,38 +15,22 @@ type ToastState = {
 export function FlashToast() {
     const page = usePage<{ flash?: FlashPayload }>();
     const flash = page.props.flash;
-    const [toast, setToast] = useState<ToastState>(null);
-
-    useEffect(() => {
-        if (flash?.error) {
-            setToast({
-                tone: 'error',
-                message: flash.error,
-            });
-            return;
-        }
-
-        if (flash?.success) {
-            setToast({
+    const toast: ToastState = flash?.error
+        ? {
+              tone: 'error',
+              message: flash.error,
+          }
+        : flash?.success
+          ? {
                 tone: 'success',
                 message: flash.success,
-            });
-            return;
-        }
-
-        if (flash?.info) {
-            setToast({
-                tone: 'info',
-                message: flash.info,
-            });
-        }
-    }, [flash?.error, flash?.info, flash?.success]);
-
-    useEffect(() => {
-        if (!toast) return;
-        const timer = window.setTimeout(() => setToast(null), 2600);
-        return () => window.clearTimeout(timer);
-    }, [toast]);
+            }
+          : flash?.info
+            ? {
+                  tone: 'info',
+                  message: flash.info,
+              }
+            : null;
 
     if (!toast) {
         return null;
@@ -61,7 +44,7 @@ export function FlashToast() {
               : 'border-blue-200 bg-blue-50 text-blue-700';
 
     return (
-        <div className="pointer-events-none fixed right-4 top-4 z-50 w-[min(92vw,360px)]">
+        <div className="pointer-events-none fixed top-4 right-4 z-50 w-[min(92vw,360px)]">
             <Alert className={className}>
                 <AlertTitle>
                     {toast.tone === 'success'
@@ -75,4 +58,3 @@ export function FlashToast() {
         </div>
     );
 }
-

@@ -13,7 +13,9 @@ use App\Models\JobLevel;
 use App\Models\Position;
 use App\Models\User;
 use App\Services\AuditLogService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
@@ -24,6 +26,8 @@ use Inertia\Inertia;
 class EmployeeController extends Controller
 {
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -50,6 +54,7 @@ class EmployeeController extends Controller
                 'branch:id,name',
                 'manager.user:id,name',
             ]);
+        $this->scopeAuthorizationService->scopeEmployees($actor, $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -78,11 +83,14 @@ class EmployeeController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $statsQuery = Employee::query();
+        $this->scopeAuthorizationService->scopeEmployees($actor, $statsQuery);
+
         $stats = [
-            'total' => Employee::count(),
-            'active' => Employee::where('employment_status', 'active')->count(),
-            'contract' => Employee::where('employment_status', 'contract')->count(),
-            'probation' => Employee::where('employment_status', 'probation')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'active' => (clone $statsQuery)->where('employment_status', 'active')->count(),
+            'contract' => (clone $statsQuery)->where('employment_status', 'contract')->count(),
+            'probation' => (clone $statsQuery)->where('employment_status', 'probation')->count(),
         ];
 
         return Inertia::render('employees/index', [
@@ -194,6 +202,7 @@ class EmployeeController extends Controller
     public function show(Employee $employee)
     {
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel(request()->user(), $employee);
         $employee->load([
             'user',
             'company',
@@ -231,6 +240,7 @@ class EmployeeController extends Controller
     public function edit(Employee $employee)
     {
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel(request()->user(), $employee);
         $employee->load([
             'user',
             'company',
@@ -256,6 +266,7 @@ class EmployeeController extends Controller
     {
         $actor = $request->user();
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel($actor, $employee);
         $validated = $request->validate($this->rules($employee, $actor));
         $before = [
             'employee' => $employee->toArray(),
@@ -344,6 +355,7 @@ class EmployeeController extends Controller
     public function deactivate(Request $request, Employee $employee)
     {
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $employee);
         $before = [
             'employee' => $employee->toArray(),
             'user' => $employee->user?->toArray(),
@@ -406,6 +418,7 @@ class EmployeeController extends Controller
     public function destroy(Request $request, Employee $employee)
     {
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $employee);
 
         $before = [
             'employee' => $employee->toArray(),
@@ -466,6 +479,7 @@ class EmployeeController extends Controller
     {
         $employee = Employee::withTrashed()->with('user')->findOrFail($employee);
         $this->ensureRoleManagement($employee);
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $employee);
 
         $before = [
             'employee' => $employee->toArray(),
@@ -804,7 +818,10 @@ class EmployeeController extends Controller
             }
 
             $path = $file
-                ? $file->store("employees/{$employee->id}/documents", 'public')
+                ? $this->fileStorageService->storePrivate(
+                    $file,
+                    "employees/{$employee->id}/documents",
+                )
                 : null;
 
             EmployeeDocument::create([

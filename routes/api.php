@@ -12,16 +12,26 @@ use App\Http\Controllers\Api\Employee\OvertimeController as EmployeeOvertimeApiC
 use App\Http\Controllers\Api\Employee\PayslipController as EmployeePayslipApiController;
 use App\Http\Controllers\Api\Employee\ReimburseController as EmployeeReimburseApiController;
 use App\Http\Controllers\Api\NotificationController as NotificationApiController;
+use App\Http\Controllers\Files\SecureFileController as SecureFileApiController;
 use App\Http\Controllers\Employee\EmployeePayslipController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::post('auth/login', [TokenAuthController::class, 'login']);
+    Route::post('auth/login', [TokenAuthController::class, 'login'])->middleware('throttle:mobile-login');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('auth/me', [TokenAuthController::class, 'me']);
         Route::post('auth/logout', [TokenAuthController::class, 'logout']);
         Route::post('auth/refresh', [TokenAuthController::class, 'refresh']);
+
+        Route::prefix('secure-files')->group(function () {
+            Route::get('attendance-photos/{photo}', [SecureFileApiController::class, 'attendancePhoto']);
+            Route::get('documents/{document}', [SecureFileApiController::class, 'employeeDocument']);
+            Route::get('contracts/{contract}', [SecureFileApiController::class, 'employeeContract']);
+            Route::get('leave-attachments/{leaveRequest}', [SecureFileApiController::class, 'leaveAttachment']);
+            Route::get('reimburse-attachments/{reimburseRequest}', [SecureFileApiController::class, 'reimburseAttachment']);
+            Route::get('attendance-correction-attachments/{attendanceCorrection}', [SecureFileApiController::class, 'attendanceCorrectionAttachment']);
+        });
 
         Route::get('notifications', [NotificationApiController::class, 'index']);
         Route::get('notifications/unread-count', [NotificationApiController::class, 'unreadCount']);
@@ -76,11 +86,16 @@ Route::prefix('v1')->group(function () {
                 Route::get('reimburse/requests/{reimburseRequest}', [EmployeeReimburseApiController::class, 'show']);
                 Route::post('reimburse/requests', [EmployeeReimburseApiController::class, 'store']);
                 Route::post('reimburse/requests/{reimburseRequest}/cancel', [EmployeeReimburseApiController::class, 'cancel']);
+                Route::get('reimbursements', [EmployeeReimburseApiController::class, 'index']);
+                Route::post('reimbursements', [EmployeeReimburseApiController::class, 'store']);
+                Route::get('reimbursements/{reimburseRequest}', [EmployeeReimburseApiController::class, 'show']);
+                Route::post('reimbursements/{reimburseRequest}/cancel', [EmployeeReimburseApiController::class, 'cancel']);
 
                 Route::get('payslips', [EmployeePayslipApiController::class, 'index']);
                 Route::get('payslips/latest', [EmployeePayslipApiController::class, 'latest']);
                 Route::get('payslips/latest/download', [EmployeePayslipController::class, 'downloadLatest']);
                 Route::get('payslips/{payslip}', [EmployeePayslipApiController::class, 'show']);
+                Route::get('payslips/{payslip}/download', [EmployeePayslipApiController::class, 'download']);
             });
     });
 });

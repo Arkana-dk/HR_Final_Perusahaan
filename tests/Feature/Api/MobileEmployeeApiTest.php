@@ -39,8 +39,15 @@ function seedMobileEmployeeContext(): array
     return [$user, $employee, $company];
 }
 
-function seedTodayAttendanceSchedule(Employee $employee, Company $company, ?array $shiftOverrides = null): void
+function seedTodayAttendanceSchedule(
+    Employee $employee,
+    Company $company,
+    ?array $shiftOverrides = null,
+    ?Carbon $workDate = null,
+): void
 {
+    $targetDate = ($workDate ?? Carbon::today())->toDateString();
+
     $workLocation = WorkLocation::create([
         'company_id' => $company->id,
         'name' => 'Head Office',
@@ -65,7 +72,7 @@ function seedTodayAttendanceSchedule(Employee $employee, Company $company, ?arra
         'employee_id' => $employee->id,
         'shift_id' => $shift->id,
         'work_location_id' => $workLocation->id,
-        'work_date' => Carbon::today()->toDateString(),
+        'work_date' => $targetDate,
         'status' => 'scheduled',
     ]);
 }
@@ -157,9 +164,13 @@ test('employee can create leave request via mobile api and approval steps are ge
 
 test('employee can check in via mobile api', function () {
     [$user, $employee, $company] = seedMobileEmployeeContext();
-    seedTodayAttendanceSchedule($employee, $company);
+    $now = Carbon::now();
+    seedTodayAttendanceSchedule($employee, $company, [
+        'start_time' => $now->copy()->subMinutes(10)->format('H:i'),
+        'end_time' => $now->copy()->addHours(8)->format('H:i'),
+    ]);
 
-    Storage::fake('public');
+    Storage::fake('local');
     Sanctum::actingAs($user, ['mobile']);
 
     $this->post('/api/v1/employee/attendance/check-in', [
@@ -181,7 +192,7 @@ test('employee can check in via mobile api', function () {
     )->toBeTrue();
 
     $photoPath = \App\Models\AttendancePhoto::query()->firstOrFail()->file_path;
-    Storage::disk('public')->assertExists($photoPath);
+    Storage::disk('local')->assertExists($photoPath);
 });
 
 test('employee cannot check out before shift end without early leave reason', function () {
@@ -193,7 +204,7 @@ test('employee cannot check out before shift end without early leave reason', fu
         'end_time' => $now->copy()->addHours(3)->format('H:i'),
     ]);
 
-    Storage::fake('public');
+    Storage::fake('local');
     Sanctum::actingAs($user, ['mobile']);
 
     $this->post('/api/v1/employee/attendance/check-in', [
@@ -225,7 +236,7 @@ test('employee can check out early with reason and marked pending approval', fun
         'end_time' => $now->copy()->addHours(3)->format('H:i'),
     ]);
 
-    Storage::fake('public');
+    Storage::fake('local');
     Sanctum::actingAs($user, ['mobile']);
 
     $this->post('/api/v1/employee/attendance/check-in', [
@@ -251,11 +262,17 @@ test('employee can check out early with reason and marked pending approval', fun
 });
 
 test('employee can create overtime request via mobile api', function () {
-    [$user, $employee] = seedMobileEmployeeContext();
+    [$user, $employee, $company] = seedMobileEmployeeContext();
+    $workDate = Carbon::create(2026, 2, 9);
+    seedTodayAttendanceSchedule($employee, $company, [
+        'start_time' => '09:00',
+        'end_time' => '17:00',
+    ], $workDate);
+
     Sanctum::actingAs($user, ['mobile']);
 
     $this->postJson('/api/v1/employee/overtime/requests', [
-        'work_date' => '2026-02-09',
+        'work_date' => $workDate->toDateString(),
         'start_time' => '18:00',
         'end_time' => '21:30',
         'reason' => 'Deploy malam',

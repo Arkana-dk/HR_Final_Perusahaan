@@ -8,10 +8,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\ReimburseRequest;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class ReimburseController extends Controller
@@ -20,6 +21,8 @@ class ReimburseController extends Controller
     use ResolvesEmployee;
 
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -85,7 +88,11 @@ class ReimburseController extends Controller
 
     public function store(Request $request)
     {
-        $employee = $this->resolveEmployee($request);
+        $employee = $this->resolveEmployee($request, true);
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan reimburse baru.',
+        );
         $data = $request->validate([
             'category' => ['required', 'string', 'max:100'],
             'title' => ['nullable', 'string', 'max:150'],
@@ -97,7 +104,10 @@ class ReimburseController extends Controller
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('reimbursements', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $request->file('attachment'),
+                'reimbursements/'.$employee->id,
+            );
         }
 
         $reimburse = null;
@@ -205,9 +215,9 @@ class ReimburseController extends Controller
             'description' => $request->description,
             'status' => $request->status,
             'approval_notes' => $request->approval_notes,
-            'attachment_path' => $request->attachment_path,
+            'has_attachment' => (bool) $request->attachment_path,
             'attachment_url' => $request->attachment_path
-                ? Storage::disk('public')->url($request->attachment_path)
+                ? url('/api/v1/secure-files/reimburse-attachments/'.$request->id)
                 : null,
             'requested_at' => optional($request->requested_at)?->toDateTimeString(),
             'approved_at' => optional($request->approved_at)?->toDateTimeString(),

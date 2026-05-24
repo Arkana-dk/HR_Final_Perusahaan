@@ -25,6 +25,10 @@ class AttendancePhoto extends Model
         'meta' => 'array',
     ];
 
+    protected $hidden = [
+        'file_path',
+    ];
+
     public function attendanceLog()
     {
         return $this->belongsTo(AttendanceLog::class);

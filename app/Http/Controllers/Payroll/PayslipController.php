@@ -8,13 +8,22 @@ use App\Models\PayrollPeriod;
 use App\Models\Payslip;
 use App\Models\PayslipItem;
 use App\Models\SalaryComponent;
+use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
 use Inertia\Inertia;
 
 class PayslipController extends Controller
 {
+    public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly AuditLogService $auditLogService,
+    ) {
+    }
+
     public function index()
     {
         $payslips = Payslip::with([
@@ -42,7 +51,8 @@ class PayslipController extends Controller
         return Inertia::render('payroll/payslips/form', [
             'mode' => 'create',
             'payslip' => null,
-            'employees' => Employee::with('user:id,name')
+            'employees' => $this->activeEmployeesQuery()
+                ->with('user:id,name')
                 ->orderBy('employee_code')
                 ->get(['id', 'employee_code', 'user_id']),
             'periods' => PayrollPeriod::orderByDesc('start_date')
@@ -55,6 +65,8 @@ class PayslipController extends Controller
     public function store(Request $request)
     {
         $validated = $this->validatePayload($request);
+        $employee = Employee::query()->findOrFail($validated['employee_id']);
+        $this->assertEmployeeEligibleForPayroll($employee);
 
         $payslip = DB::transaction(function () use ($validated) {
             [$gross, $deductions] = $this->calculateTotals($validated['items']);
@@ -74,6 +86,24 @@ class PayslipController extends Controller
             return $payslip;
         });
 
+        $this->auditLogService->fromRequest($request, 'payroll', 'payroll.generate', [
+            'subject' => 'payslip',
+            'reference_type' => $payslip::class,
+            'reference_id' => $payslip->id,
+            'notes' => 'Payroll/payslip berhasil dibuat.',
+            'after_data' => $payslip->toArray(),
+        ]);
+
+        if ($payslip->status !== 'draft') {
+            $this->auditLogService->fromRequest($request, 'payroll', 'payslip.publish', [
+                'subject' => 'payslip',
+                'reference_type' => $payslip::class,
+                'reference_id' => $payslip->id,
+                'notes' => 'Payslip dipublish dari modul payroll.',
+                'after_data' => $payslip->toArray(),
+            ]);
+        }
+
         return redirect()->route('payslips.edit', $payslip);
     }
 
@@ -84,7 +114,8 @@ class PayslipController extends Controller
         return Inertia::render('payroll/payslips/form', [
             'mode' => 'edit',
             'payslip' => $payslip,
-            'employees' => Employee::with('user:id,name')
+            'employees' => $this->activeEmployeesQuery()
+                ->with('user:id,name')
                 ->orderBy('employee_code')
                 ->get(['id', 'employee_code', 'user_id']),
             'periods' => PayrollPeriod::orderByDesc('start_date')
@@ -97,6 +128,9 @@ class PayslipController extends Controller
     public function update(Request $request, Payslip $payslip)
     {
         $validated = $this->validatePayload($request, $payslip);
+        $employee = Employee::query()->findOrFail($validated['employee_id']);
+        $this->assertEmployeeEligibleForPayroll($employee);
+        $before = $payslip->toArray();
 
         DB::transaction(function () use ($validated, $payslip) {
             [$gross, $deductions] = $this->calculateTotals($validated['items']);
@@ -114,6 +148,26 @@ class PayslipController extends Controller
             $payslip->items()->delete();
             $this->syncItems($payslip, $validated['items']);
         });
+
+        $payslip->refresh();
+        $this->auditLogService->fromRequest($request, 'payroll', 'payroll.update', [
+            'subject' => 'payslip',
+            'reference_type' => $payslip::class,
+            'reference_id' => $payslip->id,
+            'notes' => 'Data payroll/payslip diperbarui.',
+            'before_data' => $before,
+            'after_data' => $payslip->toArray(),
+        ]);
+
+        if ($payslip->status !== 'draft') {
+            $this->auditLogService->fromRequest($request, 'payroll', 'payslip.publish', [
+                'subject' => 'payslip',
+                'reference_type' => $payslip::class,
+                'reference_id' => $payslip->id,
+                'notes' => 'Payslip dipublish dari update payroll.',
+                'after_data' => $payslip->toArray(),
+            ]);
+        }
 
         return redirect()->route('payslips.edit', $payslip);
     }
@@ -176,6 +230,31 @@ class PayslipController extends Controller
                 'salary_component_id' => $item['component_id'],
                 'amount' => $item['amount'],
                 'notes' => $item['notes'] ?? null,
+            ]);
+        }
+    }
+
+    private function activeEmployeesQuery()
+    {
+        $query = Employee::query();
+
+        if ((bool) config('hr.payroll.only_active_employee', true)) {
+            $query->where('is_active', true)
+                ->whereNotIn('employment_status', ['resign', 'terminated']);
+        }
+
+        return $query;
+    }
+
+    private function assertEmployeeEligibleForPayroll(Employee $employee): void
+    {
+        if (!(bool) config('hr.payroll.only_active_employee', true)) {
+            return;
+        }
+
+        if (!$this->employeeStatusService->isOperationallyActive($employee)) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Karyawan inactive/resign/terminated tidak bisa diproses pada payroll reguler.',
             ]);
         }
     }

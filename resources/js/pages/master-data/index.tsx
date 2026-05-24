@@ -53,6 +53,24 @@ type PageProps = {
     importUrl: string;
     templateUrl: string;
     templateColumns: string[];
+    flash?: {
+        importPreview?: {
+            resource: string;
+            duplicate_mode: string;
+            preview_only: boolean;
+            total_rows: number;
+            valid_rows: number;
+            invalid_rows: number;
+            inserted_rows?: number;
+            updated_rows?: number;
+            skipped_rows?: number;
+            errors?: Array<{
+                line: number;
+                errors: string[];
+            }>;
+            sample_rows?: Array<Record<string, unknown>>;
+        } | null;
+    };
 };
 
 const isStatusColumn = (key: string) =>
@@ -69,16 +87,19 @@ export default function MasterDataIndex() {
         importUrl,
         templateUrl,
         templateColumns,
-    } =
-        usePage<PageProps>().props;
+        flash,
+    } = usePage<PageProps>().props;
+    const importPreview = flash?.importPreview;
     const [query, setQuery] = useState('');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const { data, setData, post, processing, errors, reset } = useForm<{
         file: File | null;
         duplicate_mode: 'update' | 'skip' | 'error';
+        preview_only: boolean;
     }>({
         file: null,
         duplicate_mode: 'update',
+        preview_only: false,
     });
 
     const filteredRows = useMemo(() => {
@@ -100,20 +121,24 @@ export default function MasterDataIndex() {
     const to = items.meta?.to ?? items.to ?? 0;
     const total = items.meta?.total ?? items.total ?? 0;
 
-    const submitImport = () => {
+    const submitImport = (previewOnly: boolean) => {
         if (!data.file) {
             alert('Pilih file import terlebih dahulu (CSV/XLSX).');
             return;
         }
 
+        setData('preview_only', previewOnly);
         post(importUrl, {
             forceFormData: true,
             preserveScroll: true,
             onSuccess: () => {
-                reset('file');
-                if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
+                if (!previewOnly) {
+                    reset('file');
+                    if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
                 }
+                setData('preview_only', false);
             },
         });
     };
@@ -141,7 +166,9 @@ export default function MasterDataIndex() {
                                 <Link href={createUrl}>Tambah Baru</Link>
                             </Button>
                             <Button variant="ghost" asChild>
-                                <a href={templateUrl}>Download Template Excel</a>
+                                <a href={templateUrl}>
+                                    Download Template Excel
+                                </a>
                             </Button>
                             <Button variant="outline" asChild>
                                 <a href={exportUrl}>Export Excel</a>
@@ -164,7 +191,10 @@ export default function MasterDataIndex() {
                                     onValueChange={(value) =>
                                         setData(
                                             'duplicate_mode',
-                                            value as 'update' | 'skip' | 'error',
+                                            value as
+                                                | 'update'
+                                                | 'skip'
+                                                | 'error',
                                         )
                                     }
                                 >
@@ -184,8 +214,17 @@ export default function MasterDataIndex() {
                                     </SelectContent>
                                 </Select>
                                 <Button
+                                    variant="outline"
+                                    onClick={() => submitImport(true)}
+                                    disabled={processing}
+                                >
+                                    {processing
+                                        ? 'Memproses...'
+                                        : 'Preview Import'}
+                                </Button>
+                                <Button
                                     variant="secondary"
-                                    onClick={submitImport}
+                                    onClick={() => submitImport(false)}
                                     disabled={processing}
                                 >
                                     {processing
@@ -197,11 +236,74 @@ export default function MasterDataIndex() {
                     </div>
                     {templateColumns.length > 0 && (
                         <p className="mt-3 text-xs text-muted-foreground">
-                            Template memiliki baris 1 (header), baris 2 (contoh), dan validasi dropdown untuk kolom tertentu. Kolom internal: {templateColumns.join(', ')}
+                            Template memiliki baris 1 (header), baris 2
+                            (contoh), dan validasi dropdown untuk kolom
+                            tertentu. Kolom internal:{' '}
+                            {templateColumns.join(', ')}
                         </p>
                     )}
                     <InputError message={errors.file} />
                 </section>
+
+                {importPreview && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Ringkasan Import</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-3 text-sm">
+                            <div className="grid gap-2 md:grid-cols-3">
+                                <div className="rounded border px-3 py-2">
+                                    Total baris: {importPreview.total_rows}
+                                </div>
+                                <div className="rounded border px-3 py-2">
+                                    Valid: {importPreview.valid_rows}
+                                </div>
+                                <div className="rounded border px-3 py-2">
+                                    Invalid: {importPreview.invalid_rows}
+                                </div>
+                            </div>
+                            {importPreview.preview_only ? (
+                                <p className="text-muted-foreground">
+                                    Mode preview tidak menyimpan data ke
+                                    database.
+                                </p>
+                            ) : (
+                                <div className="grid gap-2 md:grid-cols-3">
+                                    <div className="rounded border px-3 py-2">
+                                        Ditambahkan:{' '}
+                                        {importPreview.inserted_rows ?? 0}
+                                    </div>
+                                    <div className="rounded border px-3 py-2">
+                                        Diperbarui:{' '}
+                                        {importPreview.updated_rows ?? 0}
+                                    </div>
+                                    <div className="rounded border px-3 py-2">
+                                        Dilewati:{' '}
+                                        {importPreview.skipped_rows ?? 0}
+                                    </div>
+                                </div>
+                            )}
+                            {(importPreview.errors?.length ?? 0) > 0 && (
+                                <div className="space-y-1">
+                                    <p className="font-medium">
+                                        Error per baris:
+                                    </p>
+                                    {importPreview.errors
+                                        ?.slice(0, 10)
+                                        .map((row) => (
+                                            <div
+                                                key={`line-${row.line}`}
+                                                className="rounded border border-destructive/40 bg-destructive/5 px-3 py-2 text-xs"
+                                            >
+                                                Baris {row.line}:{' '}
+                                                {row.errors.join(', ')}
+                                            </div>
+                                        ))}
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
+                )}
 
                 <Card>
                     <CardHeader className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -221,7 +323,7 @@ export default function MasterDataIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         {columns.map((column) => (
                                             <th
@@ -265,7 +367,7 @@ export default function MasterDataIndex() {
                                                                 '-'}
                                                         </Badge>
                                                     ) : (
-                                                        row[column.key] ?? '-'
+                                                        (row[column.key] ?? '-')
                                                     )}
                                                 </td>
                                             ))}
@@ -276,7 +378,9 @@ export default function MasterDataIndex() {
                                                         size="sm"
                                                         asChild
                                                     >
-                                                        <Link href={row.edit_url}>
+                                                        <Link
+                                                            href={row.edit_url}
+                                                        >
                                                             Edit
                                                         </Link>
                                                     </Button>

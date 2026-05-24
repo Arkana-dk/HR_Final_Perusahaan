@@ -23,7 +23,7 @@ type ContractRow = {
     end_date?: string | null;
     status: string;
     base_salary?: number | string | null;
-    file_path?: string | null;
+    has_file?: boolean;
     employee?: {
         employee_code?: string | null;
         user?: {
@@ -56,12 +56,16 @@ type PageProps = {
         search: string;
         status: string;
         type: string;
+        reminder: string;
     };
     stats: {
         total: number;
         active: number;
         expired: number;
         terminated: number;
+        expiring_h30: number;
+        expiring_h14: number;
+        expiring_h7: number;
     };
 };
 
@@ -92,6 +96,9 @@ export default function ContractIndex() {
     const [search, setSearch] = useState(filters.search ?? '');
     const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [type, setType] = useState(filters.type || ALL_OPTION_VALUE);
+    const [reminder, setReminder] = useState(
+        filters.reminder || ALL_OPTION_VALUE,
+    );
 
     const applyFilters = () => {
         router.get(
@@ -100,6 +107,7 @@ export default function ContractIndex() {
                 search,
                 status: status === ALL_OPTION_VALUE ? '' : status,
                 type: type === ALL_OPTION_VALUE ? '' : type,
+                reminder: reminder === ALL_OPTION_VALUE ? '' : reminder,
             },
             { preserveState: true, replace: true },
         );
@@ -196,10 +204,49 @@ export default function ContractIndex() {
                             </p>
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Reminder H-30</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold">
+                                {stats.expiring_h30}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Kontrak akan berakhir ≤ 30 hari
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Reminder H-14</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold">
+                                {stats.expiring_h14}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Kontrak akan berakhir ≤ 14 hari
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Reminder H-7</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold">
+                                {stats.expiring_h7}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Kontrak akan berakhir ≤ 7 hari
+                            </p>
+                        </CardContent>
+                    </Card>
                 </section>
 
                 <Card>
-                    <CardHeader className="grid gap-4 md:grid-cols-3">
+                    <CardHeader className="grid gap-4 md:grid-cols-4">
                         <div className="space-y-1 md:col-span-2">
                             <CardTitle>Daftar Kontrak</CardTitle>
                             <p className="text-sm text-muted-foreground">
@@ -209,9 +256,7 @@ export default function ContractIndex() {
                         <Input
                             placeholder="Cari nama atau kode karyawan"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Select
                             value={type}
@@ -258,11 +303,36 @@ export default function ContractIndex() {
                                 </SelectItem>
                             </SelectContent>
                         </Select>
+                        <Select
+                            value={reminder}
+                            onValueChange={(value) => setReminder(value)}
+                        >
+                            <SelectTrigger>
+                                <SelectValue placeholder="Reminder" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value={ALL_OPTION_VALUE}>
+                                    Semua Reminder
+                                </SelectItem>
+                                <SelectItem value="h30">
+                                    Akan Habis ≤ 30 Hari
+                                </SelectItem>
+                                <SelectItem value="h14">
+                                    Akan Habis ≤ 14 Hari
+                                </SelectItem>
+                                <SelectItem value="h7">
+                                    Akan Habis ≤ 7 Hari
+                                </SelectItem>
+                                <SelectItem value="expired">
+                                    Sudah Lewat
+                                </SelectItem>
+                            </SelectContent>
+                        </Select>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Tipe</th>
@@ -309,9 +379,7 @@ export default function ContractIndex() {
                                                     contract.start_date,
                                                 )}{' '}
                                                 -{' '}
-                                                {formatDate(
-                                                    contract.end_date,
-                                                )}
+                                                {formatDate(contract.end_date)}
                                             </td>
                                             <td className="px-4 py-3">
                                                 {formatSalary(
@@ -330,9 +398,9 @@ export default function ContractIndex() {
                                                 </Badge>
                                             </td>
                                             <td className="px-4 py-3 text-xs">
-                                                {contract.file_path ? (
+                                                {contract.has_file ? (
                                                     <a
-                                                        href={`/storage/${contract.file_path}`}
+                                                        href={`/secure-files/contracts/${contract.id}`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="text-primary hover:underline"

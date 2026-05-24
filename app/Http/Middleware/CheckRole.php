@@ -2,6 +2,16 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\AttendanceCorrection;
+use App\Models\AttendanceLog;
+use App\Models\Employee;
+use App\Models\EmployeeContract;
+use App\Models\EmployeeDocument;
+use App\Models\LeaveRequest;
+use App\Models\OvertimeRequest;
+use App\Models\Payslip;
+use App\Models\ReimburseRequest;
+use App\Services\ScopeAuthorizationService;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -62,6 +72,37 @@ class CheckRole
             }
 
             return redirect()->route('login')->with('error', 'Akun Anda tidak aktif.');
+        }
+
+        $scopeService = app(ScopeAuthorizationService::class);
+        foreach ($request->route()?->parameters() ?? [] as $parameter) {
+            if (!$parameter instanceof Employee
+                && !$parameter instanceof LeaveRequest
+                && !$parameter instanceof OvertimeRequest
+                && !$parameter instanceof ReimburseRequest
+                && !$parameter instanceof AttendanceLog
+                && !$parameter instanceof AttendanceCorrection
+                && !$parameter instanceof Payslip
+                && !$parameter instanceof EmployeeDocument
+                && !$parameter instanceof EmployeeContract
+            ) {
+                continue;
+            }
+
+            if (!$scopeService->canAccessModel($request->user(), $parameter)) {
+                if ($request->expectsJson() || $request->is('api/*')) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Akses data lintas scope tidak diizinkan.',
+                        'data' => null,
+                        'errors' => [
+                            'authorization' => ['Akses data lintas scope tidak diizinkan.'],
+                        ],
+                    ], 403);
+                }
+
+                abort(403, 'Akses data lintas scope tidak diizinkan.');
+            }
         }
 
         return $next($request);

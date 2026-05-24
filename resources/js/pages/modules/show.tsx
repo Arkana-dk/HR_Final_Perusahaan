@@ -55,7 +55,9 @@ export default function ModuleShow() {
                 <section className="rounded-xl border border-border/60 bg-gradient-to-br from-primary/10 via-transparent to-secondary/30 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
-                            <Badge variant={placeholder ? 'secondary' : 'outline'}>
+                            <Badge
+                                variant={placeholder ? 'secondary' : 'outline'}
+                            >
                                 {placeholder ? 'Coming Soon' : 'Module Active'}
                             </Badge>
                             <h1 className="text-2xl font-semibold tracking-tight">
@@ -66,7 +68,9 @@ export default function ModuleShow() {
                             </p>
                         </div>
                         {placeholder && (
-                            <Button variant="outline">Minta Prioritas Modul Ini</Button>
+                            <Button variant="outline">
+                                Minta Prioritas Modul Ini
+                            </Button>
                         )}
                     </div>
                 </section>
@@ -193,36 +197,53 @@ export default function ModuleShow() {
                                     ) : (
                                         <div className="overflow-hidden rounded-lg border border-border/60">
                                             <table className="w-full text-left text-sm">
-                                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                                     <tr>
-                                                        {section.columns.map((column) => (
-                                                            <th
-                                                                key={column.key}
-                                                                className="px-4 py-3"
-                                                            >
-                                                                {column.label}
-                                                            </th>
-                                                        ))}
+                                                        {section.columns.map(
+                                                            (column) => (
+                                                                <th
+                                                                    key={
+                                                                        column.key
+                                                                    }
+                                                                    className="px-4 py-3"
+                                                                >
+                                                                    {
+                                                                        column.label
+                                                                    }
+                                                                </th>
+                                                            ),
+                                                        )}
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {section.rows.map((row, index) => (
-                                                        <tr
-                                                            key={`${section.title}-${index}`}
-                                                            className="border-t border-border/60"
-                                                        >
-                                                            {section.columns.map((column) => (
-                                                                <td
-                                                                    key={column.key}
-                                                                    className="px-4 py-3"
-                                                                >
-                                                                    {formatValue(
-                                                                        row[column.key],
-                                                                    )}
-                                                                </td>
-                                                            ))}
-                                                        </tr>
-                                                    ))}
+                                                    {section.rows.map(
+                                                        (row, index) => (
+                                                            <tr
+                                                                key={`${section.title}-${index}`}
+                                                                className="border-t border-border/60"
+                                                            >
+                                                                {section.columns.map(
+                                                                    (
+                                                                        column,
+                                                                    ) => (
+                                                                        <td
+                                                                            key={
+                                                                                column.key
+                                                                            }
+                                                                            className="px-4 py-3"
+                                                                        >
+                                                                            {formatValue(
+                                                                                row[
+                                                                                    column
+                                                                                        .key
+                                                                                ],
+                                                                            )}
+                                                                        </td>
+                                                                    ),
+                                                                )}
+                                                            </tr>
+                                                        ),
+                                                    )}
                                                 </tbody>
                                             </table>
                                         </div>

@@ -54,7 +54,10 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -136,9 +139,7 @@ export default function EmployeeReimburse() {
                 )}
 
                 {employeeError && (
-                    <p className="text-sm text-destructive">
-                        {employeeError}
-                    </p>
+                    <p className="text-sm text-destructive">{employeeError}</p>
                 )}
 
                 <Card>
@@ -335,7 +336,7 @@ export default function EmployeeReimburse() {
                                             <td className="px-4 py-3 text-xs">
                                                 {request.attachment_path ? (
                                                     <a
-                                                        href={`/storage/${request.attachment_path}`}
+                                                        href={`/secure-files/reimburse-attachments/${request.id}`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="text-primary hover:underline"
@@ -383,4 +384,3 @@ export default function EmployeeReimburse() {
         </AppLayout>
     );
 }
-

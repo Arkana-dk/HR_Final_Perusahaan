@@ -54,7 +54,8 @@ const UNASSIGNED_VALUE = '__unassigned__';
 export default function AssetForm() {
     const { mode, asset, companies, employees } = usePage<PageProps>().props;
     const { data, setData, post, put, processing, errors } = useForm({
-        company_id: asset?.company_id?.toString() ?? companies[0]?.id?.toString() ?? '',
+        company_id:
+            asset?.company_id?.toString() ?? companies[0]?.id?.toString() ?? '',
         code: asset?.code ?? '',
         name: asset?.name ?? '',
         category: asset?.category ?? '',
@@ -237,7 +238,9 @@ export default function AssetForm() {
                                     <SelectItem value="maintenance">
                                         Maintenance
                                     </SelectItem>
-                                    <SelectItem value="retired">Retired</SelectItem>
+                                    <SelectItem value="retired">
+                                        Retired
+                                    </SelectItem>
                                 </SelectContent>
                             </Select>
                             <InputError message={errors.status} />
@@ -252,9 +255,7 @@ export default function AssetForm() {
                                 onValueChange={(value) =>
                                     setData(
                                         'assigned_employee_id',
-                                        value === UNASSIGNED_VALUE
-                                            ? ''
-                                            : value,
+                                        value === UNASSIGNED_VALUE ? '' : value,
                                     )
                                 }
                             >
@@ -314,7 +315,10 @@ export default function AssetForm() {
                                 type="number"
                                 value={data.purchase_price}
                                 onChange={(event) =>
-                                    setData('purchase_price', event.target.value)
+                                    setData(
+                                        'purchase_price',
+                                        event.target.value,
+                                    )
                                 }
                             />
                             <InputError message={errors.purchase_price} />

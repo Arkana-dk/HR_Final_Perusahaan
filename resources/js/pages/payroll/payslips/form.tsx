@@ -73,22 +73,21 @@ export default function PayslipForm() {
     const { mode, payslip, employees, periods, components } =
         usePage<PageProps>().props;
 
-    const initialItems: PayslipItem[] =
-        payslip?.items?.length
-            ? payslip.items.map((item) => ({
-                  component_id: String(
-                      item.component_id ?? item.salary_component_id ?? '',
-                  ),
-                  amount: String(item.amount ?? ''),
-                  notes: item.notes ?? '',
-              }))
-            : [
-                  {
-                      component_id: '',
-                      amount: '',
-                      notes: '',
-                  },
-              ];
+    const initialItems: PayslipItem[] = payslip?.items?.length
+        ? payslip.items.map((item) => ({
+              component_id: String(
+                  item.component_id ?? item.salary_component_id ?? '',
+              ),
+              amount: String(item.amount ?? ''),
+              notes: item.notes ?? '',
+          }))
+        : [
+              {
+                  component_id: '',
+                  amount: '',
+                  notes: '',
+              },
+          ];
 
     const { data, setData, post, put, processing, errors } = useForm({
         employee_id: payslip?.employee_id
@@ -151,7 +150,11 @@ export default function PayslipForm() {
         ]);
     };
 
-    const updateItem = (index: number, key: keyof PayslipItem, value: string) => {
+    const updateItem = (
+        index: number,
+        key: keyof PayslipItem,
+        value: string,
+    ) => {
         const next = [...data.items];
         const current = next[index];
         if (!current) {
@@ -336,9 +339,7 @@ export default function PayslipForm() {
                                             {components.map((component) => (
                                                 <SelectItem
                                                     key={component.id}
-                                                    value={String(
-                                                        component.id,
-                                                    )}
+                                                    value={String(component.id)}
                                                 >
                                                     {component.name} ·{' '}
                                                     {component.type}
@@ -388,7 +389,7 @@ export default function PayslipForm() {
                                         }
                                     />
                                 </div>
-                                <div className="md:col-span-2 flex justify-end">
+                                <div className="flex justify-end md:col-span-2">
                                     <Button
                                         type="button"
                                         variant="outline"

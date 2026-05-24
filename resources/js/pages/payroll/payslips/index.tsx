@@ -144,7 +144,7 @@ export default function PayslipIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Periode</th>

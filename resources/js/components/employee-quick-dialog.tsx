@@ -89,9 +89,6 @@ const EMPTY_SELECT_VALUE = '__none__';
 const normalizeOptionalSelectValue = (value: string) =>
     value === '' ? EMPTY_SELECT_VALUE : value;
 
-const denormalizeOptionalSelectValue = (value: string) =>
-    value === EMPTY_SELECT_VALUE ? '' : value;
-
 export function EmployeeQuickDialog({
     role,
     data,
@@ -214,14 +211,17 @@ export function EmployeeQuickDialog({
     const handleEdit = (event: FormEvent) => {
         event.preventDefault();
         if (!editingEmployee) return;
-        editForm.put(`/modules/employees/${editingEmployee.id}?from=dashboard`, {
-            preserveState: true,
-            preserveScroll: true,
-            onSuccess: () => {
-                setPanel('manage');
-                setEditingEmployee(null);
+        editForm.put(
+            `/modules/employees/${editingEmployee.id}?from=dashboard`,
+            {
+                preserveState: true,
+                preserveScroll: true,
+                onSuccess: () => {
+                    setPanel('manage');
+                    setEditingEmployee(null);
+                },
             },
-        });
+        );
     };
 
     const handleDeactivate = (employee: EmployeeSummary) => {
@@ -253,7 +253,7 @@ export function EmployeeQuickDialog({
             <DialogTrigger asChild>
                 <Button>Tambah Karyawan</Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-4xl max-h-[85vh] overflow-y-auto">
+            <DialogContent className="max-h-[85vh] overflow-y-auto sm:max-w-4xl">
                 <DialogHeader>
                     <DialogTitle>Employee Quick CRUD</DialogTitle>
                     <DialogDescription>
@@ -346,7 +346,9 @@ export function EmployeeQuickDialog({
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <InputError message={createForm.errors.role} />
+                                    <InputError
+                                        message={createForm.errors.role}
+                                    />
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -445,22 +447,20 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih tipe" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {Object.entries(employmentTypeLabel).map(
-                                            ([value, label]) => (
-                                                <SelectItem
-                                                    key={value}
-                                                    value={value}
-                                                >
-                                                    {label}
-                                                </SelectItem>
-                                            ),
-                                        )}
+                                        {Object.entries(
+                                            employmentTypeLabel,
+                                        ).map(([value, label]) => (
+                                            <SelectItem
+                                                key={value}
+                                                value={value}
+                                            >
+                                                {label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <InputError
-                                    message={
-                                        createForm.errors.employment_type
-                                    }
+                                    message={createForm.errors.employment_type}
                                 />
                             </div>
                             <div className="space-y-2">
@@ -485,7 +485,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Cabang</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(createForm.data.branch_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        createForm.data.branch_id,
+                                    )}
                                     onValueChange={(value) =>
                                         createForm.setData('branch_id', value)
                                     }
@@ -494,7 +496,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih cabang" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.branches.map((branch) => (
                                             <SelectItem
                                                 key={branch.id}
@@ -509,7 +513,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Departemen</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(createForm.data.department_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        createForm.data.department_id,
+                                    )}
                                     onValueChange={(value) =>
                                         createForm.setData(
                                             'department_id',
@@ -521,7 +527,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih departemen" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.departments.map((department) => (
                                             <SelectItem
                                                 key={department.id}
@@ -536,19 +544,20 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Jabatan</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(createForm.data.position_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        createForm.data.position_id,
+                                    )}
                                     onValueChange={(value) =>
-                                        createForm.setData(
-                                            'position_id',
-                                            value,
-                                        )
+                                        createForm.setData('position_id', value)
                                     }
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih jabatan" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.positions.map((position) => (
                                             <SelectItem
                                                 key={position.id}
@@ -563,7 +572,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Job Level</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(createForm.data.job_level_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        createForm.data.job_level_id,
+                                    )}
                                     onValueChange={(value) =>
                                         createForm.setData(
                                             'job_level_id',
@@ -575,7 +586,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih job level" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.jobLevels.map((level) => (
                                             <SelectItem
                                                 key={level.id}
@@ -590,7 +603,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2 md:col-span-2">
                                 <Label>Manager</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(createForm.data.manager_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        createForm.data.manager_id,
+                                    )}
                                     onValueChange={(value) =>
                                         createForm.setData('manager_id', value)
                                     }
@@ -599,7 +614,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih manager" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.managers.map((manager) => (
                                             <SelectItem
                                                 key={manager.id}
@@ -651,7 +668,7 @@ export function EmployeeQuickDialog({
                         </div>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Status</th>
@@ -684,7 +701,8 @@ export function EmployeeQuickDialog({
                                                 </div>
                                                 <div className="text-xs text-muted-foreground">
                                                     {employee.employee_code} -{' '}
-                                                    {employee.user?.email ?? '-'}
+                                                    {employee.user?.email ??
+                                                        '-'}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
@@ -821,7 +839,9 @@ export function EmployeeQuickDialog({
                                             </SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <InputError message={editForm.errors.role} />
+                                    <InputError
+                                        message={editForm.errors.role}
+                                    />
                                 </div>
                             ) : (
                                 <div className="space-y-2">
@@ -918,16 +938,16 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih tipe" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        {Object.entries(employmentTypeLabel).map(
-                                            ([value, label]) => (
-                                                <SelectItem
-                                                    key={value}
-                                                    value={value}
-                                                >
-                                                    {label}
-                                                </SelectItem>
-                                            ),
-                                        )}
+                                        {Object.entries(
+                                            employmentTypeLabel,
+                                        ).map(([value, label]) => (
+                                            <SelectItem
+                                                key={value}
+                                                value={value}
+                                            >
+                                                {label}
+                                            </SelectItem>
+                                        ))}
                                     </SelectContent>
                                 </Select>
                                 <InputError
@@ -946,7 +966,9 @@ export function EmployeeQuickDialog({
                                         )
                                     }
                                 />
-                                <InputError message={editForm.errors.join_date} />
+                                <InputError
+                                    message={editForm.errors.join_date}
+                                />
                             </div>
                         </div>
 
@@ -954,7 +976,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Cabang</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(editForm.data.branch_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        editForm.data.branch_id,
+                                    )}
                                     onValueChange={(value) =>
                                         editForm.setData('branch_id', value)
                                     }
@@ -963,7 +987,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih cabang" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.branches.map((branch) => (
                                             <SelectItem
                                                 key={branch.id}
@@ -978,19 +1004,20 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Departemen</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(editForm.data.department_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        editForm.data.department_id,
+                                    )}
                                     onValueChange={(value) =>
-                                        editForm.setData(
-                                            'department_id',
-                                            value,
-                                        )
+                                        editForm.setData('department_id', value)
                                     }
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih departemen" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.departments.map((department) => (
                                             <SelectItem
                                                 key={department.id}
@@ -1005,19 +1032,20 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Jabatan</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(editForm.data.position_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        editForm.data.position_id,
+                                    )}
                                     onValueChange={(value) =>
-                                        editForm.setData(
-                                            'position_id',
-                                            value,
-                                        )
+                                        editForm.setData('position_id', value)
                                     }
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih jabatan" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.positions.map((position) => (
                                             <SelectItem
                                                 key={position.id}
@@ -1032,19 +1060,20 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2">
                                 <Label>Job Level</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(editForm.data.job_level_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        editForm.data.job_level_id,
+                                    )}
                                     onValueChange={(value) =>
-                                        editForm.setData(
-                                            'job_level_id',
-                                            value,
-                                        )
+                                        editForm.setData('job_level_id', value)
                                     }
                                 >
                                     <SelectTrigger>
                                         <SelectValue placeholder="Pilih job level" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.jobLevels.map((level) => (
                                             <SelectItem
                                                 key={level.id}
@@ -1059,7 +1088,9 @@ export function EmployeeQuickDialog({
                             <div className="space-y-2 md:col-span-2">
                                 <Label>Manager</Label>
                                 <Select
-                                    value={normalizeOptionalSelectValue(editForm.data.manager_id)}
+                                    value={normalizeOptionalSelectValue(
+                                        editForm.data.manager_id,
+                                    )}
                                     onValueChange={(value) =>
                                         editForm.setData('manager_id', value)
                                     }
@@ -1068,7 +1099,9 @@ export function EmployeeQuickDialog({
                                         <SelectValue placeholder="Pilih manager" />
                                     </SelectTrigger>
                                     <SelectContent>
-                                        <SelectItem value={EMPTY_SELECT_VALUE}>-</SelectItem>
+                                        <SelectItem value={EMPTY_SELECT_VALUE}>
+                                            -
+                                        </SelectItem>
                                         {data.managers.map((manager) => (
                                             <SelectItem
                                                 key={manager.id}
@@ -1092,7 +1125,9 @@ export function EmployeeQuickDialog({
                                         )
                                     }
                                 />
-                                <InputError message={editForm.errors.work_email} />
+                                <InputError
+                                    message={editForm.errors.work_email}
+                                />
                             </div>
                             <div className="space-y-2">
                                 <Label>Telepon Kantor</Label>
@@ -1105,7 +1140,9 @@ export function EmployeeQuickDialog({
                                         )
                                     }
                                 />
-                                <InputError message={editForm.errors.work_phone} />
+                                <InputError
+                                    message={editForm.errors.work_phone}
+                                />
                             </div>
                             <div className="space-y-2 md:col-span-2">
                                 <Label>Lokasi Kantor</Label>

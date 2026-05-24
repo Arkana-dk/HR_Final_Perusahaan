@@ -91,4 +91,3 @@ export default function ResetPassword({ token, email }: Props) {
         </AuthLayout>
     );
 }
-

@@ -83,7 +83,10 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -94,9 +97,7 @@ export default function OvertimeIndex() {
     const { requests, filters, stats, auth } = usePage<PageProps>().props;
     const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(
-        filters.status || ALL_OPTION_VALUE,
-    );
+    const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [date, setDate] = useState(filters.date ?? '');
 
     const applyFilters = () => {
@@ -211,9 +212,7 @@ export default function OvertimeIndex() {
                         <Input
                             placeholder="Cari nama atau kode"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Input
                             type="date"
@@ -247,7 +246,7 @@ export default function OvertimeIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Tanggal</th>
@@ -319,7 +318,7 @@ export default function OvertimeIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             )
@@ -337,7 +336,7 @@ export default function OvertimeIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             )
@@ -394,4 +393,3 @@ export default function OvertimeIndex() {
         </AppLayout>
     );
 }
-

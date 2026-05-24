@@ -29,6 +29,7 @@ class AuditLogService
             'reference_type' => $options['reference_type'] ?? null,
             'reference_id' => $options['reference_id'] ?? null,
             'ip_address' => $options['ip_address'] ?? null,
+            'user_agent' => $options['user_agent'] ?? null,
             'occurred_at' => Carbon::parse($occurredAt)->toDateString(),
             'notes' => $options['notes'] ?? null,
             'before_data' => $options['before_data'] ?? null,
@@ -48,7 +49,7 @@ class AuditLogService
             ...$options,
             'actor' => $request->user(),
             'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
         ]);
     }
 }
-

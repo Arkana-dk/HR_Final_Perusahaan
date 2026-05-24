@@ -25,6 +25,7 @@ use App\Models\WorkLocation;
 use App\Models\WorkSchedule;
 use App\Models\EmployeeProfile;
 use App\Models\User;
+use App\Services\EmployeeStatusService;
 use Illuminate\Http\Request;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Carbon;
@@ -92,6 +93,7 @@ class MasterDataController extends Controller
         $validated = $request->validate($this->rulesFor($resource));
 
         if ($resource === 'schedules') {
+            $this->assertScheduleEmployeeActive((int) ($validated['employee_id'] ?? 0));
             $this->assertScheduleNoConflict($validated);
         }
 
@@ -133,6 +135,7 @@ class MasterDataController extends Controller
         $validated = $request->validate($this->rulesFor($resource, $item));
 
         if ($resource === 'schedules') {
+            $this->assertScheduleEmployeeActive((int) ($validated['employee_id'] ?? 0));
             $this->assertScheduleNoConflict($validated, $item);
         }
 
@@ -351,6 +354,7 @@ class MasterDataController extends Controller
         $request->validate([
             'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
             'duplicate_mode' => ['nullable', Rule::in(['update', 'skip', 'error'])],
+            'preview_only' => ['nullable', 'boolean'],
         ]);
 
         [$columns, $rowsData] = $this->extractRowsFromFile($request->file('file'));
@@ -365,9 +369,13 @@ class MasterDataController extends Controller
         $expected = $this->importColumns($resource);
         $rules = $this->rulesFor($resource);
         $model = $this->modelFor($resource);
-        $rows = [];
         $duplicateMode = $request->string('duplicate_mode')->toString() ?: 'update';
+        $previewOnly = (bool) $request->boolean('preview_only');
         $line = 1;
+        $preparedRows = [];
+        $errorRows = [];
+        $sampleValidRows = [];
+        $totalRows = 0;
 
         foreach ($rowsData as $values) {
             $line++;
@@ -391,48 +399,146 @@ class MasterDataController extends Controller
                 continue;
             }
 
+            $totalRows++;
             $validator = Validator::make($record, $rules);
             if ($validator->fails()) {
-                $message = collect($validator->errors()->all())->implode(', ');
-                return back()->withErrors([
-                    'file' => "Baris {$line}: {$message}",
-                ]);
+                $errorRows[] = [
+                    'line' => $line,
+                    'errors' => $validator->errors()->all(),
+                ];
+                continue;
             }
 
-            $rows[] = $validator->validated();
+            $validated = $validator->validated();
+
+            if ($resource === 'schedules') {
+                $employeeId = (int) ($validated['employee_id'] ?? 0);
+
+                try {
+                    $this->assertScheduleEmployeeActive($employeeId);
+                } catch (ValidationException $exception) {
+                    $errorRows[] = [
+                        'line' => $line,
+                        'errors' => collect($exception->errors())
+                            ->flatten()
+                            ->map(fn ($message) => (string) $message)
+                            ->values()
+                            ->all(),
+                    ];
+                    continue;
+                }
+            }
+
+            $preparedRows[] = [
+                'line' => $line,
+                'data' => $validated,
+            ];
+
+            if (count($sampleValidRows) < 10) {
+                $sampleValidRows[] = $validated;
+            }
         }
 
-        if (!$rows) {
+        if ($totalRows === 0) {
             return back()->withErrors([
                 'file' => 'Tidak ada data untuk diimport.',
             ]);
         }
 
-        DB::transaction(function () use ($model, $resource, $rows, $duplicateMode) {
-            foreach ($rows as $row) {
+        $report = [
+            'resource' => $resource,
+            'duplicate_mode' => $duplicateMode,
+            'preview_only' => $previewOnly,
+            'total_rows' => $totalRows,
+            'valid_rows' => count($preparedRows),
+            'invalid_rows' => count($errorRows),
+            'sample_rows' => $sampleValidRows,
+            'errors' => array_slice($errorRows, 0, 50),
+        ];
+
+        if ($previewOnly) {
+            return back()
+                ->with('info', sprintf(
+                    'Preview import selesai: %d valid, %d invalid.',
+                    $report['valid_rows'],
+                    $report['invalid_rows'],
+                ))
+                ->with('import_preview', $report);
+        }
+
+        if ($errorRows !== []) {
+            return back()
+                ->withErrors([
+                    'file' => 'Import dibatalkan karena ditemukan error validasi. Perbaiki semua baris error terlebih dahulu.',
+                ])
+                ->with('import_preview', $report);
+        }
+
+        $inserted = 0;
+        $updated = 0;
+        $skipped = 0;
+
+        DB::transaction(function () use (
+            $model,
+            $resource,
+            $preparedRows,
+            $duplicateMode,
+            &$inserted,
+            &$updated,
+            &$skipped
+        ) {
+            foreach ($preparedRows as $rowMeta) {
+                $row = $rowMeta['data'];
                 $unique = $this->uniqueKeysForImport($resource, $row);
                 if ($unique) {
                     $existing = $model::query()->where($unique)->first();
 
                     if ($duplicateMode === 'skip' && $existing) {
+                        $skipped++;
                         continue;
                     }
 
                     if ($duplicateMode === 'error' && $existing) {
                         throw ValidationException::withMessages([
-                            'file' => 'Ditemukan data duplikat pada mode error-only import.',
+                            'file' => sprintf(
+                                'Baris %d terdeteksi duplikat pada mode error-only import.',
+                                (int) ($rowMeta['line'] ?? 0),
+                            ),
                         ]);
                     }
 
-                    $model::updateOrCreate($unique, $row);
+                    if ($existing) {
+                        $existing->fill($row);
+                        if ($existing->isDirty()) {
+                            $existing->save();
+                            $updated++;
+                        } else {
+                            $skipped++;
+                        }
+                    } else {
+                        $model::query()->create($row);
+                        $inserted++;
+                    }
                     continue;
                 }
 
-                $model::create($row);
+                $model::query()->create($row);
+                $inserted++;
             }
         });
 
-        return back();
+        $report['inserted_rows'] = $inserted;
+        $report['updated_rows'] = $updated;
+        $report['skipped_rows'] = $skipped;
+
+        return back()
+            ->with('success', sprintf(
+                'Import berhasil: %d ditambahkan, %d diperbarui, %d dilewati.',
+                $inserted,
+                $updated,
+                $skipped,
+            ))
+            ->with('import_preview', $report);
     }
 
     private function ensureAccess(Request $request, array $config): void
@@ -2930,6 +3036,29 @@ class MasterDataController extends Controller
             (string) $unit,
             $percentage,
         );
+    }
+
+    private function assertScheduleEmployeeActive(int $employeeId): void
+    {
+        if ($employeeId <= 0) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Karyawan jadwal kerja tidak valid.',
+            ]);
+        }
+
+        $employee = Employee::query()->find($employeeId);
+        if (!$employee) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Karyawan untuk jadwal kerja tidak ditemukan.',
+            ]);
+        }
+
+        $employeeStatusService = app(EmployeeStatusService::class);
+        if (!$employeeStatusService->isOperationallyActive($employee)) {
+            throw ValidationException::withMessages([
+                'employee_id' => 'Karyawan resign/terminated/inactive tidak dapat dijadwalkan.',
+            ]);
+        }
     }
 
     private function assertScheduleNoConflict(array $data, ?WorkSchedule $current = null): void

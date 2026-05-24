@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Time\AttendanceController::index
- * @see app/Http/Controllers/Time/AttendanceController.php:21
+ * @see app/Http/Controllers/Time/AttendanceController.php:23
  * @route '/modules/attendance'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::approve
- * @see app/Http/Controllers/Time/AttendanceController.php:82
+ * @see app/Http/Controllers/Time/AttendanceController.php:88
  * @route '/modules/attendance/{attendance}/approve'
  */
 export const approve = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::approve
- * @see app/Http/Controllers/Time/AttendanceController.php:82
+ * @see app/Http/Controllers/Time/AttendanceController.php:88
  * @route '/modules/attendance/{attendance}/approve'
  */
 approve.url = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ approve.url = (args: { attendance: number | { id: number } } | [attendance: numb
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::approve
- * @see app/Http/Controllers/Time/AttendanceController.php:82
+ * @see app/Http/Controllers/Time/AttendanceController.php:88
  * @route '/modules/attendance/{attendance}/approve'
  */
 approve.post = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -137,7 +137,7 @@ approve.post = (args: { attendance: number | { id: number } } | [attendance: num
 
     /**
 * @see \App\Http\Controllers\Time\AttendanceController::approve
- * @see app/Http/Controllers/Time/AttendanceController.php:82
+ * @see app/Http/Controllers/Time/AttendanceController.php:88
  * @route '/modules/attendance/{attendance}/approve'
  */
     const approveForm = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -147,7 +147,7 @@ approve.post = (args: { attendance: number | { id: number } } | [attendance: num
 
             /**
 * @see \App\Http\Controllers\Time\AttendanceController::approve
- * @see app/Http/Controllers/Time/AttendanceController.php:82
+ * @see app/Http/Controllers/Time/AttendanceController.php:88
  * @route '/modules/attendance/{attendance}/approve'
  */
         approveForm.post = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -158,7 +158,7 @@ approve.post = (args: { attendance: number | { id: number } } | [attendance: num
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::reject
- * @see app/Http/Controllers/Time/AttendanceController.php:129
+ * @see app/Http/Controllers/Time/AttendanceController.php:136
  * @route '/modules/attendance/{attendance}/reject'
  */
 export const reject = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -173,7 +173,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::reject
- * @see app/Http/Controllers/Time/AttendanceController.php:129
+ * @see app/Http/Controllers/Time/AttendanceController.php:136
  * @route '/modules/attendance/{attendance}/reject'
  */
 reject.url = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -206,7 +206,7 @@ reject.url = (args: { attendance: number | { id: number } } | [attendance: numbe
 
 /**
 * @see \App\Http\Controllers\Time\AttendanceController::reject
- * @see app/Http/Controllers/Time/AttendanceController.php:129
+ * @see app/Http/Controllers/Time/AttendanceController.php:136
  * @route '/modules/attendance/{attendance}/reject'
  */
 reject.post = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -216,7 +216,7 @@ reject.post = (args: { attendance: number | { id: number } } | [attendance: numb
 
     /**
 * @see \App\Http\Controllers\Time\AttendanceController::reject
- * @see app/Http/Controllers/Time/AttendanceController.php:129
+ * @see app/Http/Controllers/Time/AttendanceController.php:136
  * @route '/modules/attendance/{attendance}/reject'
  */
     const rejectForm = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -226,7 +226,7 @@ reject.post = (args: { attendance: number | { id: number } } | [attendance: numb
 
             /**
 * @see \App\Http\Controllers\Time\AttendanceController::reject
- * @see app/Http/Controllers/Time/AttendanceController.php:129
+ * @see app/Http/Controllers/Time/AttendanceController.php:136
  * @route '/modules/attendance/{attendance}/reject'
  */
         rejectForm.post = (args: { attendance: number | { id: number } } | [attendance: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

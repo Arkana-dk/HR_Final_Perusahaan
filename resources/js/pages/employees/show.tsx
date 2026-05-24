@@ -75,7 +75,7 @@ type EmployeeDetail = {
         number?: string | null;
         issued_at?: string | null;
         expires_at?: string | null;
-        file_path?: string | null;
+        has_file?: boolean;
     }>;
     contracts?: Array<{
         id: number;
@@ -210,12 +210,12 @@ export default function EmployeeShow() {
                         </div>
                         <div className="flex flex-wrap gap-2">
                             <Button variant="outline" asChild>
-                                <Link href="/modules/employees">
-                                    Kembali
-                                </Link>
+                                <Link href="/modules/employees">Kembali</Link>
                             </Button>
                             <Button asChild>
-                                <Link href={`/modules/employees/${employee.id}/edit`}>
+                                <Link
+                                    href={`/modules/employees/${employee.id}/edit`}
+                                >
                                     Edit Profil
                                 </Link>
                             </Button>
@@ -231,49 +231,65 @@ export default function EmployeeShow() {
                         </CardHeader>
                         <CardContent className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <p className="text-xs text-muted-foreground">Perusahaan</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Perusahaan
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.company?.name ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Cabang</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Cabang
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.branch?.name ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Jabatan</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Jabatan
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.position?.title ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Job Level</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Job Level
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.job_level?.name ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Manager</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Manager
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.manager?.user?.name ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Lokasi Kantor</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Lokasi Kantor
+                                </p>
                                 <p className="text-sm font-medium">
                                     {employee.office_location ?? '-'}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Tanggal Bergabung</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Tanggal Bergabung
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatDate(employee.join_date)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Konfirmasi</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Konfirmasi
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatDate(employee.confirmation_date)}
                                 </p>
@@ -286,20 +302,29 @@ export default function EmployeeShow() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div>
-                                <p className="text-xs text-muted-foreground">Email</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Email
+                                </p>
                                 <p className="text-sm font-medium">
-                                    {formatValue(employee.work_email ?? employee.user?.email)}
+                                    {formatValue(
+                                        employee.work_email ??
+                                            employee.user?.email,
+                                    )}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Telepon</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Telepon
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(employee.work_phone)}
                                 </p>
                             </div>
                             <Separator />
                             <div>
-                                <p className="text-xs text-muted-foreground">Resign Date</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Resign Date
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatDate(employee.resign_date)}
                                 </p>
@@ -315,56 +340,74 @@ export default function EmployeeShow() {
                         </CardHeader>
                         <CardContent className="grid gap-4 md:grid-cols-2">
                             <div>
-                                <p className="text-xs text-muted-foreground">NIK</p>
+                                <p className="text-xs text-muted-foreground">
+                                    NIK
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.nik)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">KK</p>
+                                <p className="text-xs text-muted-foreground">
+                                    KK
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.kk_number)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">NPWP</p>
+                                <p className="text-xs text-muted-foreground">
+                                    NPWP
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.npwp)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">BPJS Kesehatan</p>
+                                <p className="text-xs text-muted-foreground">
+                                    BPJS Kesehatan
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.bpjs_kes)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">BPJS TK</p>
+                                <p className="text-xs text-muted-foreground">
+                                    BPJS TK
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.bpjs_tk)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Gender</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Gender
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.gender)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Tempat, Tanggal Lahir</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Tempat, Tanggal Lahir
+                                </p>
                                 <p className="text-sm font-medium">
                                     {profile.birth_place ?? '-'} ·{' '}
                                     {formatDate(profile.birth_date)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Status</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Status
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.marital_status)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Agama</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Agama
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.religion)}
                                 </p>
@@ -377,31 +420,49 @@ export default function EmployeeShow() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div>
-                                <p className="text-xs text-muted-foreground">Nama</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Nama
+                                </p>
                                 <p className="text-sm font-medium">
-                                    {formatValue(profile.emergency_contact_name)}
+                                    {formatValue(
+                                        profile.emergency_contact_name,
+                                    )}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Relasi</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Relasi
+                                </p>
                                 <p className="text-sm font-medium">
-                                    {formatValue(profile.emergency_contact_relation)}
+                                    {formatValue(
+                                        profile.emergency_contact_relation,
+                                    )}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Telepon</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Telepon
+                                </p>
                                 <p className="text-sm font-medium">
-                                    {formatValue(profile.emergency_contact_phone)}
+                                    {formatValue(
+                                        profile.emergency_contact_phone,
+                                    )}
                                 </p>
                             </div>
                             <Separator />
                             <div>
-                                <p className="text-xs text-muted-foreground">Alamat</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Alamat
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.address_line1)}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
-                                    {[profile.city, profile.province, profile.postal_code]
+                                    {[
+                                        profile.city,
+                                        profile.province,
+                                        profile.postal_code,
+                                    ]
                                         .filter(Boolean)
                                         .join(', ') || '-'}
                                 </p>
@@ -417,19 +478,25 @@ export default function EmployeeShow() {
                         </CardHeader>
                         <CardContent className="space-y-3">
                             <div>
-                                <p className="text-xs text-muted-foreground">Bank</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Bank
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.bank_name)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Nama Rekening</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Nama Rekening
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.bank_account_name)}
                                 </p>
                             </div>
                             <div>
-                                <p className="text-xs text-muted-foreground">Nomor Rekening</p>
+                                <p className="text-xs text-muted-foreground">
+                                    Nomor Rekening
+                                </p>
                                 <p className="text-sm font-medium">
                                     {formatValue(profile.bank_account_number)}
                                 </p>
@@ -460,25 +527,38 @@ export default function EmployeeShow() {
                                             {formatDate(doc.expires_at)}
                                         </p>
                                     </div>
-                                    {doc.file_path ? (
+                                    {doc.has_file ? (
                                         <div className="flex items-center gap-2">
-                                            <Button variant="outline" size="sm" asChild>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                asChild
+                                            >
                                                 <a
-                                                    href={`/storage/${doc.file_path}`}
+                                                    href={`/secure-files/documents/${doc.id}`}
                                                     target="_blank"
                                                     rel="noreferrer"
                                                 >
                                                     Lihat
                                                 </a>
                                             </Button>
-                                            <Button variant="secondary" size="sm" asChild>
-                                                <a href={`/storage/${doc.file_path}`} download>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                asChild
+                                            >
+                                                <a
+                                                    href={`/secure-files/documents/${doc.id}`}
+                                                    download
+                                                >
                                                     Unduh
                                                 </a>
                                             </Button>
                                         </div>
                                     ) : (
-                                        <Badge variant="outline">Tidak ada file</Badge>
+                                        <Badge variant="outline">
+                                            Tidak ada file
+                                        </Badge>
                                     )}
                                 </div>
                             ))}
@@ -494,16 +574,28 @@ export default function EmployeeShow() {
                         <CardContent>
                             <div className="overflow-hidden rounded-lg border border-border/60">
                                 <table className="w-full text-left text-sm">
-                                    <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                    <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                         <tr>
-                                            <th className="px-4 py-3">Tanggal</th>
+                                            <th className="px-4 py-3">
+                                                Tanggal
+                                            </th>
                                             <th className="px-4 py-3">Shift</th>
-                                            <th className="px-4 py-3">Check In/Out</th>
-                                            <th className="px-4 py-3">Status</th>
-                                            <th className="px-4 py-3">Approval</th>
+                                            <th className="px-4 py-3">
+                                                Check In/Out
+                                            </th>
+                                            <th className="px-4 py-3">
+                                                Status
+                                            </th>
+                                            <th className="px-4 py-3">
+                                                Approval
+                                            </th>
                                             <th className="px-4 py-3">GPS</th>
-                                            <th className="px-4 py-3">Selfie</th>
-                                            <th className="px-4 py-3 text-right">Aksi</th>
+                                            <th className="px-4 py-3">
+                                                Selfie
+                                            </th>
+                                            <th className="px-4 py-3 text-right">
+                                                Aksi
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -518,12 +610,18 @@ export default function EmployeeShow() {
                                             </tr>
                                         )}
                                         {attendanceLogs.map((log) => {
-                                            const checkInPhoto = log.photos?.find(
-                                                (photo) => photo.type === 'check_in',
-                                            );
-                                            const checkOutPhoto = log.photos?.find(
-                                                (photo) => photo.type === 'check_out',
-                                            );
+                                            const checkInPhoto =
+                                                log.photos?.find(
+                                                    (photo) =>
+                                                        photo.type ===
+                                                        'check_in',
+                                                );
+                                            const checkOutPhoto =
+                                                log.photos?.find(
+                                                    (photo) =>
+                                                        photo.type ===
+                                                        'check_out',
+                                                );
 
                                             return (
                                                 <tr
@@ -531,11 +629,14 @@ export default function EmployeeShow() {
                                                     className="border-t border-border/60"
                                                 >
                                                     <td className="px-4 py-3">
-                                                        {formatDate(log.work_date)}
+                                                        {formatDate(
+                                                            log.work_date,
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <div className="text-sm font-medium">
-                                                            {log.shift?.name ?? '-'}
+                                                            {log.shift?.name ??
+                                                                '-'}
                                                         </div>
                                                         <div className="text-xs text-muted-foreground">
                                                             {log.shift
@@ -544,8 +645,13 @@ export default function EmployeeShow() {
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3">
-                                                        {formatTime(log.check_in_at)} /{' '}
-                                                        {formatTime(log.check_out_at)}
+                                                        {formatTime(
+                                                            log.check_in_at,
+                                                        )}{' '}
+                                                        /{' '}
+                                                        {formatTime(
+                                                            log.check_out_at,
+                                                        )}
                                                     </td>
                                                     <td className="px-4 py-3">
                                                         <Badge variant="outline">
@@ -561,21 +667,26 @@ export default function EmployeeShow() {
                                                                 ] ?? 'outline'
                                                             }
                                                         >
-                                                            {log.approval_status ?? '-'}
+                                                            {log.approval_status ??
+                                                                '-'}
                                                         </Badge>
                                                     </td>
                                                     <td className="px-4 py-3 text-xs text-muted-foreground">
                                                         In:{' '}
-                                                        {log.check_in_distance_meters ?? '-'} m
+                                                        {log.check_in_distance_meters ??
+                                                            '-'}{' '}
+                                                        m
                                                         <br />
                                                         Out:{' '}
-                                                        {log.check_out_distance_meters ?? '-'} m
+                                                        {log.check_out_distance_meters ??
+                                                            '-'}{' '}
+                                                        m
                                                     </td>
                                                     <td className="px-4 py-3 text-xs">
                                                         <div className="flex flex-col gap-1">
                                                             {checkInPhoto && (
                                                                 <a
-                                                                    href={`/storage/${checkInPhoto.file_path}`}
+                                                                    href={`/secure-files/attendance-photos/${checkInPhoto.id}`}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     className="text-primary hover:underline"
@@ -585,7 +696,7 @@ export default function EmployeeShow() {
                                                             )}
                                                             {checkOutPhoto && (
                                                                 <a
-                                                                    href={`/storage/${checkOutPhoto.file_path}`}
+                                                                    href={`/secure-files/attendance-photos/${checkOutPhoto.id}`}
                                                                     target="_blank"
                                                                     rel="noreferrer"
                                                                     className="text-primary hover:underline"
@@ -593,9 +704,12 @@ export default function EmployeeShow() {
                                                                     Selfie Out
                                                                 </a>
                                                             )}
-                                                            {!checkInPhoto && !checkOutPhoto && (
-                                                                <span>-</span>
-                                                            )}
+                                                            {!checkInPhoto &&
+                                                                !checkOutPhoto && (
+                                                                    <span>
+                                                                        -
+                                                                    </span>
+                                                                )}
                                                         </div>
                                                     </td>
                                                     <td className="px-4 py-3 text-right">
@@ -629,7 +743,9 @@ export default function EmployeeShow() {
                                                                         ) ?? '';
                                                                     router.post(
                                                                         `/modules/attendance/${log.id}/reject`,
-                                                                        { notes },
+                                                                        {
+                                                                            notes,
+                                                                        },
                                                                     );
                                                                 }}
                                                             >
@@ -655,12 +771,16 @@ export default function EmployeeShow() {
                         <CardContent>
                             <div className="overflow-hidden rounded-lg border border-border/60">
                                 <table className="w-full text-left text-sm">
-                                    <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                    <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                         <tr>
                                             <th className="px-4 py-3">Tipe</th>
                                             <th className="px-4 py-3">Mulai</th>
-                                            <th className="px-4 py-3">Selesai</th>
-                                            <th className="px-4 py-3">Status</th>
+                                            <th className="px-4 py-3">
+                                                Selesai
+                                            </th>
+                                            <th className="px-4 py-3">
+                                                Status
+                                            </th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -683,10 +803,14 @@ export default function EmployeeShow() {
                                                     {contract.type}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {formatDate(contract.start_date)}
+                                                    {formatDate(
+                                                        contract.start_date,
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-3">
-                                                    {formatDate(contract.end_date)}
+                                                    {formatDate(
+                                                        contract.end_date,
+                                                    )}
                                                 </td>
                                                 <td className="px-4 py-3">
                                                     <Badge variant="outline">
@@ -705,5 +829,3 @@ export default function EmployeeShow() {
         </AppLayout>
     );
 }
-
-

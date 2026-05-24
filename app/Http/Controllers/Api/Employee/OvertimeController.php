@@ -6,8 +6,11 @@ use App\Http\Controllers\Api\Concerns\ApiResponse;
 use App\Http\Controllers\Api\Concerns\ResolvesEmployee;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
+use App\Models\LeaveRequest;
 use App\Models\OvertimeRequest;
+use App\Models\WorkSchedule;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -20,6 +23,7 @@ class OvertimeController extends Controller
     use ResolvesEmployee;
 
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -85,7 +89,12 @@ class OvertimeController extends Controller
 
     public function store(Request $request)
     {
-        $employee = $this->resolveEmployee($request);
+        $employee = $this->resolveEmployee($request, true);
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan lembur baru.',
+        );
+
         $data = $request->validate([
             'work_date' => ['required', 'date'],
             'start_time' => ['required', 'date_format:H:i'],
@@ -101,6 +110,79 @@ class OvertimeController extends Controller
         }
 
         $totalHours = round($start->diffInMinutes($end) / 60, 2);
+        $totalMinutes = $start->diffInMinutes($end);
+        $minMinutes = max(1, (int) config('hr.overtime.min_minutes', 30));
+        $maxMinutes = max($minMinutes, (int) config('hr.overtime.max_minutes', 360));
+
+        if ($totalMinutes < $minMinutes) {
+            throw ValidationException::withMessages([
+                'end_time' => sprintf('Durasi lembur minimal %d menit.', $minMinutes),
+            ]);
+        }
+
+        if ($totalMinutes > $maxMinutes) {
+            throw ValidationException::withMessages([
+                'end_time' => sprintf('Durasi lembur maksimal %d menit.', $maxMinutes),
+            ]);
+        }
+
+        $schedule = WorkSchedule::query()
+            ->with('shift:id,start_time,end_time,is_overnight')
+            ->where('employee_id', $employee->id)
+            ->whereDate('work_date', $data['work_date'])
+            ->first();
+
+        if (!$schedule || $schedule->status !== 'scheduled') {
+            throw ValidationException::withMessages([
+                'work_date' => 'Pengajuan lembur hanya dapat dibuat pada hari kerja terjadwal.',
+            ]);
+        }
+
+        $hasApprovedLeave = LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $data['work_date'])
+            ->whereDate('end_date', '>=', $data['work_date'])
+            ->exists();
+        if ($hasApprovedLeave) {
+            throw ValidationException::withMessages([
+                'work_date' => 'Tanggal lembur bentrok dengan cuti yang telah disetujui.',
+            ]);
+        }
+
+        if ($schedule->shift) {
+            $shiftStart = Carbon::parse($data['work_date'].' '.$schedule->shift->start_time);
+            $shiftEnd = Carbon::parse($data['work_date'].' '.$schedule->shift->end_time);
+            if ($schedule->shift->is_overnight && $shiftEnd->lessThanOrEqualTo($shiftStart)) {
+                $shiftEnd->addDay();
+            }
+
+            if ($start->lt($shiftEnd)) {
+                throw ValidationException::withMessages([
+                    'start_time' => 'Jam mulai lembur harus setelah jam selesai shift kerja.',
+                ]);
+            }
+        }
+
+        $hasOverlapPending = OvertimeRequest::query()
+            ->where('employee_id', $employee->id)
+            ->whereIn('status', ['pending', 'approved'])
+            ->whereDate('work_date', $data['work_date'])
+            ->where(function ($query) use ($data) {
+                $query
+                    ->whereBetween('start_time', [$data['start_time'], $data['end_time']])
+                    ->orWhereBetween('end_time', [$data['start_time'], $data['end_time']])
+                    ->orWhere(function ($nested) use ($data) {
+                        $nested->where('start_time', '<=', $data['start_time'])
+                            ->where('end_time', '>=', $data['end_time']);
+                    });
+            })
+            ->exists();
+        if ($hasOverlapPending) {
+            throw ValidationException::withMessages([
+                'start_time' => 'Masih ada pengajuan lembur aktif pada rentang waktu tersebut.',
+            ]);
+        }
 
         $overtime = null;
         DB::transaction(function () use (&$overtime, $employee, $data, $totalHours) {

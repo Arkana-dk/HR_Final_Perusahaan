@@ -78,7 +78,10 @@ export function NotificationBell() {
             }, POLLING_INTERVAL_MS);
         };
 
-        if (typeof window === 'undefined' || typeof EventSource === 'undefined') {
+        if (
+            typeof window === 'undefined' ||
+            typeof EventSource === 'undefined'
+        ) {
             startFallbackPolling();
 
             return () => {
@@ -202,7 +205,7 @@ export function NotificationBell() {
                         </span>
                     ) : null}
                     {!streamConnected ? (
-                        <span className="absolute -bottom-0.5 -right-0.5 inline-flex h-2 w-2 rounded-full bg-amber-400" />
+                        <span className="absolute -right-0.5 -bottom-0.5 inline-flex h-2 w-2 rounded-full bg-amber-400" />
                     ) : null}
                 </Button>
             </DropdownMenuTrigger>

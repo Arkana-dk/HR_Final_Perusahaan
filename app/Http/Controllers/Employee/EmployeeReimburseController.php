@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\ReimburseRequest;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -15,6 +17,8 @@ use Inertia\Inertia;
 class EmployeeReimburseController extends Controller
 {
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -54,6 +58,10 @@ class EmployeeReimburseController extends Controller
                 'employee' => 'Profil karyawan belum terhubung. Hubungi admin HR untuk melengkapi data karyawan Anda.',
             ]);
         }
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan reimburse baru.',
+        );
 
         $data = $request->validate([
             'category' => ['required', 'string', 'max:100'],
@@ -66,7 +74,10 @@ class EmployeeReimburseController extends Controller
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('reimbursements', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $request->file('attachment'),
+                'reimbursements/'.$employee->id,
+            );
         }
 
         $reimburseRequest = null;

@@ -85,7 +85,10 @@ const formatDate = (value?: string | null) => {
     });
 };
 
-const statusBadge: Record<string, 'default' | 'secondary' | 'destructive' | 'outline'> = {
+const statusBadge: Record<
+    string,
+    'default' | 'secondary' | 'destructive' | 'outline'
+> = {
     pending: 'outline',
     approved: 'secondary',
     rejected: 'destructive',
@@ -103,9 +106,7 @@ export default function ReimburseIndex() {
     const { requests, filters, stats, auth } = usePage<PageProps>().props;
     const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(
-        filters.status || ALL_OPTION_VALUE,
-    );
+    const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [date, setDate] = useState(filters.date ?? '');
 
     const applyFilters = () => {
@@ -220,9 +221,7 @@ export default function ReimburseIndex() {
                         <Input
                             placeholder="Cari nama atau kode"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Input
                             type="date"
@@ -256,7 +255,7 @@ export default function ReimburseIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Kategori</th>
@@ -310,7 +309,9 @@ export default function ReimburseIndex() {
                                                 )}
                                             </td>
                                             <td className="px-4 py-3">
-                                                {formatDate(request.requested_at)}
+                                                {formatDate(
+                                                    request.requested_at,
+                                                )}
                                             </td>
                                             <td className="px-4 py-3">
                                                 <Badge
@@ -326,7 +327,7 @@ export default function ReimburseIndex() {
                                             <td className="px-4 py-3 text-xs">
                                                 {request.attachment_path ? (
                                                     <Link
-                                                        href={`/storage/${request.attachment_path}`}
+                                                        href={`/secure-files/reimburse-attachments/${request.id}`}
                                                         target="_blank"
                                                         className="text-primary hover:underline"
                                                     >
@@ -343,7 +344,7 @@ export default function ReimburseIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             )
@@ -361,7 +362,7 @@ export default function ReimburseIndex() {
                                                         size="sm"
                                                         disabled={
                                                             request.status !==
-                                                            'pending' ||
+                                                                'pending' ||
                                                             isSelfRequest(
                                                                 request,
                                                             )
@@ -418,4 +419,3 @@ export default function ReimburseIndex() {
         </AppLayout>
     );
 }
-

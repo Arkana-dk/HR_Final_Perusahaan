@@ -1,4 +1,5 @@
 import Api from './Api'
+import Files from './Files'
 import Employee from './Employee'
 import Employees from './Employees'
 import MasterData from './MasterData'
@@ -17,6 +18,7 @@ import Admin from './Admin'
 import Settings from './Settings'
 const Controllers = {
     Api: Object.assign(Api, Api),
+Files: Object.assign(Files, Files),
 Employee: Object.assign(Employee, Employee),
 Employees: Object.assign(Employees, Employees),
 MasterData: Object.assign(MasterData, MasterData),

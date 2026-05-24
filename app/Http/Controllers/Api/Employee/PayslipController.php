@@ -87,6 +87,72 @@ class PayslipController extends Controller
         );
     }
 
+    public function download(Request $request, Payslip $payslip)
+    {
+        $employee = $this->resolveEmployee($request);
+        $this->assertOwnedByEmployee($employee, $payslip);
+
+        $payslip->loadMissing([
+            'payrollPeriod:id,name,start_date,end_date,pay_date',
+            'items.component:id,name,type',
+        ]);
+
+        $filename = sprintf(
+            'payslip-%s-%s.csv',
+            $employee->employee_code ?? $employee->id,
+            now()->format('Ymd_His'),
+        );
+
+        $callback = function () use ($request, $employee, $payslip) {
+            $output = fopen('php://output', 'w');
+            fputcsv($output, [
+                'employee_code',
+                'employee_name',
+                'period',
+                'period_range',
+                'status',
+                'issued_at',
+                'gross_salary',
+                'total_deductions',
+                'net_salary',
+            ]);
+
+            fputcsv($output, [
+                $employee->employee_code ?? '-',
+                $request->user()->name,
+                $payslip->payrollPeriod?->name ?? '-',
+                trim(sprintf(
+                    '%s - %s',
+                    $payslip->payrollPeriod?->start_date ?? '-',
+                    $payslip->payrollPeriod?->end_date ?? '-',
+                )),
+                $payslip->status,
+                optional($payslip->issued_at)->format('Y-m-d H:i:s'),
+                $payslip->gross_salary,
+                $payslip->total_deductions,
+                $payslip->net_salary,
+            ]);
+
+            fputcsv($output, []);
+            fputcsv($output, ['component', 'type', 'amount', 'notes']);
+
+            foreach ($payslip->items as $item) {
+                fputcsv($output, [
+                    $item->component?->name ?? '-',
+                    $item->component?->type ?? '-',
+                    $item->amount,
+                    $item->notes ?? '',
+                ]);
+            }
+
+            fclose($output);
+        };
+
+        return response()->streamDownload($callback, $filename, [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+        ]);
+    }
+
     private function assertOwnedByEmployee(Employee $employee, Payslip $payslip): void
     {
         if ((int) $payslip->employee_id !== (int) $employee->id) {

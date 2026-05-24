@@ -82,7 +82,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-export const read = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const read = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: read.url(args, options),
     method: 'post',
 })
@@ -97,7 +97,7 @@ read.definition = {
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-read.url = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+read.url = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { notification: args }
     }
@@ -130,7 +130,7 @@ read.url = (args: { notification: string | number | { id: string | number } } | 
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-read.post = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+read.post = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: read.url(args, options),
     method: 'post',
 })
@@ -140,7 +140,7 @@ read.post = (args: { notification: string | number | { id: string | number } } |
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-    const readForm = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const readForm = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: read.url(args, options),
         method: 'post',
     })
@@ -150,7 +150,7 @@ read.post = (args: { notification: string | number | { id: string | number } } |
  * @see app/Http/Controllers/NotificationController.php:41
  * @route '/notifications/{notification}/read'
  */
-        readForm.post = (args: { notification: string | number | { id: string | number } } | [notification: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        readForm.post = (args: { notification: number | { id: number } } | [notification: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: read.url(args, options),
             method: 'post',
         })

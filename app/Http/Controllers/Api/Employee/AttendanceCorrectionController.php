@@ -10,11 +10,12 @@ use App\Models\ApprovalStep;
 use App\Models\AttendanceCorrection;
 use App\Models\AttendanceLog;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AttendanceCorrectionController extends Controller
@@ -23,6 +24,8 @@ class AttendanceCorrectionController extends Controller
     use ResolvesEmployee;
 
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -98,7 +101,11 @@ class AttendanceCorrectionController extends Controller
 
     public function store(Request $request)
     {
-        $employee = $this->resolveEmployee($request);
+        $employee = $this->resolveEmployee($request, true);
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan koreksi presensi baru.',
+        );
         $data = $request->validate([
             'work_date' => ['required', 'date'],
             'requested_check_in_time' => ['nullable', 'date_format:H:i'],
@@ -148,7 +155,10 @@ class AttendanceCorrectionController extends Controller
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('attendance-corrections', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $request->file('attachment'),
+                'attendance-corrections/'.$employee->id,
+            );
         }
 
         $requestNo = $this->generateRequestNo();
@@ -307,9 +317,9 @@ class AttendanceCorrectionController extends Controller
             'approved_at' => optional($correction->approved_at)?->toDateTimeString(),
             'approved_by' => $correction->approvedBy?->name,
             'rejected_reason' => $correction->rejected_reason,
-            'attachment_path' => $correction->attachment_path,
+            'has_attachment' => (bool) $correction->attachment_path,
             'attachment_url' => $correction->attachment_path
-                ? Storage::disk('public')->url($correction->attachment_path)
+                ? url('/api/v1/secure-files/attendance-correction-attachments/'.$correction->id)
                 : null,
             'original_snapshot' => $correction->original_snapshot,
             'corrected_snapshot' => $correction->corrected_snapshot,

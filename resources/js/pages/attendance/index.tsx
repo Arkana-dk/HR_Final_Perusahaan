@@ -129,9 +129,7 @@ export default function AttendanceIndex() {
     const { logs, filters, stats, auth } = usePage<PageProps>().props;
     const currentUserId = auth?.user?.id ?? null;
     const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(
-        filters.status || ALL_OPTION_VALUE,
-    );
+    const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [approval, setApproval] = useState(
         filters.approval || ALL_OPTION_VALUE,
     );
@@ -255,9 +253,7 @@ export default function AttendanceIndex() {
                         <Input
                             placeholder="Cari nama atau kode"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Input
                             type="date"
@@ -309,7 +305,7 @@ export default function AttendanceIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Tanggal</th>
@@ -319,9 +315,7 @@ export default function AttendanceIndex() {
                                         </th>
                                         <th className="px-4 py-3">GPS</th>
                                         <th className="px-4 py-3">Status</th>
-                                        <th className="px-4 py-3">
-                                            Approval
-                                        </th>
+                                        <th className="px-4 py-3">Approval</th>
                                         <th className="px-4 py-3">Selfie</th>
                                         <th className="px-4 py-3 text-right">
                                             Aksi
@@ -423,7 +417,9 @@ export default function AttendanceIndex() {
                                                         {log.is_early_leave &&
                                                             log.early_leave_reason && (
                                                                 <p className="max-w-[220px] text-xs text-muted-foreground">
-                                                                    {log.early_leave_reason}
+                                                                    {
+                                                                        log.early_leave_reason
+                                                                    }
                                                                 </p>
                                                             )}
                                                     </div>
@@ -432,7 +428,8 @@ export default function AttendanceIndex() {
                                                     <Badge
                                                         variant={
                                                             approvalBadge[
-                                                                log.approval_status
+                                                                log
+                                                                    .approval_status
                                                             ] ?? 'outline'
                                                         }
                                                     >
@@ -443,7 +440,7 @@ export default function AttendanceIndex() {
                                                     <div className="flex flex-col gap-1 text-xs">
                                                         {checkInPhoto && (
                                                             <Link
-                                                                href={`/storage/${checkInPhoto.file_path}`}
+                                                                href={`/secure-files/attendance-photos/${checkInPhoto.id}`}
                                                                 target="_blank"
                                                                 className="text-primary hover:underline"
                                                             >
@@ -452,7 +449,7 @@ export default function AttendanceIndex() {
                                                         )}
                                                         {checkOutPhoto && (
                                                             <Link
-                                                                href={`/storage/${checkOutPhoto.file_path}`}
+                                                                href={`/secure-files/attendance-photos/${checkOutPhoto.id}`}
                                                                 target="_blank"
                                                                 className="text-primary hover:underline"
                                                             >
@@ -472,7 +469,7 @@ export default function AttendanceIndex() {
                                                             size="sm"
                                                             disabled={
                                                                 log.approval_status !==
-                                                                'pending' ||
+                                                                    'pending' ||
                                                                 isSelfLog(log)
                                                             }
                                                             onClick={() =>
@@ -488,7 +485,7 @@ export default function AttendanceIndex() {
                                                             size="sm"
                                                             disabled={
                                                                 log.approval_status !==
-                                                                'pending' ||
+                                                                    'pending' ||
                                                                 isSelfLog(log)
                                                             }
                                                             onClick={() => {

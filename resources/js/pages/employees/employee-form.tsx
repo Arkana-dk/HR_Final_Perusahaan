@@ -174,7 +174,9 @@ export default function EmployeeForm({
     const { data, setData, post, put, processing, errors } = useForm({
         name: employee?.user?.name ?? '',
         email: employee?.user?.email ?? '',
-        role: canManageRoles ? employee?.user?.role ?? 'employee' : 'employee',
+        role: canManageRoles
+            ? (employee?.user?.role ?? 'employee')
+            : 'employee',
         password: '',
         employee_code: employee?.employee_code ?? '',
         employment_status: employee?.employment_status ?? 'active',
@@ -271,7 +273,11 @@ export default function EmployeeForm({
 
     return (
         <AppLayout>
-            <form onSubmit={submit} encType="multipart/form-data" className="flex flex-col gap-6 px-6 py-6">
+            <form
+                onSubmit={submit}
+                encType="multipart/form-data"
+                className="flex flex-col gap-6 px-6 py-6"
+            >
                 <section className="rounded-xl border border-border/60 bg-gradient-to-br from-primary/10 via-transparent to-secondary/30 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">
@@ -324,7 +330,9 @@ export default function EmployeeForm({
                     {wizardSteps.map((wizardStep) => (
                         <Badge
                             key={wizardStep.id}
-                            variant={step === wizardStep.id ? 'default' : 'outline'}
+                            variant={
+                                step === wizardStep.id ? 'default' : 'outline'
+                            }
                         >
                             Step {wizardStep.id} · {wizardStep.title}
                         </Badge>
@@ -386,7 +394,8 @@ export default function EmployeeForm({
                                 <div className="space-y-2">
                                     <Input value="Employee" disabled />
                                     <p className="text-xs text-muted-foreground">
-                                        Hanya superadmin yang dapat mengubah role.
+                                        Hanya superadmin yang dapat mengubah
+                                        role.
                                     </p>
                                 </div>
                             )}
@@ -487,7 +496,9 @@ export default function EmployeeForm({
                             <InputError message={errors.join_date} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="confirmation_date">Konfirmasi</Label>
+                            <Label htmlFor="confirmation_date">
+                                Konfirmasi
+                            </Label>
                             <Input
                                 id="confirmation_date"
                                 type="date"
@@ -737,7 +748,9 @@ export default function EmployeeForm({
                             <InputError message={errors.work_phone} />
                         </div>
                         <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="office_location">Lokasi Kantor</Label>
+                            <Label htmlFor="office_location">
+                                Lokasi Kantor
+                            </Label>
                             <Input
                                 id="office_location"
                                 value={data.office_location}
@@ -803,7 +816,9 @@ export default function EmployeeForm({
                             <InputError message={errors.bpjs_kes} />
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="bpjs_tk">BPJS Ketenagakerjaan</Label>
+                            <Label htmlFor="bpjs_tk">
+                                BPJS Ketenagakerjaan
+                            </Label>
                             <Input
                                 id="bpjs_tk"
                                 value={data.bpjs_tk}
@@ -926,10 +941,7 @@ export default function EmployeeForm({
                                 id="address_line1"
                                 value={data.address_line1}
                                 onChange={(event) =>
-                                    setData(
-                                        'address_line1',
-                                        event.target.value,
-                                    )
+                                    setData('address_line1', event.target.value)
                                 }
                             />
                             <InputError message={errors.address_line1} />
@@ -942,10 +954,7 @@ export default function EmployeeForm({
                                 id="address_line2"
                                 value={data.address_line2}
                                 onChange={(event) =>
-                                    setData(
-                                        'address_line2',
-                                        event.target.value,
-                                    )
+                                    setData('address_line2', event.target.value)
                                 }
                             />
                             <InputError message={errors.address_line2} />
@@ -997,7 +1006,9 @@ export default function EmployeeForm({
                                     )
                                 }
                             />
-                            <InputError message={errors.emergency_contact_name} />
+                            <InputError
+                                message={errors.emergency_contact_name}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="emergency_contact_relation">
@@ -1013,7 +1024,9 @@ export default function EmployeeForm({
                                     )
                                 }
                             />
-                            <InputError message={errors.emergency_contact_relation} />
+                            <InputError
+                                message={errors.emergency_contact_relation}
+                            />
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="emergency_contact_phone">
@@ -1029,7 +1042,9 @@ export default function EmployeeForm({
                                     )
                                 }
                             />
-                            <InputError message={errors.emergency_contact_phone} />
+                            <InputError
+                                message={errors.emergency_contact_phone}
+                            />
                         </div>
                     </CardContent>
                 </Card>
@@ -1213,7 +1228,7 @@ export default function EmployeeForm({
                                         }
                                     />
                                 </div>
-                                <div className="md:col-span-2 flex justify-end">
+                                <div className="flex justify-end md:col-span-2">
                                     <Button
                                         type="button"
                                         variant="outline"
@@ -1256,4 +1271,3 @@ export default function EmployeeForm({
         </AppLayout>
     );
 }
-

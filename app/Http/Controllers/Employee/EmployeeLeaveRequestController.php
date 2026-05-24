@@ -9,6 +9,8 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\Request;
@@ -19,6 +21,8 @@ use Inertia\Inertia;
 class EmployeeLeaveRequestController extends Controller
 {
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -76,6 +80,10 @@ class EmployeeLeaveRequestController extends Controller
                 'employee' => 'Profil karyawan belum terhubung. Hubungi admin HR untuk melengkapi data karyawan Anda.',
             ]);
         }
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan cuti baru.',
+        );
 
         $data = $request->validate([
             'leave_type_id' => ['required', 'exists:leave_types,id'],
@@ -137,7 +145,10 @@ class EmployeeLeaveRequestController extends Controller
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('leave-requests', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $request->file('attachment'),
+                'leave-requests/'.$employee->id,
+            );
         }
 
         $leaveRequest = null;

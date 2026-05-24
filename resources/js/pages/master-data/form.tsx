@@ -129,11 +129,12 @@ export default function MasterDataForm() {
                                     -
                                 </SelectItem>
                             )}
-                            {(field.options ??
-                                [
+                            {(
+                                field.options ?? [
                                     { value: '1', label: 'Ya' },
                                     { value: '0', label: 'Tidak' },
-                                ]).map((option) => (
+                                ]
+                            ).map((option) => (
                                 <SelectItem
                                     key={option.value}
                                     value={option.value}
@@ -146,7 +147,7 @@ export default function MasterDataForm() {
                 ) : isTextarea ? (
                     <textarea
                         id={field.name}
-                        className="min-h-[96px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                        className="min-h-[96px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs transition-[color,box-shadow] outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50"
                         value={value}
                         onChange={(event) =>
                             setData(field.name, event.target.value)
@@ -173,10 +174,7 @@ export default function MasterDataForm() {
         <AppLayout>
             <Head title={title} />
 
-            <form
-                onSubmit={submit}
-                className="flex flex-col gap-6 px-6 py-6"
-            >
+            <form onSubmit={submit} className="flex flex-col gap-6 px-6 py-6">
                 <section className="rounded-xl border border-border/60 bg-gradient-to-br from-primary/10 via-transparent to-secondary/30 p-6">
                     <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                         <div className="space-y-2">

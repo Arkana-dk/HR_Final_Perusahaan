@@ -1,11 +1,6 @@
 import { Head, Link } from '@inertiajs/react';
 import { motion } from 'framer-motion';
-import {
-    CalendarDays,
-    ClipboardCheck,
-    UserCheck,
-    Wallet,
-} from 'lucide-react';
+import { CalendarDays, ClipboardCheck, UserCheck, Wallet } from 'lucide-react';
 import {
     Bar,
     BarChart,

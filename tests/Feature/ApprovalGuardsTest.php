@@ -37,6 +37,7 @@ test('superadmin cannot approve own leave request', function () {
         'company_id' => $company->id,
         'code' => 'ANNUAL',
         'name' => 'Cuti Tahunan',
+        'default_allocation' => 12,
         'is_active' => true,
     ]);
 
@@ -75,6 +76,7 @@ test('same user cannot approve leave request across multiple approval steps', fu
         'company_id' => $company->id,
         'code' => 'ANNUAL',
         'name' => 'Cuti Tahunan',
+        'default_allocation' => 12,
         'is_active' => true,
     ]);
 

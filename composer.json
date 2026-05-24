@@ -1,11 +1,14 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/react-starter-kit",
+    "name": "arkana/hr-final-perusahaan",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
+    "description": "Human Resource Information System berbasis Laravel, Inertia, React, dan MySQL",
     "keywords": [
         "laravel",
-        "framework"
+        "hris",
+        "human-resources",
+        "inertiajs",
+        "react"
     ],
     "license": "MIT",
     "require": {

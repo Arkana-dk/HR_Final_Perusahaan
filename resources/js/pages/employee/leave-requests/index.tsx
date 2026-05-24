@@ -307,9 +307,9 @@ export default function EmployeeLeaveRequests() {
                                             ? 'Profil karyawan belum tersedia'
                                             : leaveTypes.length === 0
                                               ? 'Jenis cuti belum tersedia'
-                                            : processing
-                                              ? 'Mengirim...'
-                                              : 'Ajukan Cuti'}
+                                              : processing
+                                                ? 'Mengirim...'
+                                                : 'Ajukan Cuti'}
                                     </Button>
                                 </div>
                             </fieldset>
@@ -374,7 +374,7 @@ export default function EmployeeLeaveRequests() {
                                             <td className="px-4 py-3 text-xs">
                                                 {request.attachment_path ? (
                                                     <a
-                                                        href={`/storage/${request.attachment_path}`}
+                                                        href={`/secure-files/leave-attachments/${request.id}`}
                                                         target="_blank"
                                                         rel="noreferrer"
                                                         className="text-primary hover:underline"

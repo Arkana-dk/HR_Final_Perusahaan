@@ -1,80 +1,112 @@
-# HR_Final_Perusahaan
+# Arkana HR Final Perusahaan
 
-Human Resources management system built with Laravel 12, Inertia, and React (Vite).
+Human Resource Information System (HRIS) berbasis Laravel 12 + Inertia + React untuk kebutuhan web HR dan API mobile employee.
 
-## Tech Stack
-- Backend: Laravel 12, PHP 8.2+
-- Frontend: React 19, Inertia.js, Vite
-- Styling: Tailwind CSS 4
-- Testing: Pest
+## 1) Tech Stack
+- Backend: Laravel 12, PHP 8.2+, Sanctum, Fortify
+- Frontend: Inertia.js, React 19, TypeScript, Vite, Tailwind CSS
+- Database: MySQL (default pengembangan bisa SQLite)
+- Testing: Pest (Feature + API)
+- File: Laravel Filesystem (private/local storage untuk data sensitif)
 
-## Requirements
-- PHP 8.2+
-- Composer
-- Node.js 18+ and npm
-- SQLite (default) or a configured database
+## 2) Fitur Utama
+- Manajemen master data HR (company, branch, department, position, shift, schedule, dll)
+- Employee lifecycle (create/update/deactivate/restore)
+- Attendance GPS + selfie + approval
+- Leave, overtime, reimbursement dengan approval
+- Payroll period + payslip management
+- Contract, employee documents, dan asset assignment
+- Notification center + audit logs
+- Mobile API `/api/v1` untuk employee self-service
 
-## Installation
+## 3) Role User
+- `superadmin`: akses penuh lintas company
+- `admin`: akses data sesuai scope company/branch/department
+- `manager`: akses data bawahan sesuai relasi manager
+- `employee`: akses data milik sendiri
+
+## 4) Instalasi
 ```bash
-# 1) Install backend dependencies
 composer install
-
-# 2) Create environment file
-cp .env.example .env
-
-# 3) Generate app key
-php artisan key:generate
-
-# 4) Prepare database (SQLite by default)
-php artisan migrate
-
-# 5) Install frontend dependencies
 npm install
+cp .env.example .env
+php artisan key:generate
 ```
 
-## Configuration
-- Default database is SQLite. Update DB settings in `.env` if you use MySQL/PostgreSQL.
-- If you use storage features, you may need a public link:
-```bash
-php artisan storage:link
+## 5) Setup Environment
+Konfigurasi minimum `.env`:
+```env
+APP_URL=http://localhost:8000
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=hr_web_laravel
+DB_USERNAME=root
+DB_PASSWORD=
 ```
 
-## Run (development)
+Konfigurasi HR baru (opsional, sudah ada default):
+```env
+HR_ATTENDANCE_EARLY_CHECKIN_LIMIT_MINUTES=30
+HR_ATTENDANCE_ALLOW_EARLY_CHECKOUT=true
+HR_ATTENDANCE_REQUIRE_SCHEDULE=true
+HR_ATTENDANCE_ALLOW_FALLBACK_WORK_LOCATION=false
+HR_ATTENDANCE_ENFORCE_GEOFENCE=true
+HR_OVERTIME_MIN_MINUTES=30
+HR_OVERTIME_MAX_MINUTES=360
+HR_MOBILE_LOGIN_RATE_LIMIT_PER_MINUTE=5
+HR_PAYROLL_ONLY_ACTIVE_EMPLOYEE=true
+```
+
+## 6) Migrasi & Seed
 ```bash
-# Backend server
+php artisan migrate
+php artisan db:seed
+```
+
+Demo account (jika `SEED_DEMO_DATA=true`):
+- `superadmin@hr.com` / `password`
+- `admin@hr.com` / `password`
+- `employee@hr.com` / `password`
+
+## 7) Menjalankan Aplikasi
+```bash
 php artisan serve
-
-# Frontend (Vite)
 npm run dev
 ```
 
-## Build
+## 8) Quality Check
 ```bash
+php artisan test
 npm run build
-```
-
-## Quality
-```bash
-# PHP lint
-composer run lint
-
-# JS/TS lint
 npm run lint
-
-# Type check
 npm run types
+npm run format
 ```
 
-## Tests
-```bash
-composer test
-```
+## 9) Struktur Folder Penting
+- `app/Http/Controllers` - controller web + API
+- `app/Services` - business/service layer
+- `app/Models` - model Eloquent
+- `database/migrations` - skema database
+- `resources/js/pages` - halaman Inertia React
+- `routes/web.php` - web routes
+- `routes/api.php` - API routes `/api/v1`
+- `tests/Feature` - test integrasi/fitur
+- `docs/` - dokumentasi teknis dan bisnis
 
-## Notes
-- Default database is SQLite. Update DB settings in `.env` as needed.
-- Queue and session use database drivers by default. Run migrations before starting.
-- Attendance check-in/check-out now enforces:
-  - active work schedule for current date (`scheduled` only),
-  - server-side geofence validation (if work location radius is set),
-  - early check-out reason + pending approval status,
-  - open-session protection (cannot check-in when previous session not checked out).
+## 10) Integrasi HR Mobile
+- Semua endpoint mobile berada di prefix `/api/v1`
+- Auth menggunakan Sanctum token bearer
+- Login membutuhkan `device_name`, mendukung `device_id`
+- Endpoint detail ada di [docs/api-mobile.md](docs/api-mobile.md)
+
+## 11) Catatan Keamanan File
+- File sensitif disimpan pada private disk (`storage/app/private`)
+- Akses file melalui endpoint secure (`/secure-files/...` / `/api/v1/secure-files/...`)
+- Validasi scope + ownership diterapkan sebelum file ditampilkan
+
+## 12) Dokumentasi Tambahan
+- API mobile: [docs/api-mobile.md](docs/api-mobile.md)
+- Alur bisnis HR: [docs/hr-business-flows.md](docs/hr-business-flows.md)
+- Ringkasan hardening keamanan: [docs/security-notes.md](docs/security-notes.md)

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::index
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:27
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:31
  * @route '/employee/leave-requests'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::store
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:71
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:75
  * @route '/employee/leave-requests'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::store
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:71
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:75
  * @route '/employee/leave-requests'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::store
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:71
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:75
  * @route '/employee/leave-requests'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -113,7 +113,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::store
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:71
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:75
  * @route '/employee/leave-requests'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -123,7 +123,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Employee\EmployeeLeaveRequestController::store
- * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:71
+ * @see app/Http/Controllers/Employee/EmployeeLeaveRequestController.php:75
  * @route '/employee/leave-requests'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

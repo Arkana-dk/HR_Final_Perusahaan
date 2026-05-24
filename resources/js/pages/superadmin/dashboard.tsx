@@ -153,12 +153,17 @@ const toCsv = (rows: Array<Record<string, string | number>>) => {
         `"${String(value).replace(/"/g, '""')}"`;
     const lines = [
         headers.map(escape).join(','),
-        ...rows.map((row) => headers.map((key) => escape(row[key] ?? '')).join(',')),
+        ...rows.map((row) =>
+            headers.map((key) => escape(row[key] ?? '')).join(','),
+        ),
     ];
     return lines.join('\n');
 };
 
-const downloadCsv = (filename: string, rows: Array<Record<string, string | number>>) => {
+const downloadCsv = (
+    filename: string,
+    rows: Array<Record<string, string | number>>,
+) => {
     const csv = toCsv(rows);
     if (!csv) return;
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -225,17 +230,25 @@ export default function SuperAdminDashboard() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <EmployeeQuickDialog role={role} data={employeeQuick} />
+                            <EmployeeQuickDialog
+                                role={role}
+                                data={employeeQuick}
+                            />
 
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="outline">Ekspor Laporan</Button>
+                                    <Button variant="outline">
+                                        Ekspor Laporan
+                                    </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-xl">
                                     <DialogHeader>
-                                        <DialogTitle>Ekspor Laporan</DialogTitle>
+                                        <DialogTitle>
+                                            Ekspor Laporan
+                                        </DialogTitle>
                                         <DialogDescription>
-                                            Pilih laporan yang ingin diunduh dalam format CSV.
+                                            Pilih laporan yang ingin diunduh
+                                            dalam format CSV.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4">
@@ -249,11 +262,18 @@ export default function SuperAdminDashboard() {
                                                     <SelectValue placeholder="Pilih laporan" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    {exportOptions.map((option) => (
-                                                        <SelectItem key={option.id} value={option.id}>
-                                                            {option.label}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {exportOptions.map(
+                                                        (option) => (
+                                                            <SelectItem
+                                                                key={option.id}
+                                                                value={
+                                                                    option.id
+                                                                }
+                                                            >
+                                                                {option.label}
+                                                            </SelectItem>
+                                                        ),
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </div>
@@ -264,7 +284,9 @@ export default function SuperAdminDashboard() {
                                                     type="date"
                                                     value={exportFrom}
                                                     onChange={(event) =>
-                                                        setExportFrom(event.target.value)
+                                                        setExportFrom(
+                                                            event.target.value,
+                                                        )
                                                     }
                                                 />
                                             </div>
@@ -274,17 +296,21 @@ export default function SuperAdminDashboard() {
                                                     type="date"
                                                     value={exportTo}
                                                     onChange={(event) =>
-                                                        setExportTo(event.target.value)
+                                                        setExportTo(
+                                                            event.target.value,
+                                                        )
                                                     }
                                                 />
                                             </div>
                                         </div>
                                         <div className="rounded-lg border border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                                            Data yang diekspor saat ini menggunakan sample dashboard.
+                                            Data yang diekspor saat ini
+                                            menggunakan sample dashboard.
                                         </div>
                                         <Button
                                             onClick={() => {
-                                                const suffix = exportType ?? 'report';
+                                                const suffix =
+                                                    exportType ?? 'report';
                                                 downloadCsv(
                                                     `report-${suffix}.csv`,
                                                     exportRows,
@@ -299,13 +325,16 @@ export default function SuperAdminDashboard() {
 
                             <Dialog>
                                 <DialogTrigger asChild>
-                                    <Button variant="secondary">Audit Akses</Button>
+                                    <Button variant="secondary">
+                                        Audit Akses
+                                    </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-xl">
                                     <DialogHeader>
                                         <DialogTitle>Audit Akses</DialogTitle>
                                         <DialogDescription>
-                                            Review aktivitas kritikal, login admin, dan event keamanan.
+                                            Review aktivitas kritikal, login
+                                            admin, dan event keamanan.
                                         </DialogDescription>
                                     </DialogHeader>
                                     <div className="grid gap-4">
@@ -326,15 +355,24 @@ export default function SuperAdminDashboard() {
                                                     <SelectValue placeholder="Pilih level" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="all">Semua Level</SelectItem>
-                                                    <SelectItem value="superadmin">Superadmin</SelectItem>
-                                                    <SelectItem value="admin">Admin</SelectItem>
-                                                    <SelectItem value="employee">Employee</SelectItem>
+                                                    <SelectItem value="all">
+                                                        Semua Level
+                                                    </SelectItem>
+                                                    <SelectItem value="superadmin">
+                                                        Superadmin
+                                                    </SelectItem>
+                                                    <SelectItem value="admin">
+                                                        Admin
+                                                    </SelectItem>
+                                                    <SelectItem value="employee">
+                                                        Employee
+                                                    </SelectItem>
                                                 </SelectContent>
                                             </Select>
                                         </div>
                                         <div className="rounded-lg border border-border/60 px-3 py-2 text-xs text-muted-foreground">
-                                            Audit log tersedia di modul Audit Logs untuk superadmin.
+                                            Audit log tersedia di modul Audit
+                                            Logs untuk superadmin.
                                         </div>
                                         <Button asChild>
                                             <Link href="/modules/audit-logs">
@@ -458,7 +496,8 @@ export default function SuperAdminDashboard() {
                                                 key={`${entry.name}-${index}`}
                                                 fill={
                                                     chartColors[
-                                                        index % chartColors.length
+                                                        index %
+                                                            chartColors.length
                                                     ]
                                                 }
                                             />
@@ -494,7 +533,11 @@ export default function SuperAdminDashboard() {
                                     </Badge>
                                 </div>
                             ))}
-                            <Button variant="outline" className="w-full" asChild>
+                            <Button
+                                variant="outline"
+                                className="w-full"
+                                asChild
+                            >
                                 <Link href="/modules/leave-requests">
                                     Lihat Semua Approval
                                 </Link>
@@ -526,7 +569,9 @@ export default function SuperAdminDashboard() {
                                     3 event perlu review hari ini.
                                 </p>
                                 <Button variant="secondary" size="sm" asChild>
-                                    <Link href="/modules/audit-logs">Lihat Audit</Link>
+                                    <Link href="/modules/audit-logs">
+                                        Lihat Audit
+                                    </Link>
                                 </Button>
                             </div>
                         </CardContent>

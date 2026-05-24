@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::index
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:15
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:25
  * @route '/modules/documents'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
 export const create = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ create.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
 create.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ create.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
 create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ create.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
 create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
     const createForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
         createForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::create
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:91
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:121
  * @route '/modules/documents/create'
  */
         createForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ create.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     create.form = createForm
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::store
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:100
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
  * @route '/modules/documents'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::store
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:100
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
  * @route '/modules/documents'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::store
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:100
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
  * @route '/modules/documents'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::store
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:100
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
  * @route '/modules/documents'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::store
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:100
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
  * @route '/modules/documents'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
 export const edit = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -227,7 +227,7 @@ edit.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
 edit.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -260,7 +260,7 @@ edit.url = (args: { document: number | { id: number } } | [document: number | { 
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
 edit.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -269,7 +269,7 @@ edit.get = (args: { document: number | { id: number } } | [document: number | { 
 })
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
 edit.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -279,7 +279,7 @@ edit.head = (args: { document: number | { id: number } } | [document: number | {
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
     const editForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -289,7 +289,7 @@ edit.head = (args: { document: number | { id: number } } | [document: number | {
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
         editForm.get = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -298,7 +298,7 @@ edit.head = (args: { document: number | { id: number } } | [document: number | {
         })
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::edit
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:119
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:165
  * @route '/modules/documents/{document}/edit'
  */
         editForm.head = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -314,7 +314,7 @@ edit.head = (args: { document: number | { id: number } } | [document: number | {
     edit.form = editForm
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::update
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:177
  * @route '/modules/documents/{document}'
  */
 export const update = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -329,7 +329,7 @@ update.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::update
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:177
  * @route '/modules/documents/{document}'
  */
 update.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -362,7 +362,7 @@ update.url = (args: { document: number | { id: number } } | [document: number | 
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::update
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:177
  * @route '/modules/documents/{document}'
  */
 update.put = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'put'> => ({
@@ -372,7 +372,7 @@ update.put = (args: { document: number | { id: number } } | [document: number | 
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::update
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:177
  * @route '/modules/documents/{document}'
  */
     const updateForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -387,7 +387,7 @@ update.put = (args: { document: number | { id: number } } | [document: number | 
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::update
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:130
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:177
  * @route '/modules/documents/{document}'
  */
         updateForm.put = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -403,7 +403,7 @@ update.put = (args: { document: number | { id: number } } | [document: number | 
     update.form = updateForm
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::destroy
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:150
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:215
  * @route '/modules/documents/{document}'
  */
 export const destroy = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -418,7 +418,7 @@ destroy.definition = {
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::destroy
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:150
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:215
  * @route '/modules/documents/{document}'
  */
 destroy.url = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -451,7 +451,7 @@ destroy.url = (args: { document: number | { id: number } } | [document: number |
 
 /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::destroy
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:150
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:215
  * @route '/modules/documents/{document}'
  */
 destroy.delete = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'delete'> => ({
@@ -461,7 +461,7 @@ destroy.delete = (args: { document: number | { id: number } } | [document: numbe
 
     /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::destroy
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:150
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:215
  * @route '/modules/documents/{document}'
  */
     const destroyForm = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -476,7 +476,7 @@ destroy.delete = (args: { document: number | { id: number } } | [document: numbe
 
             /**
 * @see \App\Http\Controllers\Documents\EmployeeDocumentController::destroy
- * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:150
+ * @see app/Http/Controllers/Documents/EmployeeDocumentController.php:215
  * @route '/modules/documents/{document}'
  */
         destroyForm.delete = (args: { document: number | { id: number } } | [document: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

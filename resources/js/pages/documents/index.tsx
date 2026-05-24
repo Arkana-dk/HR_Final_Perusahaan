@@ -22,7 +22,7 @@ type DocumentRow = {
     number?: string | null;
     issued_at?: string | null;
     expires_at?: string | null;
-    file_path?: string | null;
+    has_file?: boolean;
     employee?: {
         employee_code?: string | null;
         user?: {
@@ -60,6 +60,8 @@ type PageProps = {
         total: number;
         expired: number;
         expiring: number;
+        expiring_h14: number;
+        expiring_h7: number;
     };
 };
 
@@ -149,7 +151,7 @@ export default function DocumentIndex() {
                     </div>
                 </section>
 
-                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
                     <Card>
                         <CardHeader>
                             <CardTitle>Total Dokumen</CardTitle>
@@ -189,6 +191,32 @@ export default function DocumentIndex() {
                             </p>
                         </CardContent>
                     </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>H-14</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold">
+                                {stats.expiring_h14}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Kedaluwarsa ≤ 14 hari
+                            </p>
+                        </CardContent>
+                    </Card>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>H-7</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-2xl font-semibold">
+                                {stats.expiring_h7}
+                            </p>
+                            <p className="text-xs text-muted-foreground">
+                                Kedaluwarsa ≤ 7 hari
+                            </p>
+                        </CardContent>
+                    </Card>
                 </section>
 
                 <Card>
@@ -202,9 +230,7 @@ export default function DocumentIndex() {
                         <Input
                             placeholder="Cari nama, tipe, nomor"
                             value={search}
-                            onChange={(event) =>
-                                setSearch(event.target.value)
-                            }
+                            onChange={(event) => setSearch(event.target.value)}
                         />
                         <Input
                             placeholder="Tipe dokumen"
@@ -226,6 +252,12 @@ export default function DocumentIndex() {
                                 <SelectItem value="expiring">
                                     Hampir Habis
                                 </SelectItem>
+                                <SelectItem value="expiring_h14">
+                                    Habis ≤ 14 Hari
+                                </SelectItem>
+                                <SelectItem value="expiring_h7">
+                                    Habis ≤ 7 Hari
+                                </SelectItem>
                                 <SelectItem value="expired">
                                     Kadaluarsa
                                 </SelectItem>
@@ -235,7 +267,7 @@ export default function DocumentIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Tipe</th>
@@ -275,7 +307,8 @@ export default function DocumentIndex() {
                                                     </div>
                                                     <div className="text-xs text-muted-foreground">
                                                         {document.employee
-                                                            ?.employee_code ?? '-'}
+                                                            ?.employee_code ??
+                                                            '-'}
                                                     </div>
                                                 </td>
                                                 <td className="px-4 py-3">
@@ -299,9 +332,9 @@ export default function DocumentIndex() {
                                                     </Badge>
                                                 </td>
                                                 <td className="px-4 py-3 text-xs">
-                                                    {document.file_path ? (
+                                                    {document.has_file ? (
                                                         <a
-                                                            href={`/storage/${document.file_path}`}
+                                                            href={`/secure-files/documents/${document.id}`}
                                                             target="_blank"
                                                             rel="noreferrer"
                                                             className="text-primary hover:underline"

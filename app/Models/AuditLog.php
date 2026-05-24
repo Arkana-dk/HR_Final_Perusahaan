@@ -20,6 +20,7 @@ class AuditLog extends Model
         'reference_type',
         'reference_id',
         'ip_address',
+        'user_agent',
         'occurred_at',
         'notes',
         'before_data',

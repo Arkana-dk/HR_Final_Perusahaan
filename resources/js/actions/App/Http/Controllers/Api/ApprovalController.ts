@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
 export const pending = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ pending.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
 pending.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ pending.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
 pending.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ pending.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
 pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
     const pendingForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
         pendingForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\ApprovalController::pending
- * @see app/Http/Controllers/Api/ApprovalController.php:34
+ * @see app/Http/Controllers/Api/ApprovalController.php:36
  * @route '/api/v1/approvals/pending'
  */
         pendingForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ pending.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     pending.form = pendingForm
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::approve
- * @see app/Http/Controllers/Api/ApprovalController.php:88
+ * @see app/Http/Controllers/Api/ApprovalController.php:90
  * @route '/api/v1/approvals/{type}/{id}/approve'
  */
 export const approve = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -94,7 +94,7 @@ approve.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::approve
- * @see app/Http/Controllers/Api/ApprovalController.php:88
+ * @see app/Http/Controllers/Api/ApprovalController.php:90
  * @route '/api/v1/approvals/{type}/{id}/approve'
  */
 approve.url = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions) => {
@@ -120,7 +120,7 @@ approve.url = (args: { type: string | number, id: string | number } | [type: str
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::approve
- * @see app/Http/Controllers/Api/ApprovalController.php:88
+ * @see app/Http/Controllers/Api/ApprovalController.php:90
  * @route '/api/v1/approvals/{type}/{id}/approve'
  */
 approve.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -130,7 +130,7 @@ approve.post = (args: { type: string | number, id: string | number } | [type: st
 
     /**
 * @see \App\Http\Controllers\Api\ApprovalController::approve
- * @see app/Http/Controllers/Api/ApprovalController.php:88
+ * @see app/Http/Controllers/Api/ApprovalController.php:90
  * @route '/api/v1/approvals/{type}/{id}/approve'
  */
     const approveForm = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -140,7 +140,7 @@ approve.post = (args: { type: string | number, id: string | number } | [type: st
 
             /**
 * @see \App\Http\Controllers\Api\ApprovalController::approve
- * @see app/Http/Controllers/Api/ApprovalController.php:88
+ * @see app/Http/Controllers/Api/ApprovalController.php:90
  * @route '/api/v1/approvals/{type}/{id}/approve'
  */
         approveForm.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -151,7 +151,7 @@ approve.post = (args: { type: string | number, id: string | number } | [type: st
     approve.form = approveForm
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::reject
- * @see app/Http/Controllers/Api/ApprovalController.php:102
+ * @see app/Http/Controllers/Api/ApprovalController.php:104
  * @route '/api/v1/approvals/{type}/{id}/reject'
  */
 export const reject = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -166,7 +166,7 @@ reject.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::reject
- * @see app/Http/Controllers/Api/ApprovalController.php:102
+ * @see app/Http/Controllers/Api/ApprovalController.php:104
  * @route '/api/v1/approvals/{type}/{id}/reject'
  */
 reject.url = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions) => {
@@ -192,7 +192,7 @@ reject.url = (args: { type: string | number, id: string | number } | [type: stri
 
 /**
 * @see \App\Http\Controllers\Api\ApprovalController::reject
- * @see app/Http/Controllers/Api/ApprovalController.php:102
+ * @see app/Http/Controllers/Api/ApprovalController.php:104
  * @route '/api/v1/approvals/{type}/{id}/reject'
  */
 reject.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -202,7 +202,7 @@ reject.post = (args: { type: string | number, id: string | number } | [type: str
 
     /**
 * @see \App\Http\Controllers\Api\ApprovalController::reject
- * @see app/Http/Controllers/Api/ApprovalController.php:102
+ * @see app/Http/Controllers/Api/ApprovalController.php:104
  * @route '/api/v1/approvals/{type}/{id}/reject'
  */
     const rejectForm = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -212,7 +212,7 @@ reject.post = (args: { type: string | number, id: string | number } | [type: str
 
             /**
 * @see \App\Http\Controllers\Api\ApprovalController::reject
- * @see app/Http/Controllers/Api/ApprovalController.php:102
+ * @see app/Http/Controllers/Api/ApprovalController.php:104
  * @route '/api/v1/approvals/{type}/{id}/reject'
  */
         rejectForm.post = (args: { type: string | number, id: string | number } | [type: string | number, id: string | number ], options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

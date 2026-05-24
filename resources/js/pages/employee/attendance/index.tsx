@@ -41,9 +41,11 @@ type PageProps = {
         photos?: Array<{
             id: number;
             type: 'check_in' | 'check_out';
-            file_path: string;
+            file_path?: string;
+            url?: string | null;
         }>;
     } | null;
+    hasApprovedLeave?: boolean;
     canCheckIn: boolean;
     canCheckOut: boolean;
     serverTime: string;
@@ -85,7 +87,10 @@ const getAttendanceState = (log: PageProps['log']) => {
     }
 
     if (log.is_early_leave && log.approval_status === 'rejected') {
-        return { label: 'Pulang Cepat (Rejected)', tone: 'destructive' as const };
+        return {
+            label: 'Pulang Cepat (Rejected)',
+            tone: 'destructive' as const,
+        };
     }
 
     if (log.status === 'late') {
@@ -113,7 +118,16 @@ const generateDeviceId = () => {
 
 export default function EmployeeAttendanceIndex() {
     const page = usePage<PageProps>();
-    const { employee, shift, workLocation, log, canCheckIn, canCheckOut, serverTime } = page.props;
+    const {
+        employee,
+        shift,
+        workLocation,
+        log,
+        canCheckIn,
+        canCheckOut,
+        serverTime,
+        hasApprovedLeave,
+    } = page.props;
 
     const [loadingLocation, setLoadingLocation] = useState(false);
     const [toast, setToast] = useState<ToastState>(null);
@@ -159,7 +173,8 @@ export default function EmployeeAttendanceIndex() {
             () => {
                 setToast({
                     type: 'error',
-                    message: 'Gagal mengambil lokasi. Pastikan izin lokasi aktif.',
+                    message:
+                        'Gagal mengambil lokasi. Pastikan izin lokasi aktif.',
                 });
                 setLoadingLocation(false);
             },
@@ -171,7 +186,10 @@ export default function EmployeeAttendanceIndex() {
     };
 
     const handleSubmit = (type: 'checkin' | 'checkout') => {
-        const url = type === 'checkin' ? '/employee/attendance/check-in' : '/employee/attendance/check-out';
+        const url =
+            type === 'checkin'
+                ? '/employee/attendance/check-in'
+                : '/employee/attendance/check-out';
 
         post(url, {
             forceFormData: true,
@@ -190,8 +208,14 @@ export default function EmployeeAttendanceIndex() {
         });
     };
 
-    const checkInPhoto = useMemo(() => log?.photos?.find((photo) => photo.type === 'check_in'), [log?.photos]);
-    const checkOutPhoto = useMemo(() => log?.photos?.find((photo) => photo.type === 'check_out'), [log?.photos]);
+    const checkInPhoto = useMemo(
+        () => log?.photos?.find((photo) => photo.type === 'check_in'),
+        [log?.photos],
+    );
+    const checkOutPhoto = useMemo(
+        () => log?.photos?.find((photo) => photo.type === 'check_out'),
+        [log?.photos],
+    );
     const attendanceState = getAttendanceState(log);
     const locationReady = data.latitude !== '' && data.longitude !== '';
 
@@ -201,16 +225,26 @@ export default function EmployeeAttendanceIndex() {
 
             <div className="relative flex flex-col gap-6 px-4 py-6 md:px-6">
                 {toast && (
-                    <div className="fixed right-4 top-4 z-50 w-[min(92vw,360px)]">
-                        <Alert className={toast.type === 'success' ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-rose-200 bg-rose-50 text-rose-700'}>
-                            <AlertTitle>{toast.type === 'success' ? 'Berhasil' : 'Gagal'}</AlertTitle>
+                    <div className="fixed top-4 right-4 z-50 w-[min(92vw,360px)]">
+                        <Alert
+                            className={
+                                toast.type === 'success'
+                                    ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                    : 'border-rose-200 bg-rose-50 text-rose-700'
+                            }
+                        >
+                            <AlertTitle>
+                                {toast.type === 'success'
+                                    ? 'Berhasil'
+                                    : 'Gagal'}
+                            </AlertTitle>
                             <AlertDescription>{toast.message}</AlertDescription>
                         </Alert>
                     </div>
                 )}
 
                 <section className="relative overflow-hidden rounded-2xl border border-border/60 bg-gradient-to-br from-primary/15 via-background to-accent/50 p-6">
-                    <div className="pointer-events-none absolute -right-10 -top-14 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
+                    <div className="pointer-events-none absolute -top-14 -right-10 h-44 w-44 rounded-full bg-primary/10 blur-2xl" />
                     <div className="pointer-events-none absolute -bottom-14 -left-8 h-32 w-32 rounded-full bg-chart-2/15 blur-xl" />
                     <div className="relative flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                         <div className="space-y-2">
@@ -219,12 +253,17 @@ export default function EmployeeAttendanceIndex() {
                                 Halo, {employee.name}
                             </h1>
                             <p className="text-sm text-muted-foreground">
-                                {employee.employee_code} - {employee.company ?? '-'}
+                                {employee.employee_code} -{' '}
+                                {employee.company ?? '-'}
                             </p>
                         </div>
                         <div className="rounded-xl border border-border/60 bg-card/70 px-4 py-3 text-sm">
-                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Waktu Server</p>
-                            <p className="font-medium text-foreground">{serverTime}</p>
+                            <p className="text-xs tracking-wide text-muted-foreground uppercase">
+                                Waktu Server
+                            </p>
+                            <p className="font-medium text-foreground">
+                                {serverTime}
+                            </p>
                         </div>
                     </div>
                 </section>
@@ -232,17 +271,48 @@ export default function EmployeeAttendanceIndex() {
                 <section className="grid gap-4 lg:grid-cols-3">
                     <Card className="border-border/70">
                         <CardHeader>
-                            <CardTitle className="text-base">Status Presensi</CardTitle>
+                            <CardTitle className="text-base">
+                                Status Presensi
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
-                            <Badge variant={attendanceState.tone}>{attendanceState.label}</Badge>
-                            <p className="text-muted-foreground">Tanggal: <span className="text-foreground">{formatDate(log?.work_date)}</span></p>
-                            <p className="text-muted-foreground">Check In: <span className="text-foreground">{formatTime(log?.check_in_at)}</span></p>
-                            <p className="text-muted-foreground">Check Out: <span className="text-foreground">{formatTime(log?.check_out_at)}</span></p>
-                            <p className="text-muted-foreground">Approval: <span className="text-foreground">{log?.approval_status ?? '-'}</span></p>
-                            {(log?.is_early_leave && log?.early_leave_reason) && (
+                            <Badge variant={attendanceState.tone}>
+                                {attendanceState.label}
+                            </Badge>
+                            <p className="text-muted-foreground">
+                                Tanggal:{' '}
+                                <span className="text-foreground">
+                                    {formatDate(log?.work_date)}
+                                </span>
+                            </p>
+                            <p className="text-muted-foreground">
+                                Check In:{' '}
+                                <span className="text-foreground">
+                                    {formatTime(log?.check_in_at)}
+                                </span>
+                            </p>
+                            <p className="text-muted-foreground">
+                                Check Out:{' '}
+                                <span className="text-foreground">
+                                    {formatTime(log?.check_out_at)}
+                                </span>
+                            </p>
+                            <p className="text-muted-foreground">
+                                Approval:{' '}
+                                <span className="text-foreground">
+                                    {log?.approval_status ?? '-'}
+                                </span>
+                            </p>
+                            {log?.is_early_leave && log?.early_leave_reason && (
                                 <p className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs text-amber-700">
-                                    Alasan pulang cepat: {log.early_leave_reason}
+                                    Alasan pulang cepat:{' '}
+                                    {log.early_leave_reason}
+                                </p>
+                            )}
+                            {hasApprovedLeave && (
+                                <p className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs text-blue-700">
+                                    Anda sedang cuti yang disetujui hari ini,
+                                    presensi tidak tersedia.
                                 </p>
                             )}
                         </CardContent>
@@ -250,36 +320,85 @@ export default function EmployeeAttendanceIndex() {
 
                     <Card className="border-border/70">
                         <CardHeader>
-                            <CardTitle className="text-base">Jadwal Shift</CardTitle>
+                            <CardTitle className="text-base">
+                                Jadwal Shift
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             {shift ? (
                                 <>
-                                    <p className="font-medium text-foreground">{shift.name}</p>
-                                    <p className="text-muted-foreground">Jam kerja: <span className="text-foreground">{shift.start_time} - {shift.end_time}</span></p>
-                                    <p className="text-muted-foreground">Grace period: <span className="text-foreground">{shift.grace_minutes} menit</span></p>
-                                    <p className="text-muted-foreground">Mode: <span className="text-foreground">{shift.is_overnight ? 'Overnight' : 'Normal'}</span></p>
+                                    <p className="font-medium text-foreground">
+                                        {shift.name}
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        Jam kerja:{' '}
+                                        <span className="text-foreground">
+                                            {shift.start_time} -{' '}
+                                            {shift.end_time}
+                                        </span>
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        Grace period:{' '}
+                                        <span className="text-foreground">
+                                            {shift.grace_minutes} menit
+                                        </span>
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        Mode:{' '}
+                                        <span className="text-foreground">
+                                            {shift.is_overnight
+                                                ? 'Overnight'
+                                                : 'Normal'}
+                                        </span>
+                                    </p>
                                 </>
                             ) : (
-                                <p className="text-muted-foreground">Belum ada jadwal hari ini.</p>
+                                <p className="text-muted-foreground">
+                                    Belum ada jadwal hari ini.
+                                </p>
                             )}
                         </CardContent>
                     </Card>
 
                     <Card className="border-border/70">
                         <CardHeader>
-                            <CardTitle className="text-base">Validasi Lokasi</CardTitle>
+                            <CardTitle className="text-base">
+                                Validasi Lokasi
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-2 text-sm">
                             {workLocation ? (
                                 <>
-                                    <p className="font-medium text-foreground">{workLocation.name}</p>
-                                    <p className="text-muted-foreground">Radius: <span className="text-foreground">{workLocation.radius_meters} m</span></p>
-                                    <p className="text-muted-foreground">GPS In: <span className="text-foreground">{log?.check_in_distance_meters ?? '-'} m</span></p>
-                                    <p className="text-muted-foreground">GPS Out: <span className="text-foreground">{log?.check_out_distance_meters ?? '-'} m</span></p>
+                                    <p className="font-medium text-foreground">
+                                        {workLocation.name}
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        Radius:{' '}
+                                        <span className="text-foreground">
+                                            {workLocation.radius_meters} m
+                                        </span>
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        GPS In:{' '}
+                                        <span className="text-foreground">
+                                            {log?.check_in_distance_meters ??
+                                                '-'}{' '}
+                                            m
+                                        </span>
+                                    </p>
+                                    <p className="text-muted-foreground">
+                                        GPS Out:{' '}
+                                        <span className="text-foreground">
+                                            {log?.check_out_distance_meters ??
+                                                '-'}{' '}
+                                            m
+                                        </span>
+                                    </p>
                                 </>
                             ) : (
-                                <p className="text-muted-foreground">Lokasi kerja belum ditetapkan.</p>
+                                <p className="text-muted-foreground">
+                                    Lokasi kerja belum ditetapkan.
+                                </p>
                             )}
                         </CardContent>
                     </Card>
@@ -288,14 +407,24 @@ export default function EmployeeAttendanceIndex() {
                 <section className="grid gap-4 xl:grid-cols-[2fr_1fr]">
                     <Card className="border-border/70">
                         <CardHeader>
-                            <CardTitle className="text-base">Aksi Presensi</CardTitle>
+                            <CardTitle className="text-base">
+                                Aksi Presensi
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-4">
-                            {(errors.photo || errors.latitude || errors.longitude || errors.early_leave_reason || errors.device_id) && (
+                            {(errors.photo ||
+                                errors.latitude ||
+                                errors.longitude ||
+                                errors.early_leave_reason ||
+                                errors.device_id) && (
                                 <Alert className="border-rose-200 bg-rose-50 text-rose-700">
                                     <AlertTitle>Validasi Gagal</AlertTitle>
                                     <AlertDescription>
-                                        {errors.photo || errors.latitude || errors.longitude || errors.early_leave_reason || errors.device_id}
+                                        {errors.photo ||
+                                            errors.latitude ||
+                                            errors.longitude ||
+                                            errors.early_leave_reason ||
+                                            errors.device_id}
                                     </AlertDescription>
                                 </Alert>
                             )}
@@ -303,20 +432,41 @@ export default function EmployeeAttendanceIndex() {
                             <div className="grid gap-4 md:grid-cols-2">
                                 <div className="space-y-2">
                                     <Label>Latitude</Label>
-                                    <Input value={data.latitude} readOnly placeholder="-6.xxxxxxx" />
+                                    <Input
+                                        value={data.latitude}
+                                        readOnly
+                                        placeholder="-6.xxxxxxx"
+                                    />
                                 </div>
                                 <div className="space-y-2">
                                     <Label>Longitude</Label>
-                                    <Input value={data.longitude} readOnly placeholder="106.xxxxxxx" />
+                                    <Input
+                                        value={data.longitude}
+                                        readOnly
+                                        placeholder="106.xxxxxxx"
+                                    />
                                 </div>
                             </div>
 
                             <div className="flex flex-wrap items-center gap-2">
-                                <Button variant="outline" type="button" onClick={fetchLocation} disabled={loadingLocation}>
-                                    {loadingLocation ? 'Mengambil lokasi...' : 'Ambil Lokasi'}
+                                <Button
+                                    variant="outline"
+                                    type="button"
+                                    onClick={fetchLocation}
+                                    disabled={loadingLocation}
+                                >
+                                    {loadingLocation
+                                        ? 'Mengambil lokasi...'
+                                        : 'Ambil Lokasi'}
                                 </Button>
-                                <Badge variant={locationReady ? 'default' : 'outline'}>
-                                    {locationReady ? 'Lokasi terdeteksi' : 'Lokasi belum diambil'}
+                                <Badge
+                                    variant={
+                                        locationReady ? 'default' : 'outline'
+                                    }
+                                >
+                                    {locationReady
+                                        ? 'Lokasi terdeteksi'
+                                        : 'Lokasi belum diambil'}
                                 </Badge>
                             </div>
 
@@ -326,7 +476,12 @@ export default function EmployeeAttendanceIndex() {
                                     type="file"
                                     accept="image/*"
                                     capture="user"
-                                    onChange={(event) => setData('photo', event.target.files?.[0] ?? null)}
+                                    onChange={(event) =>
+                                        setData(
+                                            'photo',
+                                            event.target.files?.[0] ?? null,
+                                        )
+                                    }
                                 />
                                 <p className="text-xs text-muted-foreground">
                                     Foto selfie wajib untuk validasi presensi.
@@ -337,7 +492,12 @@ export default function EmployeeAttendanceIndex() {
                                 <Label>Alasan Pulang Cepat (Opsional)</Label>
                                 <Input
                                     value={data.early_leave_reason}
-                                    onChange={(event) => setData('early_leave_reason', event.target.value)}
+                                    onChange={(event) =>
+                                        setData(
+                                            'early_leave_reason',
+                                            event.target.value,
+                                        )
+                                    }
                                     placeholder="Wajib diisi jika checkout sebelum jam shift selesai"
                                 />
                             </div>
@@ -346,7 +506,11 @@ export default function EmployeeAttendanceIndex() {
                                 <Button
                                     type="button"
                                     onClick={() => handleSubmit('checkin')}
-                                    disabled={!canCheckIn || processing || !locationReady}
+                                    disabled={
+                                        !canCheckIn ||
+                                        processing ||
+                                        !locationReady
+                                    }
                                 >
                                     {processing ? 'Memproses...' : 'Check In'}
                                 </Button>
@@ -354,7 +518,11 @@ export default function EmployeeAttendanceIndex() {
                                     type="button"
                                     variant="secondary"
                                     onClick={() => handleSubmit('checkout')}
-                                    disabled={!canCheckOut || processing || !locationReady}
+                                    disabled={
+                                        !canCheckOut ||
+                                        processing ||
+                                        !locationReady
+                                    }
                                 >
                                     {processing ? 'Memproses...' : 'Check Out'}
                                 </Button>
@@ -364,12 +532,14 @@ export default function EmployeeAttendanceIndex() {
 
                     <Card className="border-border/70">
                         <CardHeader>
-                            <CardTitle className="text-base">Bukti Selfie</CardTitle>
+                            <CardTitle className="text-base">
+                                Bukti Selfie
+                            </CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3 text-sm">
                             {checkInPhoto ? (
                                 <a
-                                    href={`/storage/${checkInPhoto.file_path}`}
+                                    href={checkInPhoto.url ?? '#'}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="block rounded-lg border border-border/60 bg-muted/50 px-3 py-2 transition hover:bg-muted"
@@ -384,7 +554,7 @@ export default function EmployeeAttendanceIndex() {
 
                             {checkOutPhoto ? (
                                 <a
-                                    href={`/storage/${checkOutPhoto.file_path}`}
+                                    href={checkOutPhoto.url ?? '#'}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="block rounded-lg border border-border/60 bg-muted/50 px-3 py-2 transition hover:bg-muted"

@@ -38,6 +38,14 @@ class AttendanceCorrection extends Model
         'corrected_snapshot' => 'array',
     ];
 
+    protected $hidden = [
+        'attachment_path',
+    ];
+
+    protected $appends = [
+        'has_attachment',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
@@ -62,5 +70,9 @@ class AttendanceCorrection extends Model
     {
         return $this->morphOne(Approval::class, 'approvable');
     }
-}
 
+    public function getHasAttachmentAttribute(): bool
+    {
+        return (bool) $this->attachment_path;
+    }
+}

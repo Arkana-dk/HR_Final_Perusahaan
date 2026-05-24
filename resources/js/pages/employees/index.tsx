@@ -1,6 +1,9 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useMemo, useState } from 'react';
-import { EmployeeQuickDialog, type EmployeeQuickData } from '@/components/employee-quick-dialog';
+import {
+    EmployeeQuickDialog,
+    type EmployeeQuickData,
+} from '@/components/employee-quick-dialog';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -136,9 +139,7 @@ export default function EmployeeIndex() {
     const { employees, filters, stats, departments, employeeQuick, auth } =
         usePage<PageProps>().props;
     const [search, setSearch] = useState(filters.search ?? '');
-    const [status, setStatus] = useState(
-        filters.status || ALL_OPTION_VALUE,
-    );
+    const [status, setStatus] = useState(filters.status || ALL_OPTION_VALUE);
     const [department, setDepartment] = useState(
         filters.department || ALL_OPTION_VALUE,
     );
@@ -356,7 +357,7 @@ export default function EmployeeIndex() {
                     <CardContent>
                         <div className="overflow-hidden rounded-lg border border-border/60">
                             <table className="w-full text-left text-sm">
-                                <thead className="bg-muted/60 text-xs uppercase text-muted-foreground">
+                                <thead className="bg-muted/60 text-xs text-muted-foreground uppercase">
                                     <tr>
                                         <th className="px-4 py-3">Karyawan</th>
                                         <th className="px-4 py-3">Unit</th>
@@ -382,18 +383,19 @@ export default function EmployeeIndex() {
                                                         {employee.user?.name}
                                                     </Link>
                                                     <span className="text-xs text-muted-foreground">
-                                                        {employee.employee_code} ·{' '}
-                                                        {employee.user?.email}
+                                                        {employee.employee_code}{' '}
+                                                        · {employee.user?.email}
                                                     </span>
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <div className="text-xs text-muted-foreground">
-                                                    {employee.branch?.name ?? '-'}
+                                                    {employee.branch?.name ??
+                                                        '-'}
                                                 </div>
                                                 <div className="text-sm">
-                                                    {employee.department?.name ??
-                                                        '-'}
+                                                    {employee.department
+                                                        ?.name ?? '-'}
                                                 </div>
                                             </td>
                                             <td className="px-4 py-3">
@@ -410,20 +412,24 @@ export default function EmployeeIndex() {
                                                 <Badge
                                                     variant={
                                                         statusVariant[
-                                                            employee.employment_status
+                                                            employee
+                                                                .employment_status
                                                         ] ?? 'outline'
                                                     }
                                                 >
                                                     {statusLabel[
-                                                        employee.employment_status
-                                                    ] ?? employee.employment_status}
+                                                        employee
+                                                            .employment_status
+                                                    ] ??
+                                                        employee.employment_status}
                                                 </Badge>
                                             </td>
                                             <td className="px-4 py-3">
                                                 <span className="text-sm">
                                                     {employmentTypeLabel[
                                                         employee.employment_type
-                                                    ] ?? employee.employment_type}
+                                                    ] ??
+                                                        employee.employment_type}
                                                 </span>
                                             </td>
                                             <td className="px-4 py-3 text-sm">
@@ -494,4 +500,3 @@ export default function EmployeeIndex() {
         </AppLayout>
     );
 }
-

@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::index
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:31
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:34
  * @route '/api/v1/employee/attendance/corrections'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,10 +79,10 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-export const show = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+export const show = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
@@ -94,10 +94,10 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-show.url = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+show.url = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { attendanceCorrection: args }
     }
@@ -127,48 +127,48 @@ show.url = (args: { attendanceCorrection: string | number | { id: string | numbe
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-show.get = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+show.get = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
     url: show.url(args, options),
     method: 'get',
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-show.head = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+show.head = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     url: show.url(args, options),
     method: 'head',
 })
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-    const showForm = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+    const showForm = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
         action: show.url(args, options),
         method: 'get',
     })
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-        showForm.get = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.get = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, options),
             method: 'get',
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::show
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:82
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:85
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}'
  */
-        showForm.head = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        showForm.head = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
             action: show.url(args, {
                         [options?.mergeQuery ? 'mergeQuery' : 'query']: {
                             _method: 'HEAD',
@@ -181,7 +181,7 @@ show.head = (args: { attendanceCorrection: string | number | { id: string | numb
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::store
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:99
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:102
  * @route '/api/v1/employee/attendance/corrections'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,7 +196,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::store
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:99
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:102
  * @route '/api/v1/employee/attendance/corrections'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -205,7 +205,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::store
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:99
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:102
  * @route '/api/v1/employee/attendance/corrections'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::store
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:99
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:102
  * @route '/api/v1/employee/attendance/corrections'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::store
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:99
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:102
  * @route '/api/v1/employee/attendance/corrections'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -236,10 +236,10 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::cancel
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:242
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:252
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}/cancel'
  */
-export const cancel = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+export const cancel = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: cancel.url(args, options),
     method: 'post',
 })
@@ -251,10 +251,10 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::cancel
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:242
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:252
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}/cancel'
  */
-cancel.url = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions) => {
+cancel.url = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
     if (typeof args === 'string' || typeof args === 'number') {
         args = { attendanceCorrection: args }
     }
@@ -284,30 +284,30 @@ cancel.url = (args: { attendanceCorrection: string | number | { id: string | num
 
 /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::cancel
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:242
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:252
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}/cancel'
  */
-cancel.post = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
+cancel.post = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     url: cancel.url(args, options),
     method: 'post',
 })
 
     /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::cancel
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:242
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:252
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}/cancel'
  */
-    const cancelForm = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+    const cancelForm = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
         action: cancel.url(args, options),
         method: 'post',
     })
 
             /**
 * @see \App\Http\Controllers\Api\Employee\AttendanceCorrectionController::cancel
- * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:242
+ * @see app/Http/Controllers/Api/Employee/AttendanceCorrectionController.php:252
  * @route '/api/v1/employee/attendance/corrections/{attendanceCorrection}/cancel'
  */
-        cancelForm.post = (args: { attendanceCorrection: string | number | { id: string | number } } | [attendanceCorrection: string | number | { id: string | number } ] | string | number | { id: string | number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
+        cancelForm.post = (args: { attendanceCorrection: number | { id: number } } | [attendanceCorrection: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
             action: cancel.url(args, options),
             method: 'post',
         })

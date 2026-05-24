@@ -24,8 +24,21 @@ class EmployeeDocument extends Model
         'expires_at' => 'date',
     ];
 
+    protected $hidden = [
+        'file_path',
+    ];
+
+    protected $appends = [
+        'has_file',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function getHasFileAttribute(): bool
+    {
+        return (bool) $this->file_path;
     }
 }

@@ -30,7 +30,7 @@ type ContractDetail = {
     base_salary?: number | string | null;
     status: string;
     signed_at?: string | null;
-    file_path?: string | null;
+    has_file?: boolean;
     notes?: string | null;
 };
 
@@ -208,7 +208,9 @@ export default function ContractForm() {
                                     <SelectValue placeholder="Pilih status" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="active">Aktif</SelectItem>
+                                    <SelectItem value="active">
+                                        Aktif
+                                    </SelectItem>
                                     <SelectItem value="expired">
                                         Kadaluarsa
                                     </SelectItem>
@@ -253,9 +255,9 @@ export default function ContractForm() {
                                 }
                             />
                             <InputError message={errors.file} />
-                            {contract?.file_path && (
+                            {contract?.has_file && (
                                 <a
-                                    href={`/storage/${contract.file_path}`}
+                                    href={`/secure-files/contracts/${contract.id}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-xs text-primary hover:underline"

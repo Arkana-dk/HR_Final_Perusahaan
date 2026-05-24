@@ -10,6 +10,11 @@ use Illuminate\Support\Collection;
 
 class NotificationService
 {
+    public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
+    ) {
+    }
+
     /**
      * @param  int[]  $userIds
      * @return Collection<int, SystemNotification>
@@ -66,15 +71,20 @@ class NotificationService
             $userIds[] = (int) $employee->manager->user_id;
         }
 
-        $roleUserIds = User::query()
+        $roleUsers = User::query()
             ->where(function ($query) use ($additionalRoles) {
                 $query->whereIn('role', $additionalRoles)
                     ->orWhereHas('roles', fn ($roleQuery) => $roleQuery->whereIn('slug', $additionalRoles));
             })
-            ->pluck('id')
-            ->all();
+            ->get();
 
-        return $this->notifyUsers([...$userIds, ...$roleUserIds], $payload);
+        foreach ($roleUsers as $roleUser) {
+            if ($this->scopeAuthorizationService->canAccessEmployee($roleUser, $employee)) {
+                $userIds[] = (int) $roleUser->id;
+            }
+        }
+
+        return $this->notifyUsers($userIds, $payload);
     }
 
     public function unreadCountForUser(int $userId): int

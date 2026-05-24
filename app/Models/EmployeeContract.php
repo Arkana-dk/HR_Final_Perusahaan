@@ -28,8 +28,21 @@ class EmployeeContract extends Model
         'base_salary' => 'decimal:2',
     ];
 
+    protected $hidden = [
+        'file_path',
+    ];
+
+    protected $appends = [
+        'has_file',
+    ];
+
     public function employee()
     {
         return $this->belongsTo(Employee::class);
+    }
+
+    public function getHasFileAttribute(): bool
+    {
+        return (bool) $this->file_path;
     }
 }

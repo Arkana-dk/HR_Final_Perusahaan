@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition, applyUrlDefaults } from './../../../../../../wayfinder'
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
 export const index = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ index.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
 index.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ index.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
 index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ index.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
 index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
     const indexForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
         indexForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::index
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:28
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:32
  * @route '/api/v1/employee/overtime/requests'
  */
         indexForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ index.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     index.form = indexForm
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
 export const show = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ show.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
 show.url = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -127,7 +127,7 @@ show.url = (args: { overtimeRequest: number | { id: number } } | [overtimeReques
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
 show.get = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -136,7 +136,7 @@ show.get = (args: { overtimeRequest: number | { id: number } } | [overtimeReques
 })
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
 show.head = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -146,7 +146,7 @@ show.head = (args: { overtimeRequest: number | { id: number } } | [overtimeReque
 
     /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
     const showForm = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -156,7 +156,7 @@ show.head = (args: { overtimeRequest: number | { id: number } } | [overtimeReque
 
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
         showForm.get = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -165,7 +165,7 @@ show.head = (args: { overtimeRequest: number | { id: number } } | [overtimeReque
         })
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::show
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:74
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:78
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}'
  */
         showForm.head = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -181,7 +181,7 @@ show.head = (args: { overtimeRequest: number | { id: number } } | [overtimeReque
     show.form = showForm
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::store
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:86
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:90
  * @route '/api/v1/employee/overtime/requests'
  */
 export const store = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -196,7 +196,7 @@ store.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::store
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:86
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:90
  * @route '/api/v1/employee/overtime/requests'
  */
 store.url = (options?: RouteQueryOptions) => {
@@ -205,7 +205,7 @@ store.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::store
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:86
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:90
  * @route '/api/v1/employee/overtime/requests'
  */
 store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -215,7 +215,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::store
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:86
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:90
  * @route '/api/v1/employee/overtime/requests'
  */
     const storeForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -225,7 +225,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::store
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:86
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:90
  * @route '/api/v1/employee/overtime/requests'
  */
         storeForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -236,7 +236,7 @@ store.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
     store.form = storeForm
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::cancel
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:153
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:235
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}/cancel'
  */
 export const cancel = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -251,7 +251,7 @@ cancel.definition = {
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::cancel
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:153
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:235
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}/cancel'
  */
 cancel.url = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
@@ -284,7 +284,7 @@ cancel.url = (args: { overtimeRequest: number | { id: number } } | [overtimeRequ
 
 /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::cancel
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:153
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:235
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}/cancel'
  */
 cancel.post = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -294,7 +294,7 @@ cancel.post = (args: { overtimeRequest: number | { id: number } } | [overtimeReq
 
     /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::cancel
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:153
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:235
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}/cancel'
  */
     const cancelForm = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -304,7 +304,7 @@ cancel.post = (args: { overtimeRequest: number | { id: number } } | [overtimeReq
 
             /**
 * @see \App\Http\Controllers\Api\Employee\OvertimeController::cancel
- * @see app/Http/Controllers/Api/Employee/OvertimeController.php:153
+ * @see app/Http/Controllers/Api/Employee/OvertimeController.php:235
  * @route '/api/v1/employee/overtime/requests/{overtimeRequest}/cancel'
  */
         cancelForm.post = (args: { overtimeRequest: number | { id: number } } | [overtimeRequest: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({

@@ -1,4 +1,4 @@
-import type { UserRole} from '@/types/role';
+import type { UserRole } from '@/types/role';
 import { rolePermissions } from '@/types/role';
 
 export function hasPermission(

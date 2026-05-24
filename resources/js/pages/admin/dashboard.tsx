@@ -128,9 +128,7 @@ export default function AdminDashboard() {
                                 <Badge variant="secondary">
                                     HR Operasional Hari Ini
                                 </Badge>
-                                <Badge variant="outline">
-                                    Update 09:42
-                                </Badge>
+                                <Badge variant="outline">Update 09:42</Badge>
                             </div>
                             <h1 className="text-2xl font-semibold tracking-tight">
                                 Admin Dashboard
@@ -141,7 +139,10 @@ export default function AdminDashboard() {
                             </p>
                         </div>
                         <div className="flex flex-wrap gap-2">
-                            <EmployeeQuickDialog role="admin" data={employeeQuick} />
+                            <EmployeeQuickDialog
+                                role="admin"
+                                data={employeeQuick}
+                            />
                             <Button variant="outline" asChild>
                                 <Link href="/modules/attendance">
                                     Import Absensi
@@ -253,7 +254,8 @@ export default function AdminDashboard() {
                                                 key={`${entry.type}-${index}`}
                                                 fill={
                                                     chartColors[
-                                                        index % chartColors.length
+                                                        index %
+                                                            chartColors.length
                                                     ]
                                                 }
                                             />

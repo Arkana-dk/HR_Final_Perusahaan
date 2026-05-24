@@ -11,11 +11,12 @@ use App\Models\LeaveBalance;
 use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class LeaveController extends Controller
@@ -24,6 +25,8 @@ class LeaveController extends Controller
     use ResolvesEmployee;
 
     public function __construct(
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -129,7 +132,11 @@ class LeaveController extends Controller
 
     public function store(Request $request)
     {
-        $employee = $this->resolveEmployee($request);
+        $employee = $this->resolveEmployee($request, true);
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat mengajukan cuti baru.',
+        );
 
         $data = $request->validate([
             'leave_type_id' => ['required', 'exists:leave_types,id'],
@@ -193,7 +200,10 @@ class LeaveController extends Controller
 
         $path = null;
         if ($request->hasFile('attachment')) {
-            $path = $request->file('attachment')->store('leave-requests', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $request->file('attachment'),
+                'leave-requests/'.$employee->id,
+            );
         }
 
         $user = $request->user();
@@ -355,9 +365,9 @@ class LeaveController extends Controller
             'approved_at' => optional($leaveRequest->approved_at)?->toDateTimeString(),
             'approved_by' => $leaveRequest->approvedBy?->name,
             'approval_notes' => $leaveRequest->approval_notes,
-            'attachment_path' => $leaveRequest->attachment_path,
+            'has_attachment' => (bool) $leaveRequest->attachment_path,
             'attachment_url' => $leaveRequest->attachment_path
-                ? Storage::disk('public')->url($leaveRequest->attachment_path)
+                ? url('/api/v1/secure-files/leave-attachments/'.$leaveRequest->id)
                 : null,
             'approval' => $leaveRequest->approval
                 ? [

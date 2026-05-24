@@ -10,6 +10,7 @@ use App\Models\LeaveRequest;
 use App\Models\LeaveType;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -18,6 +19,7 @@ use Inertia\Inertia;
 class LeaveRequestController extends Controller
 {
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -38,6 +40,7 @@ class LeaveRequestController extends Controller
             'approvedBy:id,name',
             'approval.steps.approver:id,name',
         ]);
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -76,11 +79,14 @@ class LeaveRequestController extends Controller
             $this->ensureApprovalFlow($leaveRequest);
         });
 
+        $statsQuery = LeaveRequest::query();
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $statsQuery);
+
         $stats = [
-            'total' => LeaveRequest::count(),
-            'pending' => LeaveRequest::where('status', 'pending')->count(),
-            'approved' => LeaveRequest::where('status', 'approved')->count(),
-            'rejected' => LeaveRequest::where('status', 'rejected')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'pending' => (clone $statsQuery)->where('status', 'pending')->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'rejected' => (clone $statsQuery)->where('status', 'rejected')->count(),
         ];
 
         $leaveTypes = LeaveType::orderBy('name')
@@ -101,6 +107,7 @@ class LeaveRequestController extends Controller
 
     public function approve(Request $request, LeaveRequest $leaveRequest)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $leaveRequest);
         $role = $this->resolveRole($request->user());
         $approverUserId = (int) $request->user()->id;
         $before = $leaveRequest->toArray();
@@ -185,11 +192,16 @@ class LeaveRequestController extends Controller
 
     public function reject(Request $request, LeaveRequest $leaveRequest)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $leaveRequest);
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+        ]);
+
         $role = $this->resolveRole($request->user());
         $approverUserId = (int) $request->user()->id;
         $before = $leaveRequest->toArray();
 
-        DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId) {
+        DB::transaction(function () use ($leaveRequest, $request, $role, $approverUserId, $data) {
             $approval = $this->ensureApprovalFlow($leaveRequest);
 
             if (in_array($approval->status, ['approved', 'rejected', 'cancelled'], true)) {
@@ -202,7 +214,7 @@ class LeaveRequestController extends Controller
             $this->assertNotSelfApproval($approverUserId, $leaveRequest, $approval);
             $this->assertUniqueApproverByStep($approval, $currentStep, $approverUserId);
 
-            $notes = $request->string('notes')->toString();
+            $notes = trim((string) $data['notes']);
 
             $step = $approval->steps()->where('step', $currentStep)->first();
             if ($step) {

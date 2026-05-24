@@ -18,7 +18,8 @@ const moduleCatalog: Record<
 > = {
     employees: {
         title: 'Employee Master',
-        summary: 'Pusat data karyawan lengkap dengan profil, kontrak, dan riwayat.',
+        summary:
+            'Pusat data karyawan lengkap dengan profil, kontrak, dan riwayat.',
         highlights: [
             'Profil 360° (identitas, kontak, keluarga, dokumen).',
             'Status kerja, kontrak, dan histori jabatan.',
@@ -85,12 +86,11 @@ export default function ModulePlaceholder() {
     const summary =
         moduleData?.summary ??
         'Modul ini sedang disiapkan untuk mendukung kebutuhan HR yang lebih kompleks.';
-    const highlights =
-        moduleData?.highlights ?? [
-            'Fitur inti & workflow approval.',
-            'Dashboard dan laporan khusus modul.',
-            'Integrasi dengan data HR master.',
-        ];
+    const highlights = moduleData?.highlights ?? [
+        'Fitur inti & workflow approval.',
+        'Dashboard dan laporan khusus modul.',
+        'Integrasi dengan data HR master.',
+    ];
 
     return (
         <AppLayout>

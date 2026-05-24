@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Models\AttendancePhoto;
 use App\Models\Employee;
-use App\Models\WorkLocation;
-use App\Models\WorkSchedule;
+use App\Models\LeaveRequest;
+use App\Services\AttendanceService;
 use App\Services\AuditLogService;
+use App\Services\EmployeeStatusService;
+use App\Services\FileStorageService;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -19,6 +21,9 @@ use Inertia\Inertia;
 class AttendanceController extends Controller
 {
     public function __construct(
+        private readonly AttendanceService $attendanceService,
+        private readonly EmployeeStatusService $employeeStatusService,
+        private readonly FileStorageService $fileStorageService,
         private readonly AuditLogService $auditLogService,
         private readonly NotificationService $notificationService,
     ) {
@@ -31,16 +36,8 @@ class AttendanceController extends Controller
             ->firstOrFail();
 
         $today = Carbon::today();
-        $schedule = WorkSchedule::with(['shift', 'workLocation'])
-            ->where('employee_id', $employee->id)
-            ->whereDate('work_date', $today)
-            ->first();
-
-        $workLocation = $schedule?->workLocation
-            ?? WorkLocation::where('company_id', $employee->company_id)
-                ->where('is_active', true)
-                ->orderBy('id')
-                ->first();
+        $schedule = $this->attendanceService->resolveTodaySchedule($employee, $today);
+        $workLocation = $this->attendanceService->resolveWorkLocation($employee, $schedule);
 
         $openLog = AttendanceLog::with(['shift', 'workLocation', 'photos'])
             ->where('employee_id', $employee->id)
@@ -54,6 +51,12 @@ class AttendanceController extends Controller
             ->whereDate('work_date', $today)
             ->first();
         $log = $openLog ?? $todayLog;
+        $hasApprovedLeaveToday = LeaveRequest::query()
+            ->where('employee_id', $employee->id)
+            ->where('status', 'approved')
+            ->whereDate('start_date', '<=', $today->toDateString())
+            ->whereDate('end_date', '>=', $today->toDateString())
+            ->exists();
 
         return Inertia::render('employee/attendance/index', [
             'employee' => [
@@ -95,11 +98,12 @@ class AttendanceController extends Controller
                     'photos' => $log->photos->map(fn ($photo) => [
                         'id' => $photo->id,
                         'type' => $photo->type,
-                        'file_path' => $photo->file_path,
+                        'url' => route('secure-files.attendance-photos.show', $photo),
                     ]),
                 ]
                 : null,
-            'canCheckIn' => !$openLog && (!$todayLog || !$todayLog->check_in_at),
+            'hasApprovedLeave' => $hasApprovedLeaveToday,
+            'canCheckIn' => !$hasApprovedLeaveToday && !$openLog && (!$todayLog || !$todayLog->check_in_at),
             'canCheckOut' => $log && $log->check_in_at && !$log->check_out_at,
             'serverTime' => Carbon::now()->format('d M Y H:i'),
         ]);
@@ -108,6 +112,10 @@ class AttendanceController extends Controller
     public function checkIn(Request $request)
     {
         $employee = Employee::where('user_id', $request->user()->id)->firstOrFail();
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat melakukan presensi.',
+        );
 
         $data = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -117,31 +125,32 @@ class AttendanceController extends Controller
         ]);
 
         $today = Carbon::today();
-        $schedule = WorkSchedule::with(['shift', 'workLocation'])
-            ->where('employee_id', $employee->id)
-            ->whereDate('work_date', $today)
-            ->first();
-        $this->assertScheduleCanCheckIn($schedule);
+        try {
+            $this->attendanceService->assertNoApprovedLeave($employee, $today);
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
+        }
 
-        $workLocation = $schedule?->workLocation
-            ?? WorkLocation::where('company_id', $employee->company_id)
-                ->where('is_active', true)
-                ->orderBy('id')
-                ->first();
+        $schedule = $this->attendanceService->resolveTodaySchedule($employee, $today);
+
+        try {
+            $this->attendanceService->assertScheduleAvailableForAttendance($schedule);
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
+        }
+
+        $workLocation = $this->attendanceService->resolveWorkLocation($employee, $schedule);
 
         $shift = $schedule?->shift;
-        if (!$shift) {
+        try {
+            $this->attendanceService->assertShiftAvailable($shift);
+        } catch (ValidationException $exception) {
             return back()->withErrors([
-                'photo' => 'Shift kerja hari ini belum diatur. Hubungi HR/admin.',
+                ...$exception->errors(),
             ]);
         }
 
-        $openLog = AttendanceLog::query()
-            ->where('employee_id', $employee->id)
-            ->whereNotNull('check_in_at')
-            ->whereNull('check_out_at')
-            ->orderByDesc('check_in_at')
-            ->first();
+        $openLog = $this->attendanceService->resolveOpenAttendanceLog($employee);
 
         if ($openLog) {
             return back()->withErrors([
@@ -166,18 +175,14 @@ class AttendanceController extends Controller
         $status = 'present';
 
         if ($shift) {
-            $shiftStart = Carbon::parse($today->toDateString().' '.$shift->start_time);
-            $grace = $shift->grace_minutes ?? 0;
-
-            if ($shift->check_in_cutoff_time) {
-                $cutoffAt = Carbon::parse($today->toDateString().' '.$shift->check_in_cutoff_time);
-                if ($checkInAt->gt($cutoffAt)) {
-                    return back()->withErrors([
-                        'photo' => 'Batas absen masuk sudah terlewati.',
-                    ]);
-                }
+            try {
+                $this->attendanceService->assertCheckInWindow($checkInAt, $today, $shift);
+            } catch (ValidationException $exception) {
+                return back()->withErrors($exception->errors());
             }
 
+            $shiftStart = Carbon::parse($today->toDateString().' '.$shift->start_time);
+            $grace = $shift->grace_minutes ?? 0;
             if ($checkInAt->gt($shiftStart->copy()->addMinutes($grace))) {
                 $status = 'late';
                 $lateMinutes = $shiftStart->diffInMinutes($checkInAt);
@@ -186,7 +191,7 @@ class AttendanceController extends Controller
 
         $distance = null;
         if ($workLocation && $workLocation->latitude && $workLocation->longitude) {
-            $distance = $this->distanceMeters(
+            $distance = $this->attendanceService->calculateDistanceMeters(
                 $data['latitude'],
                 $data['longitude'],
                 $workLocation->latitude,
@@ -194,10 +199,14 @@ class AttendanceController extends Controller
             );
 
             try {
-                $this->assertInsideGeofence($distance, $workLocation->radius_meters);
+                $this->attendanceService->assertInsideGeofence($workLocation, $distance);
             } catch (ValidationException $exception) {
                 return back()->withErrors($exception->errors());
             }
+        } elseif (config('hr.attendance.enforce_geofence', true)) {
+            return back()->withErrors([
+                'photo' => 'Lokasi kerja untuk presensi belum dikonfigurasi.',
+            ]);
         }
 
         DB::transaction(function () use (
@@ -227,7 +236,10 @@ class AttendanceController extends Controller
             ]);
             $log->save();
 
-            $path = $data['photo']->store('attendance', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $data['photo'],
+                'attendance/'.$log->employee_id,
+            );
 
             AttendancePhoto::create([
                 'attendance_log_id' => $log->id,
@@ -280,6 +292,10 @@ class AttendanceController extends Controller
     public function checkOut(Request $request)
     {
         $employee = Employee::where('user_id', $request->user()->id)->firstOrFail();
+        $this->employeeStatusService->assertOperationallyActive(
+            $employee,
+            'Karyawan resign/terminated/inactive tidak dapat melakukan presensi.',
+        );
 
         $data = $request->validate([
             'latitude' => ['required', 'numeric', 'between:-90,90'],
@@ -289,12 +305,7 @@ class AttendanceController extends Controller
             'device_id' => ['nullable', 'string', 'max:191'],
         ]);
 
-        $log = AttendanceLog::with('shift', 'workLocation')
-            ->where('employee_id', $employee->id)
-            ->whereNotNull('check_in_at')
-            ->whereNull('check_out_at')
-            ->orderByDesc('check_in_at')
-            ->first();
+        $log = $this->attendanceService->resolveOpenAttendanceLog($employee)?->loadMissing('shift', 'workLocation');
 
         if (!$log || !$log->check_in_at) {
             return back()->withErrors([
@@ -321,7 +332,7 @@ class AttendanceController extends Controller
 
         $distance = null;
         if ($workLocation && $workLocation->latitude && $workLocation->longitude) {
-            $distance = $this->distanceMeters(
+            $distance = $this->attendanceService->calculateDistanceMeters(
                 $data['latitude'],
                 $data['longitude'],
                 $workLocation->latitude,
@@ -329,52 +340,29 @@ class AttendanceController extends Controller
             );
 
             try {
-                $this->assertInsideGeofence($distance, $workLocation->radius_meters);
+                $this->attendanceService->assertInsideGeofence($workLocation, $distance);
             } catch (ValidationException $exception) {
                 return back()->withErrors($exception->errors());
             }
+        } elseif (config('hr.attendance.enforce_geofence', true)) {
+            return back()->withErrors([
+                'photo' => 'Lokasi kerja untuk presensi belum dikonfigurasi.',
+            ]);
         }
 
-        $overtimeMinutes = 0;
-        $isEarlyLeave = false;
-        $earlyLeaveReason = isset($data['early_leave_reason']) ? trim((string) $data['early_leave_reason']) : '';
-
-        if ($shift) {
-            $workDate = Carbon::parse($log->work_date)->toDateString();
-            $shiftStart = Carbon::parse($workDate.' '.$shift->start_time);
-            $shiftEnd = Carbon::parse($workDate.' '.$shift->end_time);
-
-            if ($shift->is_overnight && $shiftEnd->lessThanOrEqualTo($shiftStart)) {
-                $shiftEnd->addDay();
-            }
-
-            if ($shift->check_out_cutoff_time) {
-                $cutoffAt = Carbon::parse($workDate.' '.$shift->check_out_cutoff_time);
-                if ($shift->is_overnight && $cutoffAt->lessThanOrEqualTo($shiftStart)) {
-                    $cutoffAt->addDay();
-                }
-
-                if ($checkOutAt->gt($cutoffAt)) {
-                    return back()->withErrors([
-                        'photo' => 'Batas absen pulang sudah terlewati.',
-                    ]);
-                }
-            }
-
-            if ($checkOutAt->lt($shiftEnd)) {
-                if ($earlyLeaveReason === '') {
-                    return back()->withErrors([
-                        'early_leave_reason' => 'Pulang sebelum jadwal wajib isi alasan.',
-                    ]);
-                }
-
-                $isEarlyLeave = true;
-            }
-
-            if ($checkOutAt->gt($shiftEnd)) {
-                $overtimeMinutes = $shiftEnd->diffInMinutes($checkOutAt);
-            }
+        try {
+            $evaluation = $this->attendanceService->checkOutEvaluation(
+                $log,
+                $checkOutAt,
+                $data['early_leave_reason'] ?? null,
+            );
+        } catch (ValidationException $exception) {
+            return back()->withErrors($exception->errors());
         }
+
+        $isEarlyLeave = (bool) $evaluation['is_early_leave'];
+        $overtimeMinutes = (int) $evaluation['overtime_minutes'];
+        $earlyLeaveReason = $evaluation['early_leave_reason'];
 
         DB::transaction(function () use (
             $log,
@@ -388,7 +376,7 @@ class AttendanceController extends Controller
             $request,
         ) {
             $notes = $log->notes;
-            if ($isEarlyLeave && $earlyLeaveReason !== '') {
+            if ($isEarlyLeave && $earlyLeaveReason) {
                 $notes = trim(($notes ? $notes."\n\n" : '').'Early leave reason: '.$earlyLeaveReason);
             }
 
@@ -402,12 +390,15 @@ class AttendanceController extends Controller
                 'check_out_ip' => $request->ip(),
                 'overtime_minutes' => $overtimeMinutes,
                 'is_early_leave' => $isEarlyLeave,
-                'early_leave_reason' => $isEarlyLeave ? $earlyLeaveReason : null,
+                'early_leave_reason' => $earlyLeaveReason,
                 'approval_status' => $isEarlyLeave ? 'pending' : $log->approval_status,
                 'notes' => $notes,
             ]);
 
-            $path = $data['photo']->store('attendance', 'public');
+            $path = $this->fileStorageService->storePrivate(
+                $data['photo'],
+                'attendance/'.$log->employee_id,
+            );
 
             AttendancePhoto::create([
                 'attendance_log_id' => $log->id,
@@ -450,44 +441,12 @@ class AttendanceController extends Controller
                     '%s mengajukan pulang cepat pada %s: %s',
                     $request->user()->name,
                     Carbon::parse($log->work_date)->format('Y-m-d'),
-                    $earlyLeaveReason,
+                    $earlyLeaveReason ?? '-',
                 ),
             ]);
         }
 
         return back()->with('success', 'Check-out berhasil.');
-    }
-
-    private function assertScheduleCanCheckIn(?WorkSchedule $schedule): void
-    {
-        if (!$schedule) {
-            throw ValidationException::withMessages([
-                'photo' => 'Jadwal kerja hari ini belum tersedia.',
-            ]);
-        }
-
-        if ($schedule->status === 'off') {
-            throw ValidationException::withMessages([
-                'photo' => 'Hari ini dijadwalkan OFF. Presensi tidak tersedia.',
-            ]);
-        }
-
-        if ($schedule->status === 'holiday') {
-            throw ValidationException::withMessages([
-                'photo' => 'Hari ini hari libur. Presensi tidak tersedia.',
-            ]);
-        }
-    }
-
-    private function assertInsideGeofence(int $distance, ?int $radius): void
-    {
-        $limit = (int) ($radius ?? 0);
-
-        if ($limit > 0 && $distance > $limit) {
-            throw ValidationException::withMessages([
-                'latitude' => "Lokasi di luar radius kantor ({$distance}m dari batas {$limit}m).",
-            ]);
-        }
     }
 
     private function resolveDeviceId(Request $request, array $data): ?string
@@ -515,19 +474,5 @@ class AttendanceController extends Controller
             'before_data' => $before,
             'after_data' => $after,
         ]);
-    }
-
-    private function distanceMeters(float $lat1, float $lon1, float $lat2, float $lon2): int
-    {
-        $earthRadius = 6371000;
-        $latDelta = deg2rad($lat2 - $lat1);
-        $lonDelta = deg2rad($lon2 - $lon1);
-
-        $a = sin($latDelta / 2) ** 2
-            + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
-            * sin($lonDelta / 2) ** 2;
-        $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
-
-        return (int) round($earthRadius * $c);
     }
 }

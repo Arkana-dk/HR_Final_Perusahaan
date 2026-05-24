@@ -16,6 +16,7 @@ use App\Models\ReimburseRequest;
 use App\Models\WorkSchedule;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
@@ -26,6 +27,7 @@ class ApprovalController extends Controller
     use ApiResponse;
 
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -101,6 +103,10 @@ class ApprovalController extends Controller
 
     public function reject(Request $request, string $type, int $id)
     {
+        $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+        ]);
+
         return match ($type) {
             'leave' => $this->rejectLeave($request, $id),
             'overtime' => $this->rejectOvertime($request, $id),
@@ -1120,21 +1126,29 @@ class ApprovalController extends Controller
 
     private function canApproveByEmployee($user, ?Employee $employee): bool
     {
-        if (!$employee) {
+        if (!$employee || !$user) {
             return false;
         }
 
-        if ($user->hasRole('superadmin') || $user->hasRole('admin')) {
+        if (!$this->scopeAuthorizationService->canAccessEmployee($user, $employee)) {
+            return false;
+        }
+
+        if ($user->hasRole('superadmin')) {
             return true;
         }
 
-        if (!$user->hasRole('manager')) {
-            return false;
+        if ($user->hasRole('admin')) {
+            return true;
         }
 
-        $employee->loadMissing('manager.user:id');
+        if ($user->hasRole('manager')) {
+            $employee->loadMissing('manager.user:id');
 
-        return (int) ($employee->manager?->user_id ?? 0) === (int) $user->id;
+            return (int) ($employee->manager?->user_id ?? 0) === (int) $user->id;
+        }
+
+        return false;
     }
 
     private function canApproveLeave($user, LeaveRequest $leaveRequest): bool
@@ -1388,4 +1402,3 @@ class ApprovalController extends Controller
         $balance->save();
     }
 }
-

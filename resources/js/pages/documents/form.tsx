@@ -28,7 +28,7 @@ type DocumentDetail = {
     number?: string | null;
     issued_at?: string | null;
     expires_at?: string | null;
-    file_path?: string | null;
+    has_file?: boolean;
     notes?: string | null;
 };
 
@@ -188,9 +188,9 @@ export default function DocumentForm() {
                                 }
                             />
                             <InputError message={errors.file} />
-                            {document?.file_path && (
+                            {document?.has_file && (
                                 <a
-                                    href={`/storage/${document.file_path}`}
+                                    href={`/secure-files/documents/${document.id}`}
                                     target="_blank"
                                     rel="noreferrer"
                                     className="text-xs text-primary hover:underline"

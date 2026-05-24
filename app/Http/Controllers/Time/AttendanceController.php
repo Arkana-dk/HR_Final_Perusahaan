@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\AttendanceLog;
 use App\Services\AuditLogService;
 use App\Services\NotificationService;
+use App\Services\ScopeAuthorizationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
@@ -13,6 +14,7 @@ use Inertia\Inertia;
 class AttendanceController extends Controller
 {
     public function __construct(
+        private readonly ScopeAuthorizationService $scopeAuthorizationService,
         private readonly NotificationService $notificationService,
         private readonly AuditLogService $auditLogService,
     ) {
@@ -33,6 +35,7 @@ class AttendanceController extends Controller
             'workLocation:id,name',
             'photos:id,attendance_log_id,type,file_path',
         ]);
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $query);
 
         if ($filters['search'] !== '') {
             $search = $filters['search'];
@@ -65,11 +68,14 @@ class AttendanceController extends Controller
             ->paginate(12)
             ->withQueryString();
 
+        $statsQuery = AttendanceLog::query();
+        $this->scopeAuthorizationService->scopeEmployeeQuery($request->user(), $statsQuery);
+
         $stats = [
-            'total' => AttendanceLog::count(),
-            'late' => AttendanceLog::where('status', 'late')->count(),
-            'pending' => AttendanceLog::where('approval_status', 'pending')->count(),
-            'approved' => AttendanceLog::where('approval_status', 'approved')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'late' => (clone $statsQuery)->where('status', 'late')->count(),
+            'pending' => (clone $statsQuery)->where('approval_status', 'pending')->count(),
+            'approved' => (clone $statsQuery)->where('approval_status', 'approved')->count(),
         ];
 
         return Inertia::render('attendance/index', [
@@ -81,6 +87,7 @@ class AttendanceController extends Controller
 
     public function approve(Request $request, AttendanceLog $attendance)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $attendance);
         $before = $attendance->toArray();
         DB::transaction(function () use ($attendance, $request) {
             if ($attendance->approval_status !== 'pending') {
@@ -128,8 +135,13 @@ class AttendanceController extends Controller
 
     public function reject(Request $request, AttendanceLog $attendance)
     {
+        $this->scopeAuthorizationService->assertCanAccessModel($request->user(), $attendance);
+        $data = $request->validate([
+            'notes' => ['required', 'string', 'max:500'],
+        ]);
+
         $before = $attendance->toArray();
-        DB::transaction(function () use ($attendance, $request) {
+        DB::transaction(function () use ($attendance, $request, $data) {
             if ($attendance->approval_status !== 'pending') {
                 return;
             }
@@ -143,7 +155,7 @@ class AttendanceController extends Controller
                 'approval_status' => 'rejected',
                 'approved_by_user_id' => $request->user()->id,
                 'approved_at' => now(),
-                'notes' => $request->string('notes')->toString() ?: $attendance->notes,
+                'notes' => trim((string) $data['notes']),
             ]);
         });
 

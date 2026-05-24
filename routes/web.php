@@ -19,6 +19,7 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\Payroll\PayslipController;
 use App\Http\Controllers\Time\AttendanceController;
 use App\Http\Controllers\Time\OvertimeController;
+use App\Http\Controllers\Files\SecureFileController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -521,11 +522,25 @@ Route::middleware(['auth'])->prefix('notifications')->group(function () {
         ->name('notifications.read-all');
 });
 
+Route::middleware(['auth'])->prefix('secure-files')->group(function () {
+    Route::get('attendance-photos/{photo}', [SecureFileController::class, 'attendancePhoto'])
+        ->name('secure-files.attendance-photos.show');
+    Route::get('documents/{document}', [SecureFileController::class, 'employeeDocument'])
+        ->name('secure-files.documents.show');
+    Route::get('contracts/{contract}', [SecureFileController::class, 'employeeContract'])
+        ->name('secure-files.contracts.show');
+    Route::get('leave-attachments/{leaveRequest}', [SecureFileController::class, 'leaveAttachment'])
+        ->name('secure-files.leave-attachments.show');
+    Route::get('reimburse-attachments/{reimburseRequest}', [SecureFileController::class, 'reimburseAttachment'])
+        ->name('secure-files.reimburse-attachments.show');
+    Route::get('attendance-correction-attachments/{attendanceCorrection}', [SecureFileController::class, 'attendanceCorrectionAttachment'])
+        ->name('secure-files.attendance-correction-attachments.show');
+});
+
 Route::get('modules/{slug}', [ModuleController::class, 'show'])
     ->middleware(['auth', 'role:manager,admin,superadmin'])
     ->name('modules.show');
 
 require __DIR__.'/roles.php';
 require __DIR__.'/settings.php';
-
 

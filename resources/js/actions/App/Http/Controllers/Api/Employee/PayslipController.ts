@@ -257,6 +257,108 @@ show.head = (args: { payslip: number | { id: number } } | [payslip: number | { i
         })
     
     show.form = showForm
-const PayslipController = { index, latest, show }
+/**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+export const download = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: download.url(args, options),
+    method: 'get',
+})
+
+download.definition = {
+    methods: ["get","head"],
+    url: '/api/v1/employee/payslips/{payslip}/download',
+} satisfies RouteDefinition<["get","head"]>
+
+/**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+download.url = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions) => {
+    if (typeof args === 'string' || typeof args === 'number') {
+        args = { payslip: args }
+    }
+
+            if (typeof args === 'object' && !Array.isArray(args) && 'id' in args) {
+            args = { payslip: args.id }
+        }
+    
+    if (Array.isArray(args)) {
+        args = {
+                    payslip: args[0],
+                }
+    }
+
+    args = applyUrlDefaults(args)
+
+    const parsedArgs = {
+                        payslip: typeof args.payslip === 'object'
+                ? args.payslip.id
+                : args.payslip,
+                }
+
+    return download.definition.url
+            .replace('{payslip}', parsedArgs.payslip.toString())
+            .replace(/\/+$/, '') + queryParams(options)
+}
+
+/**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+download.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'get'> => ({
+    url: download.url(args, options),
+    method: 'get',
+})
+/**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+download.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteDefinition<'head'> => ({
+    url: download.url(args, options),
+    method: 'head',
+})
+
+    /**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+    const downloadForm = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+        action: download.url(args, options),
+        method: 'get',
+    })
+
+            /**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+        downloadForm.get = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: download.url(args, options),
+            method: 'get',
+        })
+            /**
+* @see \App\Http\Controllers\Api\Employee\PayslipController::download
+ * @see app/Http/Controllers/Api/Employee/PayslipController.php:90
+ * @route '/api/v1/employee/payslips/{payslip}/download'
+ */
+        downloadForm.head = (args: { payslip: number | { id: number } } | [payslip: number | { id: number } ] | number | { id: number }, options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
+            action: download.url(args, {
+                        [options?.mergeQuery ? 'mergeQuery' : 'query']: {
+                            _method: 'HEAD',
+                            ...(options?.query ?? options?.mergeQuery ?? {}),
+                        }
+                    }),
+            method: 'get',
+        })
+    
+    download.form = downloadForm
+const PayslipController = { index, latest, show, download }
 
 export default PayslipController

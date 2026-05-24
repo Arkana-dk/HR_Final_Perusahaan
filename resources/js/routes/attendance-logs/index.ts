@@ -1,7 +1,7 @@
 import { queryParams, type RouteQueryOptions, type RouteDefinition, type RouteFormDefinition } from './../../wayfinder'
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
 export const template = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -16,7 +16,7 @@ template.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
 template.url = (options?: RouteQueryOptions) => {
@@ -25,7 +25,7 @@ template.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
 template.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -34,7 +34,7 @@ template.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
 template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -44,7 +44,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
     const templateForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -54,7 +54,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
         templateForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -63,7 +63,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::template
- * @see app/Http/Controllers/MasterData/MasterDataController.php:266
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:269
  * @route '/modules/attendance/template'
  */
         templateForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -79,7 +79,7 @@ template.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     template.form = templateForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
 export const exportMethod = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -94,7 +94,7 @@ exportMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
 exportMethod.url = (options?: RouteQueryOptions) => {
@@ -103,7 +103,7 @@ exportMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
 exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
@@ -112,7 +112,7 @@ exportMethod.get = (options?: RouteQueryOptions): RouteDefinition<'get'> => ({
 })
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
 exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
@@ -122,7 +122,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
     const exportMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -132,7 +132,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
         exportMethodForm.get = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -141,7 +141,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
         })
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::exportMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:206
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:209
  * @route '/modules/attendance/export'
  */
         exportMethodForm.head = (options?: RouteQueryOptions): RouteFormDefinition<'get'> => ({
@@ -157,7 +157,7 @@ exportMethod.head = (options?: RouteQueryOptions): RouteDefinition<'head'> => ({
     exportMethod.form = exportMethodForm
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:338
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:341
  * @route '/modules/attendance/import'
  */
 export const importMethod = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -172,7 +172,7 @@ importMethod.definition = {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:338
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:341
  * @route '/modules/attendance/import'
  */
 importMethod.url = (options?: RouteQueryOptions) => {
@@ -181,7 +181,7 @@ importMethod.url = (options?: RouteQueryOptions) => {
 
 /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:338
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:341
  * @route '/modules/attendance/import'
  */
 importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
@@ -191,7 +191,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
     /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:338
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:341
  * @route '/modules/attendance/import'
  */
     const importMethodForm = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
@@ -201,7 +201,7 @@ importMethod.post = (options?: RouteQueryOptions): RouteDefinition<'post'> => ({
 
             /**
 * @see \App\Http\Controllers\MasterData\MasterDataController::importMethod
- * @see app/Http/Controllers/MasterData/MasterDataController.php:338
+ * @see app/Http/Controllers/MasterData/MasterDataController.php:341
  * @route '/modules/attendance/import'
  */
         importMethodForm.post = (options?: RouteQueryOptions): RouteFormDefinition<'post'> => ({
